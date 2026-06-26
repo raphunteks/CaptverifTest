@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Kuesioner OHQE - AXA XYZ</title>
+  
+  <!-- FAVICON INTEGRATION -->
+  <link rel="icon" type="image/png" href="axalogo.png">
+  <link rel="apple-touch-icon" href="axalogo.png">
+  <link rel="shortcut icon" href="axalogo.png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Library JStat untuk perhitungan SPSS Engine -->
   <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
@@ -87,31 +93,19 @@
       transform: scale(0.98);
     }
     .radio-group label span.num { font-size: 1.1rem; font-weight: 700; }
-    
-    /* Dedicated Style for 1-10 VAS Scale */
     .vas-group label { min-height: 48px; border-radius: 0.4rem; }
 
-    /* SOLUSI BUG SCROLLING: Menggunakan display: none untuk Step */
-    .step-content {
-      display: none;
-      animation: fadeInStep 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      width: 100%;
-    }
-    .step-content.active {
-      display: block;
-    }
-    @keyframes fadeInStep {
-      from { opacity: 0; transform: translateX(15px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+    /* SOLUSI BUG SCROLLING */
+    .step-content { display: none; animation: fadeInStep 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; width: 100%; }
+    .step-content.active { display: block; }
+    @keyframes fadeInStep { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
 
     /* Input Styling Premium */
-    input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select {
+    input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select, textarea {
       background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white;
-      transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
-      appearance: none;
+      transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset; appearance: none;
     }
-    input:focus, select:focus { 
+    input:focus, select:focus, textarea:focus { 
       outline: none; border-color: var(--neon-green); 
       box-shadow: 0 0 0 1px var(--neon-green) inset, 0 0 10px rgba(57,255,20,0.1); 
     }
@@ -122,7 +116,7 @@
     }
     select option { background-color: var(--bg-dark); color: white; }
 
-    /* SPSS Table Styling Update (Termasuk export PDF support) */
+    /* SPSS Table Styling Update */
     .spss-wrapper { background: white; color: black; padding: 30px; border-radius: 8px; margin-bottom: 20px;}
     .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
     .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;}
@@ -152,7 +146,6 @@
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: rgba(57, 255, 20, 0.3); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
-
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
@@ -162,6 +155,7 @@
   <div id="loader">
     <div class="spinner mb-5"></div>
     <p class="text-neon text-sm font-bold tracking-[0.2em] animate-pulse">AXA XYZ SYSTEM INIT</p>
+    <p class="text-gray-400 text-xs mt-2" id="loader-subtext">Mengambil Database Pertanyaan...</p>
   </div>
 
   <!-- Custom Alert Modal -->
@@ -179,14 +173,15 @@
   <!-- MAIN CONTAINER (RESPONDEN) -->
   <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
     
-    <!-- TOMBOL AKSES ADMIN -->
     <button type="button" onclick="window.location.href='?page=admin'" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 z-20 shadow-sm" title="Masuk ke Dashboard Admin">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
     </button>
 
     <!-- Header & Progress Bar -->
     <div class="mb-8" id="progress-container">
-      <div class="text-center mb-6">
+      <div class="text-center mb-6 flex flex-col items-center">
+        <!-- CUSTOM FAVICON LOGO IMPLEMENTATION -->
+        <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
         <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Kuesioner <span class="text-neon">OHQE</span></h1>
         <p class="text-xs sm:text-sm text-gray-400 mt-1">Klinik Endodontik AXA XYZ</p>
       </div>
@@ -205,7 +200,6 @@
       <!-- STEP 1: BIODATA & VARIABEL SKRIPSI -->
       <div id="step-1" class="step-content active">
         
-        <!-- UI EXCLUSIVE RESEARCHER -->
         <div class="mb-8 p-5 bg-red-900/20 border border-red-500/50 rounded-xl relative overflow-hidden shadow-sm">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
           <h2 class="text-base font-bold text-red-400 mb-2 flex items-center">
@@ -229,7 +223,6 @@
         </h2>
         
         <div class="space-y-5">
-          <!-- Row 1: Nama & No HP -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
@@ -241,7 +234,6 @@
             </div>
           </div>
 
-          <!-- Row 2: Usia & Gender -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
@@ -257,7 +249,6 @@
             </div>
           </div>
 
-          <!-- Row 3: Pekerjaan & Pendidikan -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
@@ -281,7 +272,6 @@
             </div>
           </div>
 
-          <!-- Row 4: Upah/UMR -->
           <div>
             <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
             <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
@@ -291,7 +281,6 @@
             </select>
           </div>
 
-          <!-- UI KHUSUS: VAS Skala Nyeri 1-10 -->
           <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
             <label class="block text-sm sm:text-base font-bold mb-2 text-white">Visual Analogue Scale (VAS)</label>
             <p class="text-xs sm:text-sm text-gray-400 mb-4">Seberapa parah tingkat nyeri gigi yang Anda rasakan? (1 = Sangat Ringan, 10 = Sangat Hebat/Tak Tertahankan)</p>
@@ -309,7 +298,6 @@
               <input type="radio" name="vas_score" id="vas_10" value="10" required><label for="vas_10"><span class="num text-lg">10</span></label>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -377,26 +365,26 @@
     </form>
   </div>
 
-  <!-- ADMIN LOGIN & DASHBOARD DIBAWAH INI -->
+  <!-- ADMIN LOGIN & DASHBOARD -->
   <div id="login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
-    <div class="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4 border border-neon shadow-[0_0_15px_#39ff14]">
-      <svg class="w-8 h-8 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6">
+      <img src="axalogo.png" alt="Logo" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" onerror="this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA'">
     </div>
     <h2 class="text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
-    <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center">
-    <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center">
+    <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl">
+    <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center w-full p-3 rounded-xl">
     <button onclick="processLogin()" class="w-full py-3 btn-neon rounded-xl font-bold mb-4">MASUK</button>
     <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
   </div>
 
   <div id="admin-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
-      <div>
-        <div class="flex items-center gap-3">
-          <div class="w-2 h-2 rounded-full bg-neon animate-pulse shadow-[0_0_8px_#39ff14]"></div>
+      <div class="flex items-center gap-4">
+        <img src="axalogo.png" alt="Logo" class="w-10 h-10 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
+        <div>
           <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1>
+          <p class="text-xs sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p>
         </div>
-        <p class="text-xs sm:text-sm text-gray-400 mt-1 ml-5">Live Dashboard Data Responden OHQE</p>
       </div>
       <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -404,9 +392,11 @@
       </button>
     </div>
 
-    <div class="flex space-x-2 border-b border-gray-700 mb-6">
+    <!-- TAB NAVIGATION -->
+    <div class="flex flex-wrap space-x-2 border-b border-gray-700 mb-6">
       <button onclick="switchTab('tab-data')" id="btn-tab-data" class="px-4 py-2 text-sm font-bold text-neon border-b-2 border-neon">Tabel Data</button>
       <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Analisis SPSS</button>
+      <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
     </div>
 
     <!-- TAB 1: DATA TABLE -->
@@ -429,7 +419,7 @@
       </div>
     </div>
 
-    <!-- TAB 2: SPSS ANALYSIS ENGINE (UPGRADED) -->
+    <!-- TAB 2: SPSS ANALYSIS ENGINE -->
     <div id="tab-spss" class="hidden">
       <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
@@ -449,64 +439,80 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB 3: DYNAMIC QUESTION EDITOR -->
+    <div id="tab-settings" class="hidden">
+      <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-lg mb-6">
+        <h3 class="font-bold text-yellow-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Pertanyaan</h3>
+        <p class="text-xs text-gray-300">Ubah teks pertanyaan kuesioner. <span class="font-bold text-white">Jumlah total pertanyaan telah dikunci (Fisik 19, Psiko 10, Ekspektasi 8)</span> agar tidak merusak rumus analisis Engine SPSS dan Live Table.</p>
+      </div>
+      
+      <div class="space-y-8" id="editor-container"></div>
+      
+      <div class="mt-8 border-t border-gray-700 pt-6 flex justify-end">
+        <button id="btn-save-questions" onclick="saveEditedQuestions()" class="px-8 py-3 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Perubahan ke Database
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <script>
     // =========================================================================
     // 1. KONFIGURASI BACKEND SPREADSHEET (WAJIB DIISI)
     // =========================================================================
-    // Masukkan URL Web App Google Apps Script Anda di dalam tanda kutip ini:
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwGhl3KoCh0tgjGlaqvMhyfXE7TLdg2yVTXUT76fuPN6Wk7aMAde3z3fEVANcRgPyU/exec"; 
 
-
-    // --- 2. DATA QUESTIONS ARRAY ---
-    const qFisik = [
-      "Pernahkah Anda sakit gigi?", "Pernahkah Anda merasakan sakit yang menjalar oleh karena sakit gigi?",
-      "Pernahkah kualitas tidur Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit kepala oleh karena sakit gigi?",
-      "Pernahkah Anda merasakan sakit pada rahang oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit yang hebat pada mulut Anda oleh karena sakit gigi?",
-      "Pernahkah Anda merasakan sakit pada gusi?", "Pernahkah Anda merasa sulit untuk bersantai sejenak oleh karena sakit gigi?",
-      "Pernahkan Anda mengkonsumsi obat untuk meredakan sakit gigi?", "Pernahkah Anda merasakan sakit sampai ke telinga oleh karena sakit gigi?",
-      "Pernahkah Anda kesulitan mengunyah makanan oleh karena sakit gigi?", "Pernahkah Anda merasa kesulitan membuka mulut oleh karena sakit gigi?",
-      "Pernahkan Anda merasa sulit berbaring oleh karena sakit gigi?", "Pernahkah Anda menghindari makan makanan tertentu oleh karena sakit gigi?",
-      "Pernahkah Anda enggan untuk keluar rumah oleh karena sakit gigi?", "Pernahkah Anda merasa tegang oleh karena sakit gigi?",
-      "Pernahkah Anda merasa bahwa sakit gigi Anda merupakan penyakit yang parah?", "Pernahkah Anda sedikit merasa tersinggung kepada orang lain oleh karena sakit gigi?",
-      "Pernahkah Anda berpikir bahwa suatu hari nanti gigi yang sudah dirawat bisa jadi akan sakit kembali?"
-    ];
-
-    const qPsiko = [
-      "Pernahkah Anda merasa tidak nyaman pada penampilan gigi Anda oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa indera pengecap Anda memburuk oleh karena sakit gigi?",
-      "Pernahkah Anda merasa bahwa pencernaan Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa penampilan Anda terganggu oleh karena sakit gigi?",
-      "Pernahkah Anda berpikir berlebihan mengenai kondisi kesehatan Anda oleh karena sakit gigi?", "Pernahkah Anda mengalami kesulitan berbicara oleh karena sakit gigi?",
-      "Pernahkah Anda merasa bahwa kesehatan umum Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa cemas oleh karena sakit gigi?",
-      "Pernahkah Anda berbicara yang terdengar kurang jelas oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa lebih baik mencabut gigi dari pada mempertahankannya dengan perawatan saluran akar?"
-    ];
-
-    const qEkspektasi = [
-      "Pernahkah Anda berpikir bahwa perawatan saluran akar akan berdampak baik bagi kesehatan Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan memperbaiki fungsi kunyah Anda yang terganggu oleh karena sakit gigi?",
-      "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan kualitas hidup Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan nilai estetika?",
-      "Pernahkah Anda berpikir bahwa perawatan saluran akar akan menghilangkan sakit pada gigi Anda?", "Pernahkan Anda berpikir bahwa perawatan saluran akar layak untuk dilakukan?",
-      "Pernahkah Anda berpikir bahwa perawatan saluran akar itu mahal?", "Pernahkah Anda berpikir bahwa perawatan saluran akar sebaiknya dilakukan oleh dokter gigi spesialis dibandingkan dokter gigi umum?"
-    ];
+    // --- 2. GLOBAL VARIABLE PERTANYAAN (Diisi via Fetch API) ---
+    let qFisik = [];
+    let qPsiko = [];
+    let qEkspektasi = [];
+    
+    // Fallback Array jika database gagal Load
+    const defFisik = ["Pernahkah Anda sakit gigi?", "Pernahkah Anda merasakan sakit yang menjalar oleh karena sakit gigi?", "Pernahkah kualitas tidur Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit kepala oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada rahang oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit yang hebat pada mulut Anda oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada gusi?", "Pernahkah Anda merasa sulit untuk bersantai sejenak oleh karena sakit gigi?", "Pernahkan Anda mengkonsumsi obat untuk meredakan sakit gigi?", "Pernahkah Anda merasakan sakit sampai ke telinga oleh karena sakit gigi?", "Pernahkah Anda kesulitan mengunyah makanan oleh karena sakit gigi?", "Pernahkah Anda merasa kesulitan membuka mulut oleh karena sakit gigi?", "Pernahkan Anda merasa sulit berbaring oleh karena sakit gigi?", "Pernahkah Anda menghindari makan makanan tertentu oleh karena sakit gigi?", "Pernahkah Anda enggan untuk keluar rumah oleh karena sakit gigi?", "Pernahkah Anda merasa tegang oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa sakit gigi Anda merupakan penyakit yang parah?", "Pernahkah Anda sedikit merasa tersinggung kepada orang lain oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa suatu hari nanti gigi yang sudah dirawat bisa jadi akan sakit kembali?"];
+    const defPsiko = ["Pernahkah Anda merasa tidak nyaman pada penampilan gigi Anda oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa indera pengecap Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa pencernaan Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa penampilan Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir berlebihan mengenai kondisi kesehatan Anda oleh karena sakit gigi?", "Pernahkah Anda mengalami kesulitan berbicara oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa kesehatan umum Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa cemas oleh karena sakit gigi?", "Pernahkah Anda berbicara yang terdengar kurang jelas oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa lebih baik mencabut gigi dari pada mempertahankannya dengan perawatan saluran akar?"];
+    const defEkspektasi = ["Pernahkah Anda berpikir bahwa perawatan saluran akar akan berdampak baik bagi kesehatan Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan memperbaiki fungsi kunyah Anda yang terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan kualitas hidup Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan nilai estetika?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan menghilangkan sakit pada gigi Anda?", "Pernahkan Anda berpikir bahwa perawatan saluran akar layak untuk dilakukan?", "Pernahkah Anda berpikir bahwa perawatan saluran akar itu mahal?", "Pernahkah Anda berpikir bahwa perawatan saluran akar sebaiknya dilakukan oleh dokter gigi spesialis dibandingkan dokter gigi umum?"];
 
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminMode = urlParams.get('page') === 'admin';
     let globalAdminData = []; 
 
-    const mockAdminData = [
-      ["OHQE-20260626-0003", "26/06/2026 14:30:00", "Ahmad AXA XYZ", "081234567890", "32", "Laki-laki", "ASN", "PT", "UMR atau di atas UMR", "8", "Pulpitis Ireversibel", 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4, 3,3,3,3,3,3,3,3,3,3, 5,5,5,5,5,5,5,5],
-      ["OHQE-20260626-0002", "26/06/2026 10:15:00", "Siti Aisyah", "085712345678", "28", "Perempuan", "Wiraswasta", "SMA", "Di bawah UMR", "5", "Nekrosis Pulpa", 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2, 4,4,4,4,4,4,4,4],
-      ["OHQE-20260626-0001", "26/06/2026 08:00:00", "Budi Santoso", "089612345678", "45", "Laki-laki", "Karyawan", "PT", "UMR atau di atas UMR", "10", "Pulpitis Ireversibel", 5,5,5,5,5,4,4,4,4,4,5,5,5,5,5,4,4,4,4, 4,4,4,4,4,4,4,4,4,4, 5,5,5,5,5,5,5,5]
-    ];
-
     let chart1 = null; 
     let chart2 = null;
 
-    // --- 3. INIT FUNCTION ---
+    // --- 3. INIT FUNCTION (FETCH QUESTIONS DARI BACKEND SEBELUM MUNCUL) ---
     window.onload = () => {
+      if(GAS_URL) {
+        fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
+        .then(r => r.json())
+        .then(data => {
+          if(data && data.qFisik && data.qFisik.length > 0) {
+            qFisik = data.qFisik;
+            qPsiko = data.qPsiko;
+            qEkspektasi = data.qEkspektasi;
+          } else {
+            qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
+          }
+          initAppUI();
+        })
+        .catch(e => {
+          console.error("Gagal load pertanyaan dari database, menggunakan Default", e);
+          qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
+          initAppUI();
+        });
+      } else {
+        qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
+        initAppUI();
+      }
+    };
+
+    function initAppUI() {
       renderQuestions(qFisik, 'container-fisik', 'F');
       renderQuestions(qPsiko, 'container-psiko', 'P');
       renderQuestions(qEkspektasi, 'container-ekspektasi', 'E');
-      
+      renderSettingsTab();
+
       setTimeout(() => {
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => {
@@ -517,8 +523,8 @@
             document.getElementById('app-container').classList.remove('hidden');
           }
         }, 400);
-      }, 600);
-    };
+      }, 300);
+    }
 
     // --- 3.5. CUSTOM ALERT BOX LOGIC ---
     function showCustomAlert(message, title = "Perhatian") {
@@ -670,7 +676,7 @@
       return arr;
     }
 
-    // --- 6. API FETCH ---
+    // --- 6. DATA SUBMIT KUESIONER ---
     function submitData() {
       if(!validateStep()) return;
 
@@ -820,13 +826,14 @@
     function switchTab(tabId) {
       document.getElementById('tab-data').classList.add('hidden');
       document.getElementById('tab-spss').classList.add('hidden');
+      document.getElementById('tab-settings').classList.add('hidden');
       document.getElementById(tabId).classList.remove('hidden');
       
-      document.getElementById('btn-tab-data').classList.replace('text-neon', 'text-gray-400');
-      document.getElementById('btn-tab-data').classList.remove('border-b-2', 'border-neon');
-      document.getElementById('btn-tab-spss').classList.replace('text-neon', 'text-gray-400');
-      document.getElementById('btn-tab-spss').classList.remove('border-b-2', 'border-neon');
-      
+      const btns = ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings'];
+      btns.forEach(btn => {
+        document.getElementById(btn).classList.replace('text-neon', 'text-gray-400');
+        document.getElementById(btn).classList.remove('border-b-2', 'border-neon');
+      });
       document.getElementById('btn-'+tabId).classList.replace('text-gray-400', 'text-neon');
       document.getElementById('btn-'+tabId).classList.add('border-b-2', 'border-neon');
     }
@@ -857,7 +864,77 @@
       tb.innerHTML = html;
     }
 
-    // --- NEW STATISTICAL HELPER ---
+    // --- 8. EDITOR PERTANYAAN ADMIN (NEW FEATURE) ---
+    function renderSettingsTab() {
+      const container = document.getElementById('editor-container');
+      let html = '';
+      
+      const renderGroup = (title, arr, prefix) => {
+        let groupHtml = `<div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">${title}</h4><div class="space-y-3">`;
+        arr.forEach((q, i) => {
+          groupHtml += `
+            <div class="flex items-start">
+              <span class="text-neon font-bold w-10 shrink-0 pt-2">${prefix}${i+1}.</span>
+              <textarea id="edit_${prefix}_${i}" class="w-full p-2.5 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y" rows="2">${q}</textarea>
+            </div>
+          `;
+        });
+        groupHtml += `</div></div>`;
+        return groupHtml;
+      };
+
+      html += renderGroup('Bagian 1: Kondisi Fisik (19 Pertanyaan)', qFisik, 'F');
+      html += renderGroup('Bagian 2: Kondisi Psikologis (10 Pertanyaan)', qPsiko, 'P');
+      html += renderGroup('Bagian 3: Ekspektasi Perawatan (8 Pertanyaan)', qEkspektasi, 'E');
+      
+      container.innerHTML = html;
+    }
+
+    function saveEditedQuestions() {
+      const btn = document.getElementById('btn-save-questions');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<div class="w-5 h-5 border-2 border-bg-dark border-t-transparent rounded-full animate-spin mr-2"></div> Menyimpan...`;
+      btn.disabled = true;
+
+      let newFisik = []; let newPsiko = []; let newEksp = [];
+      for(let i=0; i<19; i++) newFisik.push(document.getElementById(`edit_F_${i}`).value);
+      for(let i=0; i<10; i++) newPsiko.push(document.getElementById(`edit_P_${i}`).value);
+      for(let i=0; i<8; i++) newEksp.push(document.getElementById(`edit_E_${i}`).value);
+
+      const payload = {
+        action: 'saveQuestions',
+        qFisik: newFisik, qPsiko: newPsiko, qEkspektasi: newEksp
+      };
+
+      if (!GAS_URL) {
+        setTimeout(() => {
+          qFisik = newFisik; qPsiko = newPsiko; qEkspektasi = newEksp;
+          initAppUI(); // Rerender UI
+          showCustomAlert("Pertanyaan berhasil diubah (Mock Local Mode).", "Sukses");
+          btn.innerHTML = originalText; btn.disabled = false;
+        }, 1000);
+        return;
+      }
+
+      fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') {
+          qFisik = newFisik; qPsiko = newPsiko; qEkspektasi = newEksp;
+          initAppUI(); // Rerender UI Respondents
+          showCustomAlert(res.message, "Sukses Menyimpan");
+        } else {
+          showCustomAlert(res.message, "Gagal Menyimpan");
+        }
+        btn.innerHTML = originalText; btn.disabled = false;
+      })
+      .catch(e => {
+        showCustomAlert("Gagal menghubungi server Database Google.", "Koneksi Gagal");
+        btn.innerHTML = originalText; btn.disabled = false;
+      });
+    }
+
+    // --- 9. NEW STATISTICAL HELPER ---
     function getSPSSStats(data) {
       const n = data.length; 
       if(n < 2) return null;
@@ -896,7 +973,7 @@
       return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
     }
 
-    // --- SPSS STATISTICAL ENGINE (UPGRADED WITH CHARTS & NARRATIVE) ---
+    // --- 10. SPSS STATISTICAL ENGINE (UPGRADED WITH CHARTS & NARRATIVE) ---
     function runAnalysis() {
       const wrapper = document.getElementById('spss-wrapper');
       const container = document.getElementById('spss-output-container');
@@ -1073,7 +1150,7 @@
           </div>`;
         }
 
-        // 5. KESIMPULAN NARASI (NEW FEATURE)
+        // 5. KESIMPULAN NARASI 
         let conclusionText = isSignificant ? 
           "Terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan." : 
           "Tidak terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.";
@@ -1121,18 +1198,13 @@
         renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
         renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
 
-        // --- NEW FEATURE: SYNC KE LIVE TABEL GOOGLE SPREADSHEET ---
+        // --- FEATURE: SYNC KE LIVE TABEL GOOGLE SPREADSHEET ---
         const liveTablePayload = {
           action: 'updateLiveTable',
           stats1: { n: stats1.n, mean: stats1.mean, median: stats1.median, stdDev: stats1.stdDev, min: stats1.min, max: stats1.max, skew: stats1.skew, kurt: stats1.kurt },
           stats2: { n: stats2.n, mean: stats2.mean, median: stats2.median, stdDev: stats2.stdDev, min: stats2.min, max: stats2.max, skew: stats2.skew, kurt: stats2.kurt },
-          pNorm1: pNorm1,
-          pNorm2: pNorm2,
-          testName: testName,
-          statVal: statVal,
-          df: isNormal ? df : '-',
-          pValTest: finalPVal,
-          conclusion: conclusionText
+          pNorm1: pNorm1, pNorm2: pNorm2, testName: testName, statVal: statVal, df: isNormal ? df : '-',
+          pValTest: finalPVal, conclusion: conclusionText
         };
 
         if (GAS_URL) {

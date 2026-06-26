@@ -692,18 +692,28 @@
         // Note: Pengiriman sebagai text/plain biasa untuk menghindari blokir Pre-flight CORS Google
         body: JSON.stringify(payload)
       })
-      .then(response => response.json())
-      .then(res => {
-        if(res.status === 'success') {
-          currentStep = 5;
-          updateUI();
-        } else {
-          showCustomAlert("Error dari server: " + res.message, "Gagal Menyimpan Data");
-          resetSubmitBtn();
+      .then(response => {
+        if (!response.ok) throw new Error("Gagal terhubung ke server");
+        return response.text(); 
+      })
+      .then(text => {
+        try {
+          const res = JSON.parse(text);
+          if(res.status === 'success') {
+            currentStep = 5;
+            updateUI();
+          } else {
+            showCustomAlert("Error dari server: " + res.message, "Gagal Menyimpan Data");
+            resetSubmitBtn();
+          }
+        } catch (e) {
+          console.error("Respons bukan JSON valid:", text);
+          throw new Error("Respons server tidak valid. Pastikan Deploy GAS di-set Execute as: Me dan Access: Anyone.");
         }
       })
       .catch(err => {
-        showCustomAlert("Terjadi kesalahan koneksi ke server AXA XYZ. Pastikan internet stabil.", "Koneksi Gagal");
+        console.error(err);
+        showCustomAlert("Terjadi kesalahan koneksi ke server AXA XYZ. Pastikan internet stabil atau cek pengaturan Deploy GAS.", "Koneksi Gagal");
         resetSubmitBtn();
       });
     }
@@ -732,19 +742,30 @@
         return;
       }
 
-      fetch(`${GAS_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}`)
-        .then(res => res.json())
-        .then(res => {
-          if(res.success) {
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('admin-container').classList.remove('hidden');
-            fetchAdminData();
-          } else {
-            showCustomAlert("Username atau Password yang Anda masukkan salah!", "Login Gagal");
+      // Tambahkan redirect: 'follow' untuk menangani sistem redirect GAS
+      fetch(`${GAS_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}`, { redirect: 'follow' })
+        .then(response => {
+          if (!response.ok) throw new Error("Gagal terhubung ke server");
+          return response.text();
+        })
+        .then(text => {
+          try {
+            const res = JSON.parse(text);
+            if(res.success) {
+              document.getElementById('login-container').classList.add('hidden');
+              document.getElementById('admin-container').classList.remove('hidden');
+              fetchAdminData();
+            } else {
+              showCustomAlert("Username atau Password yang Anda masukkan salah!", "Login Gagal");
+            }
+          } catch(e) {
+             console.error("Bukan format JSON:", text);
+             throw new Error("Respons server tidak valid.");
           }
         })
         .catch(err => {
-          showCustomAlert("Gagal terhubung ke database server.", "Koneksi Error");
+          console.error(err);
+          showCustomAlert("Gagal terhubung ke database server. Pastikan pengaturan Deploy GAS sudah benar.", "Koneksi Error");
         });
     }
 
@@ -754,14 +775,34 @@
         return;
       }
 
-      fetch(`${GAS_URL}?action=getAdminData`)
-        .then(res => res.json())
-        .then(data => {
-          globalAdminData = data; 
-          renderTable(data); 
+      // Tambahkan redirect: 'follow' untuk menangani sistem redirect GAS
+      fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
+        .then(response => {
+          if (!response.ok) throw new Error("Network error saat mengambil data");
+          return response.text();
+        })
+        .then(text => {
+          try {
+            const data = JSON.parse(text);
+            
+            // Cek apakah data yang dikembalikan adalah array (berarti sukses) atau object error
+            if(Array.isArray(data)) {
+               globalAdminData = data; 
+               renderTable(data); 
+            } else if (data.status === 'error') {
+               showCustomAlert("Error dari server: " + data.message, "Fetch Error");
+            } else {
+               showCustomAlert("Format data tidak sesuai.", "Fetch Error");
+            }
+            
+          } catch(e) {
+            console.error("Format data bukan JSON:", text);
+            showCustomAlert("Gagal mem-parsing data dari Google Server. Harap periksa setelan deployment Apps Script Anda (Execute as: Me).", "Fetch Error");
+          }
         })
         .catch(err => {
-          showCustomAlert("Gagal mengambil data dari server Google.", "Fetch Error");
+          console.error(err);
+          showCustomAlert("Gagal mengambil data dari server Google. Periksa koneksi atau URL GAS Anda.", "Fetch Error");
         });
     }
 
@@ -781,7 +822,7 @@
 
     function renderTable(data) {
       const tb = document.getElementById('admin-table-body');
-      if(!data.length) { tb.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Belum ada data responden.</td></tr>`; return; }
+      if(!data || !data.length) { tb.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Belum ada data responden.</td></tr>`; return; }
       
       let html = '';
       data.forEach(row => {

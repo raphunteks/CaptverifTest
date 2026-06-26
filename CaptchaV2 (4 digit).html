@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memverifikasi browser Anda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Pengaturan Tema Gelap Spesifik */
+        body {
+            background-color: #0b1121;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .glass-card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+        }
+        .info-box {
+            background-color: #0b1121;
+            border: 1px solid #1f2937;
+        }
+        
+        /* Animasi Kustom */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        /* Hilangkan panah up/down di input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-300">
+
+    <div class="glass-card w-full max-w-lg rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Efek Glow Latar Belakang -->
+        <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 pointer-events-none"></div>
+
+        <!-- Logo -->
+        <div class="flex justify-center mb-8">
+            <div class="w-16 h-16 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center shadow-inner relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="flex justify-center sm:justify-start mb-6">
+            <div class="flex items-center space-x-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full shadow-sm">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span class="text-[11px] text-slate-300 font-bold tracking-widest uppercase">Verifikasi</span>
+            </div>
+        </div>
+
+        <!-- Judul & Deskripsi -->
+        <h1 class="text-2xl sm:text-3xl font-semibold text-white mb-3 text-center sm:text-left">Memverifikasi browser Anda</h1>
+        <p class="text-slate-400 text-sm mb-8 leading-relaxed text-center sm:text-left">
+            Kami sedang memastikan keamanan koneksi Anda sebelum melanjutkan. Selesaikan tantangan di bawah ini untuk membuktikan Anda adalah manusia.
+        </p>
+
+        <!-- CAPTCHA SECTION -->
+        <div class="bg-slate-800/50 rounded-xl p-5 mb-8 border border-gray-700 shadow-md">
+            
+            <div class="flex flex-col gap-4">
+                <!-- Baris Atas: Gambar Base64 & Tombol Refresh -->
+                <div class="flex items-stretch gap-3 w-full">
+                    
+                    <!-- PENGGUNAAN IMG DENGAN BASE64 -->
+                    <!-- Tag img ini akan diisi dengan src="data:image/jpeg;base64,..." -->
+                    <img id="captchaImage" class="flex-1 object-cover bg-white border-2 border-gray-300 rounded-lg h-20 shadow-inner cursor-pointer" alt="Captcha Base64" onclick="refreshCaptcha()" title="Klik gambar untuk ganti kode" src="">
+                    
+                    <!-- Tombol Refresh Eksternal -->
+                    <button onclick="refreshCaptcha()" class="flex-shrink-0 w-20 h-20 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-gray-200 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" title="Muat ulang kode">
+                        <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Baris Bawah: Input & Tombol Submit -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="captchaInput" autocomplete="off" placeholder="Ketik 4 angka di atas..." maxlength="4" inputmode="numeric" class="flex-1 text-gray-900 text-center sm:text-left text-lg px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono placeholder:font-sans">
+                    
+                    <button id="verifyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-slate-900">
+                        <span id="btnText">Verifikasi</span>
+                        <svg id="btnSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg id="btnCheck" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Pesan Kesalahan -->
+            <p id="captchaMsg" class="mt-3 text-sm font-medium text-center hidden"></p>
+        </div>
+
+        <!-- Info Sistem -->
+        <div class="info-box rounded-lg p-4 sm:p-5 text-sm text-slate-400 mb-6 space-y-3">
+            <p class="font-bold text-slate-500 mb-4 text-xs tracking-widest uppercase">Info untuk laporan</p>
+            <div class="flex items-center justify-between sm:justify-start">
+                <span class="w-24 text-slate-500">IP</span>
+                <span class="text-slate-300 font-mono text-xs">36.80.25.50</span>
+            </div>
+            <div class="flex items-center justify-between sm:justify-start">
+                <span class="w-24 text-slate-500">Lokasi</span>
+                <span class="text-slate-300 font-mono text-xs">ID</span>
+            </div>
+            <div class="flex items-center justify-between sm:justify-start">
+                <span class="w-24 text-slate-500">Ray ID</span>
+                <span class="text-slate-300 font-mono text-xs">a10fd694da0f0a9d</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-xs text-slate-500">
+            <p>Dilindungi oleh Sistem Kemanan Internal &bull; Privasi & Ketentuan</p>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+        const captchaImage = document.getElementById('captchaImage');
+        const inputEl = document.getElementById('captchaInput');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const msgEl = document.getElementById('captchaMsg');
+        
+        let currentCaptchaCode = '';
+
+        // GENERATE BASE64 IMAGE
+        function generateBase64Captcha() {
+            // 1. Buat canvas secara virtual di memori (off-screen)
+            const offScreenCanvas = document.createElement('canvas');
+            const ctx = offScreenCanvas.getContext('2d');
+            
+            // Resolusi gambar tetap
+            offScreenCanvas.width = 300;
+            offScreenCanvas.height = 80;
+
+            // 2. Beri background putih (Wajib untuk JPEG agar tidak menjadi hitam)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
+            
+            // 3. Gambar Ratusan Noise Dots
+            for(let i = 0; i < 400; i++) {
+                const r = Math.floor(Math.random() * 255);
+                const g = Math.floor(Math.random() * 255);
+                const b = Math.floor(Math.random() * 255);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.7)`;
+                ctx.beginPath();
+                ctx.arc(Math.random() * offScreenCanvas.width, Math.random() * offScreenCanvas.height, Math.random() * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const paletWarna = ['#22c55e', '#8b5cf6', '#3b82f6', '#f97316', '#ef4444', '#14b8a6', '#64748b'];
+
+            // 4. Garis Coretan Melengkung
+            for(let i = 0; i < 3; i++) {
+                ctx.strokeStyle = paletWarna[Math.floor(Math.random() * paletWarna.length)];
+                ctx.lineWidth = Math.random() * 1.5 + 1;
+                ctx.beginPath();
+                ctx.moveTo(0, Math.random() * offScreenCanvas.height);
+                ctx.bezierCurveTo(
+                    offScreenCanvas.width / 3, Math.random() * offScreenCanvas.height,
+                    (offScreenCanvas.width / 3) * 2, Math.random() * offScreenCanvas.height,
+                    offScreenCanvas.width, Math.random() * offScreenCanvas.height
+                );
+                ctx.stroke();
+            }
+
+            // 5. Menggambar Teks Angka Bergaya Bubble/3D
+            const chars = currentCaptchaCode.split('');
+            const charWidth = offScreenCanvas.width / (chars.length + 1);
+            
+            const fontSize = Math.floor(offScreenCanvas.height * 0.75);
+            ctx.font = `bold ${fontSize}px "Comic Sans MS", "Chalkboard SE", "Marker Felt", "Arial Rounded MT Bold", sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            chars.forEach((char, i) => {
+                const xPos = charWidth * (i + 1);
+                const yPos = (offScreenCanvas.height / 2) + (Math.random() * 16 - 8);
+                const rotasi = (Math.random() * 0.5) - 0.25;
+                const charColor = paletWarna[Math.floor(Math.random() * paletWarna.length)];
+                
+                ctx.save();
+                ctx.translate(xPos, yPos);
+                ctx.rotate(rotasi);
+                ctx.lineWidth = 2;
+
+                // Bayangan TEBAL (3D Drop Shadow)
+                ctx.fillStyle = charColor; 
+                ctx.fillText(char, 3, 4);
+
+                // OUTLINE huruf
+                ctx.strokeStyle = charColor;
+                ctx.strokeText(char, 0, 0);
+
+                // ISIAN huruf putih
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(char, 0, 0);
+                
+                ctx.restore();
+            });
+
+            // 6. Konversi kanvas virtual menjadi URL Data (Base64 JPEG)
+            // Format output: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ..."
+            return offScreenCanvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        // Fungsi generate kode baru
+        function generateCode() {
+            currentCaptchaCode = Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        // Handler tombol refresh
+        function refreshCaptcha() {
+            // Animasi putar icon
+            const icon = document.getElementById('refreshIcon');
+            icon.style.transform = `rotate(${Math.random() * 360 + 360}deg)`;
+            
+            msgEl.classList.add('hidden');
+            inputEl.value = '';
+            inputEl.classList.remove('border-red-500', 'focus:ring-red-500');
+            
+            // Generate kode angka dan apply Base64 ke Tag <img>
+            generateCode();
+            const base64ImageString = generateBase64Captcha();
+            captchaImage.src = base64ImageString;
+            
+            inputEl.focus();
+        }
+
+        // Logika Verifikasi Utama
+        function prosesVerifikasi() {
+            const inputVal = inputEl.value.trim();
+            if (!inputVal) return;
+
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const btnCheck = document.getElementById('btnCheck');
+            
+            inputEl.disabled = true;
+            verifyBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            btnSpinner.classList.add('flex');
+            msgEl.classList.add('hidden');
+
+            setTimeout(() => {
+                if(inputVal === currentCaptchaCode) {
+                    // BERHASIL
+                    msgEl.textContent = 'Verifikasi berhasil. Mengalihkan...';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-center text-green-500 block';
+                    
+                    inputEl.classList.add('border-green-500', 'bg-green-50', 'text-green-900');
+                    verifyBtn.classList.replace('bg-blue-600', 'bg-green-600');
+                    verifyBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+                    
+                    btnSpinner.classList.add('hidden');
+                    btnSpinner.classList.remove('flex');
+                    btnCheck.classList.remove('hidden');
+
+                } else {
+                    // GAGAL
+                    msgEl.textContent = 'Kode tidak valid. Coba lagi.';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-center text-red-500 block';
+                    
+                    btnSpinner.classList.add('hidden');
+                    btnSpinner.classList.remove('flex');
+                    btnText.classList.remove('hidden');
+                    inputEl.disabled = false;
+                    verifyBtn.disabled = false;
+
+                    inputEl.classList.add('border-red-500', 'focus:ring-red-500', 'animate-shake');
+                    
+                    setTimeout(() => {
+                        inputEl.classList.remove('animate-shake');
+                    }, 400);
+
+                    // Otomatis refresh jika salah
+                    refreshCaptcha();
+                }
+            }, 800);
+        }
+
+        verifyBtn.addEventListener('click', prosesVerifikasi);
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                prosesVerifikasi();
+            }
+        });
+
+        inputEl.addEventListener('input', () => {
+            inputEl.classList.remove('border-red-500', 'focus:ring-red-500');
+            msgEl.classList.add('hidden');
+        });
+
+        // Inisialisasi awal saat halaman dimuat
+        window.onload = () => {
+            refreshCaptcha(); // Langsung memanggil refresh untuk membuat gambar pertama
+        };
+    </script>
+</body>
+</html>

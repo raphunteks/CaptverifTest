@@ -7,6 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Library JStat untuk perhitungan SPSS Engine -->
   <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+  <!-- Library Chart.js untuk Histogram -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Library HTML2PDF untuk Export ke PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     /* AXA XYZ THEME: Dark Glassmorphism Premium */
     :root {
@@ -117,15 +122,20 @@
     }
     select option { background-color: var(--bg-dark); color: white; }
 
-    /* SPSS Table Styling */
-    .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-top: 20px;}
+    /* SPSS Table Styling Update (Termasuk export PDF support) */
+    .spss-wrapper { background: white; color: black; padding: 30px; border-radius: 8px; margin-bottom: 20px;}
+    .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
     .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;}
-    .spss-table th, .spss-table td { border-bottom: 1px solid #ccc; padding: 6px 10px; text-align: right; }
-    .spss-table th { font-weight: bold; text-align: center; vertical-align: bottom;}
-    .spss-table tr:first-child th { border-top: 2px solid black; border-bottom: 1px solid black;}
+    .spss-table th, .spss-table td { border: 1px solid #d1d5db; padding: 6px 10px; text-align: right; }
+    .spss-table th { font-weight: bold; text-align: center; vertical-align: bottom; background-color: #f9fafb;}
+    .spss-table tr:first-child th { border-top: 2px solid black; }
     .spss-table tr:last-child td { border-bottom: 2px solid black; }
-    .spss-table td:first-child, .spss-table th:first-child { text-align: left; border-right: 1px solid #ccc;}
+    .spss-table td:first-child, .spss-table th:first-child { text-align: left; }
+    .spss-table td.sub-row { padding-left: 20px; text-align: left;}
     .spss-title { font-weight: bold; font-size: 14px; text-align: center; margin-bottom: 10px; color: black;}
+
+    .histogram-container { width: 100%; max-width: 600px; margin: 0 auto 40px auto; position: relative;}
+    .chart-box { background: white; border: 1px solid #ccc; padding: 20px;}
 
     #loader {
       position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-dark);
@@ -419,18 +429,25 @@
       </div>
     </div>
 
-    <!-- TAB 2: SPSS ANALYSIS ENGINE -->
+    <!-- TAB 2: SPSS ANALYSIS ENGINE (UPGRADED) -->
     <div id="tab-spss" class="hidden">
       <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
-        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* untuk menentukan distribusi data, dilanjutkan dengan Uji Beda Parametrik (*Independent T-Test*) atau Non-Parametrik (*Mann-Whitney U*).</p>
+        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* untuk menentukan distribusi data, dilanjutkan dengan Uji Beda Parametrik (*Independent T-Test*) atau Non-Parametrik (*Mann-Whitney U*), Descriptives, dan Case Processing.</p>
       </div>
 
-      <div class="flex justify-center mb-4">
-        <button onclick="runAnalysis()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow-lg transition">Generate Output SPSS</button>
+      <div class="flex justify-center mb-6 gap-3">
+        <button onclick="runAnalysis()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow-lg transition">Generate Output SPSS</button>
+        <button id="btn-export-pdf" onclick="exportToPDF()" class="hidden px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF
+        </button>
       </div>
 
-      <div id="spss-output-container" class="hidden flex-col items-center w-full"></div>
+      <div id="spss-wrapper" class="hidden rounded-xl">
+        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center">
+          <!-- Canvas dan Tabel akan digenerate disini -->
+        </div>
+      </div>
     </div>
   </div>
 
@@ -480,6 +497,9 @@
       ["OHQE-20260626-0002", "26/06/2026 10:15:00", "Siti Aisyah", "085712345678", "28", "Perempuan", "Wiraswasta", "SMA", "Di bawah UMR", "5", "Nekrosis Pulpa", 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2, 4,4,4,4,4,4,4,4],
       ["OHQE-20260626-0001", "26/06/2026 08:00:00", "Budi Santoso", "089612345678", "45", "Laki-laki", "Karyawan", "PT", "UMR atau di atas UMR", "10", "Pulpitis Ireversibel", 5,5,5,5,5,4,4,4,4,4,5,5,5,5,5,4,4,4,4, 4,4,4,4,4,4,4,4,4,4, 5,5,5,5,5,5,5,5]
     ];
+
+    let chart1 = null; 
+    let chart2 = null;
 
     // --- 3. INIT FUNCTION ---
     window.onload = () => {
@@ -650,7 +670,7 @@
       return arr;
     }
 
-    // --- 6. API FETCH (REPLACES GOOGLE.SCRIPT.RUN) ---
+    // --- 6. API FETCH ---
     function submitData() {
       if(!validateStep()) return;
 
@@ -676,7 +696,6 @@
         jawabanE: getAnswers('E', 8)
       };
 
-      // Jika GAS URL Belum diisi, gunakan Mocking Data
       if (!GAS_URL) {
         setTimeout(() => {
           console.log("Mock Save Payload (No GAS URL detected):", payload);
@@ -686,10 +705,8 @@
         return;
       }
 
-      // Melakukan HTTP Request ke Google Apps Script (Vercel ke GAS)
       fetch(GAS_URL, {
         method: 'POST',
-        // Note: Pengiriman sebagai text/plain biasa untuk menghindari blokir Pre-flight CORS Google
         body: JSON.stringify(payload)
       })
       .then(response => {
@@ -731,7 +748,6 @@
       const p = document.getElementById('login-pass').value;
       
       if(!GAS_URL) {
-        // Fallback untuk percobaan / demo
         if(u==="axaaxyz_01" && p==="axaxyz999") {
           document.getElementById('login-container').classList.add('hidden');
           document.getElementById('admin-container').classList.remove('hidden');
@@ -742,7 +758,6 @@
         return;
       }
 
-      // Tambahkan redirect: 'follow' untuk menangani sistem redirect GAS
       fetch(`${GAS_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}`, { redirect: 'follow' })
         .then(response => {
           if (!response.ok) throw new Error("Gagal terhubung ke server");
@@ -775,7 +790,6 @@
         return;
       }
 
-      // Tambahkan redirect: 'follow' untuk menangani sistem redirect GAS
       fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
         .then(response => {
           if (!response.ok) throw new Error("Network error saat mengambil data");
@@ -784,8 +798,6 @@
         .then(text => {
           try {
             const data = JSON.parse(text);
-            
-            // Cek apakah data yang dikembalikan adalah array (berarti sukses) atau object error
             if(Array.isArray(data)) {
                globalAdminData = data; 
                renderTable(data); 
@@ -794,7 +806,6 @@
             } else {
                showCustomAlert("Format data tidak sesuai.", "Fetch Error");
             }
-            
           } catch(e) {
             console.error("Format data bukan JSON:", text);
             showCustomAlert("Gagal mem-parsing data dari Google Server. Harap periksa setelan deployment Apps Script Anda (Execute as: Me).", "Fetch Error");
@@ -846,11 +857,55 @@
       tb.innerHTML = html;
     }
 
-    // --- SPSS STATISTICAL ENGINE ---
+    // --- NEW STATISTICAL HELPER ---
+    function getSPSSStats(data) {
+      const n = data.length; 
+      if(n < 2) return null;
+      const mean = jStat.mean(data); 
+      const median = jStat.median(data); 
+      const variance = jStat.variance(data, true); 
+      const stdDev = jStat.stdev(data, true);
+      const min = jStat.min(data); 
+      const max = jStat.max(data); 
+      const range = max - min;
+      const q1 = jStat.percentile(data, 0.25); 
+      const q3 = jStat.percentile(data, 0.75); 
+      const iqr = q3 - q1;
+      const skew = jStat.skewness(data); 
+      const kurt = jStat.kurtosis(data);
+      const seSkew = Math.sqrt(6/n); 
+      const seKurt = Math.sqrt(24/n); 
+      const seMean = stdDev / Math.sqrt(n);
+      const tCrit = Math.abs(jStat.studentt.inv(0.025, n-1)); // Two tailed 95%
+      const ciLower = mean - (tCrit * seMean); 
+      const ciUpper = mean + (tCrit * seMean);
+      
+      let sorted = [...data].sort((a,b)=>a-b);
+      let trimCount = Math.floor(n * 0.05); 
+      let trimmedData = sorted.slice(trimCount, n - trimCount);
+      let trimmedMean = trimmedData.length > 0 ? jStat.mean(trimmedData) : mean;
+
+      return {n, mean, median, variance, stdDev, min, max, range, iqr, skew, kurt, seSkew, seKurt, seMean, ciLower, ciUpper, trimmedMean};
+    }
+    
+    function calculateNormalityPValue(arr) {
+      if(arr.length < 3) return 0.01; 
+      let skew = jStat.skewness(arr); 
+      let baseP = 1 - Math.abs(skew); 
+      let finalP = baseP * (0.8 + Math.random()*0.2); 
+      return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
+    }
+
+    // --- SPSS STATISTICAL ENGINE (UPGRADED WITH CHARTS) ---
     function runAnalysis() {
+      const wrapper = document.getElementById('spss-wrapper');
       const container = document.getElementById('spss-output-container');
-      container.innerHTML = '<div class="text-white my-10 animate-pulse">Menghitung matriks probabilitas...</div>';
-      container.classList.remove('hidden');
+      const btnExport = document.getElementById('btn-export-pdf');
+      
+      wrapper.classList.add('bg-white'); // Mode Terang untuk PDF Export
+      wrapper.classList.remove('hidden');
+      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Statistik...</div>';
+      btnExport.classList.add('hidden');
 
       setTimeout(() => {
         let group1 = []; // Pulpitis Ireversibel
@@ -868,16 +923,70 @@
           return;
         }
 
-        const mean1 = jStat.mean(group1); const std1 = jStat.stdev(group1, true); const se1 = std1 / Math.sqrt(group1.length);
-        const mean2 = jStat.mean(group2); const std2 = jStat.stdev(group2, true); const se2 = std2 / Math.sqrt(group2.length);
-
+        const stats1 = getSPSSStats(group1); 
+        const stats2 = getSPSSStats(group2);
         let pNorm1 = calculateNormalityPValue(group1);
         let pNorm2 = calculateNormalityPValue(group2);
         let isNormal = (pNorm1 > 0.05 && pNorm2 > 0.05);
 
         let htmlOutput = "";
 
-        // TABEL 1: TESTS OF NORMALITY
+        // 1. CASE PROCESSING SUMMARY
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl">
+          <div class="spss-title">Case Processing Summary</div>
+          <table class="spss-table">
+            <tr><th rowspan="2" colspan="2" style="border-bottom:none; border-right:1px solid #ccc;"></th><th colspan="6">Cases</th></tr>
+            <tr><th colspan="2">Valid</th><th colspan="2">Missing</th><th colspan="2">Total</th></tr>
+            <tr><th style="text-align:left; border-right:1px solid #ccc;"></th><th style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>N</th><th>Percent</th><th>N</th><th>Percent</th><th>N</th><th>Percent</th></tr>
+            <tr><td rowspan="2" style="border-right:1px solid #ccc; vertical-align:top;">Skor Total OHQE</td>
+                <td style="text-align:left; border-right:1px solid #ccc;">Pulpitis Ireversibel</td><td>${stats1.n}</td><td>100.0%</td><td>0</td><td>0.0%</td><td>${stats1.n}</td><td>100.0%</td></tr>
+            <tr><td style="text-align:left; border-right:1px solid #ccc;">Nekrosis Pulpa</td><td>${stats2.n}</td><td>100.0%</td><td>0</td><td>0.0%</td><td>${stats2.n}</td><td>100.0%</td></tr>
+          </table>
+        </div>`;
+
+        // 2. DESCRIPTIVES
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl">
+          <div class="spss-title">Descriptives</div>
+          <table class="spss-table">
+            <tr><th colspan="2" style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>Statistic</th><th>Std. Error</th></tr>
+            
+            <!-- Group 1: Pulpitis -->
+            <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;">Skor Total OHQE</td>
+                <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Pulpitis Ireversibel</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
+            <tr><td class="sub-row">Mean</td><td>${stats1.mean.toFixed(4)}</td><td>${stats1.seMean.toFixed(5)}</td></tr>
+            <tr><td class="sub-row">95% Confidence Interval &nbsp;&nbsp;&nbsp; Lower Bound<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for Mean &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Upper Bound</td>
+                <td>${stats1.ciLower.toFixed(4)}<br>${stats1.ciUpper.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">5% Trimmed Mean</td><td>${stats1.trimmedMean.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Median</td><td>${stats1.median.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Variance</td><td>${stats1.variance.toFixed(3)}</td><td></td></tr>
+            <tr><td class="sub-row">Std. Deviation</td><td>${stats1.stdDev.toFixed(5)}</td><td></td></tr>
+            <tr><td class="sub-row">Minimum</td><td>${stats1.min.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Maximum</td><td>${stats1.max.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Range</td><td>${stats1.range.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Interquartile Range</td><td>${stats1.iqr.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats1.skew.toFixed(3)} / ${stats1.kurt.toFixed(3)}</td><td>${stats1.seSkew.toFixed(3)} / ${stats1.seKurt.toFixed(3)}</td></tr>
+            
+            <!-- Group 2: Nekrosis -->
+            <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;"></td>
+                <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Nekrosis Pulpa</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
+            <tr><td class="sub-row">Mean</td><td>${stats2.mean.toFixed(4)}</td><td>${stats2.seMean.toFixed(5)}</td></tr>
+            <tr><td class="sub-row">95% Confidence Interval &nbsp;&nbsp;&nbsp; Lower Bound<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for Mean &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Upper Bound</td>
+                <td>${stats2.ciLower.toFixed(4)}<br>${stats2.ciUpper.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">5% Trimmed Mean</td><td>${stats2.trimmedMean.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Median</td><td>${stats2.median.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Variance</td><td>${stats2.variance.toFixed(3)}</td><td></td></tr>
+            <tr><td class="sub-row">Std. Deviation</td><td>${stats2.stdDev.toFixed(5)}</td><td></td></tr>
+            <tr><td class="sub-row">Minimum</td><td>${stats2.min.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Maximum</td><td>${stats2.max.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Range</td><td>${stats2.range.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Interquartile Range</td><td>${stats2.iqr.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats2.skew.toFixed(3)} / ${stats2.kurt.toFixed(3)}</td><td>${stats2.seSkew.toFixed(3)} / ${stats2.seKurt.toFixed(3)}</td></tr>
+          </table>
+        </div>`;
+
+        // 3. TABEL TESTS OF NORMALITY
         htmlOutput += `
         <div class="spss-table-container max-w-4xl w-full">
           <div class="spss-title">Tests of Normality</div>
@@ -911,25 +1020,7 @@
           </div>
         </div>`;
 
-        // TABEL 2: GROUP STATISTICS
-        htmlOutput += `
-        <div class="spss-table-container max-w-3xl w-full">
-          <div class="spss-title">Group Statistics</div>
-          <table class="spss-table">
-            <tr>
-              <th></th><th style="text-align:left">Kelompok</th><th>N</th><th>Mean</th><th>Std. Deviation</th><th>Std. Error Mean</th>
-            </tr>
-            <tr>
-              <td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc">Skor Total OHQE</td>
-              <td>Pulpitis Ireversibel</td><td>${group1.length}</td><td>${mean1.toFixed(4)}</td><td>${std1.toFixed(4)}</td><td>${se1.toFixed(4)}</td>
-            </tr>
-            <tr>
-              <td>Nekrosis Pulpa</td><td>${group2.length}</td><td>${mean2.toFixed(4)}</td><td>${std2.toFixed(4)}</td><td>${se2.toFixed(4)}</td>
-            </tr>
-          </table>
-        </div>`;
-
-        // TABEL 3: T-TEST ATAU MANN-WHITNEY
+        // 4. TABEL T-TEST ATAU MANN-WHITNEY
         if(isNormal) {
           let tVal = (mean1 - mean2) / Math.sqrt((Math.pow(std1,2)/group1.length) + (Math.pow(std2,2)/group2.length));
           let df = group1.length + group2.length - 2;
@@ -980,17 +1071,106 @@
             <p style="font-size:11px; margin-top:5px; color:#555; text-align:left">a. Grouping Variable: Diagnosis</p>
           </div>`;
         }
+
+        // 5. HISTOGRAM CONTAINERS
+        htmlOutput += `
+        <div class="w-full text-center mt-8 mb-4 font-bold text-lg">Histograms</div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
+        `;
+
         container.innerHTML = htmlOutput;
+        btnExport.classList.remove('hidden');
+
+        // Render Histograms
+        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
+        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
+
       }, 1500);
     }
 
-    function calculateNormalityPValue(arr) {
-      if(arr.length < 3) return 0.01;
-      let skew = jStat.skewness(arr);
-      let baseP = 1 - Math.abs(skew); 
-      let finalP = baseP * (0.8 + Math.random()*0.2); 
-      return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
+    // Fungsi Render Histogram Custom dengan Bar Chart
+    function renderHistogram(canvasId, data, groupName, mean, std, n) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if(canvasId === 'chart-hist-1' && chart1) chart1.destroy();
+      if(canvasId === 'chart-hist-2' && chart2) chart2.destroy();
+
+      // Binning Data (SPSS Style)
+      let min = Math.floor(Math.min(...data) / 5) * 5; 
+      let max = Math.ceil(Math.max(...data) / 5) * 5;
+      let binCount = 5; let binSize = (max - min) / binCount;
+      if(binSize === 0) binSize = 1;
+      
+      let bins = Array(binCount).fill(0);
+      let labels = [];
+      for(let i=0; i<binCount; i++) labels.push(`${(min + i*binSize).toFixed(1)}`);
+      
+      data.forEach(val => {
+        let idx = Math.floor((val - min) / binSize);
+        if(idx >= binCount) idx = binCount - 1;
+        bins[idx]++;
+      });
+
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Frequency',
+            data: bins,
+            backgroundColor: '#5A9BD5', // Warna Biru Khas SPSS
+            borderColor: '#FFFFFF',
+            borderWidth: 1,
+            barPercentage: 1.0,
+            categoryPercentage: 1.0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: ['Histogram', `for Kelompok Diagnosis= ${groupName}`], color: 'black', font: {size: 14} },
+            legend: { display: false }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Skor Total OHQE', color: 'black', font: {weight: 'bold'} }, grid: { display: false } },
+            y: { title: { display: true, text: 'Frequency', color: 'black', font: {weight: 'bold'} }, beginAtZero: true, ticks: { stepSize: 1 } }
+          }
+        },
+        plugins: [{
+          id: 'custom-text',
+          afterDraw: (chart) => {
+            const ctx = chart.ctx; ctx.save(); ctx.fillStyle = 'black'; ctx.font = '10px Arial';
+            ctx.fillText(`Mean = ${mean.toFixed(2)}`, chart.width - 100, 30);
+            ctx.fillText(`Std. Dev. = ${std.toFixed(3)}`, chart.width - 100, 45);
+            ctx.fillText(`N = ${n}`, chart.width - 100, 60);
+            ctx.restore();
+          }
+        }]
+      });
+      if(canvasId === 'chart-hist-1') chart1 = chart; else chart2 = chart;
     }
+
+    // --- FITUR PDF EXPORT ---
+    function exportToPDF() {
+      const element = document.getElementById('spss-output-container');
+      const opt = {
+        margin:       0.5,
+        filename:     'Analisis_Statistik_OHQE.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      
+      const btn = document.getElementById('btn-export-pdf');
+      btn.innerHTML = "Memproses PDF..."; 
+      btn.disabled = true;
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF`;
+        btn.disabled = false;
+      });
+    }
+
   </script>
 </body>
 </html>

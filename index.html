@@ -77,7 +77,6 @@
                 <div class="flex items-stretch gap-3 w-full">
                     
                     <!-- PENGGUNAAN IMG DENGAN BASE64 -->
-                    <!-- Tag img ini akan diisi dengan src="data:image/jpeg;base64,..." -->
                     <img id="captchaImage" class="flex-1 object-cover bg-white border-2 border-gray-300 rounded-lg h-20 shadow-inner cursor-pointer" alt="Captcha Base64" onclick="refreshCaptcha()" title="Klik gambar untuk ganti kode" src="">
                     
                     <!-- Tombol Refresh Eksternal -->
@@ -104,7 +103,7 @@
                     </button>
                 </div>
             </div>
-            <!-- Pesan Kesalahan -->
+            <!-- Pesan Kesalahan / Sukses -->
             <p id="captchaMsg" class="mt-3 text-sm font-medium text-center hidden"></p>
         </div>
 
@@ -150,7 +149,7 @@
             offScreenCanvas.width = 300;
             offScreenCanvas.height = 80;
 
-            // 2. Beri background putih (Wajib untuk JPEG agar tidak menjadi hitam)
+            // 2. Beri background putih
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
             
@@ -217,7 +216,6 @@
             });
 
             // 6. Konversi kanvas virtual menjadi URL Data (Base64 JPEG)
-            // Format output: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ..."
             return offScreenCanvas.toDataURL('image/jpeg', 0.9);
         }
 
@@ -262,7 +260,7 @@
 
             setTimeout(() => {
                 if(inputVal === currentCaptchaCode) {
-                    // BERHASIL
+                    // --- BERHASIL ---
                     msgEl.textContent = 'Verifikasi berhasil. Mengalihkan...';
                     msgEl.className = 'mt-3 text-sm font-semibold text-center text-green-500 block';
                     
@@ -274,8 +272,15 @@
                     btnSpinner.classList.remove('flex');
                     btnCheck.classList.remove('hidden');
 
+                    // ==========================================
+                    // REDIRECT KE AXA-EKLINIK SETELAH 1 DETIK
+                    // ==========================================
+                    setTimeout(() => {
+                        window.location.href = "https://axa-eklinik.vercel.app";
+                    }, 1000);
+
                 } else {
-                    // GAGAL
+                    // --- GAGAL ---
                     msgEl.textContent = 'Kode tidak valid. Coba lagi.';
                     msgEl.className = 'mt-3 text-sm font-semibold text-center text-red-500 block';
                     
@@ -313,7 +318,7 @@
 
         // Inisialisasi awal saat halaman dimuat
         window.onload = () => {
-            refreshCaptcha(); // Langsung memanggil refresh untuk membuat gambar pertama
+            refreshCaptcha(); 
         };
     </script>
 </body>

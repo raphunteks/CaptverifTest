@@ -13,8 +13,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Library JStat untuk perhitungan SPSS Engine & G*Power -->
   <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
-  <!-- Library Chart.js untuk Histogram -->
+  <!-- Library Chart.js untuk Histogram & G*Power Graph -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.2/dist/chartjs-plugin-annotation.min.js"></script>
   <!-- Library HTML2PDF untuk Export ke PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -67,7 +68,6 @@
     }
     .btn-neon:disabled { opacity: 0.4; cursor: not-allowed; border-color: #4b5563; color: #9ca3af; box-shadow: none; transform: none; }
 
-    /* Custom Radio Buttons - Super Responsive */
     .radio-group input[type="radio"] { display: none; }
     .radio-group label {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -93,16 +93,12 @@
       transform: scale(0.98);
     }
     .radio-group label span.num { font-size: 1.1rem; font-weight: 700; }
-    
-    /* Dedicated Style for 1-10 VAS Scale */
     .vas-group label { min-height: 48px; border-radius: 0.4rem; padding: 5px; }
 
-    /* SOLUSI BUG SCROLLING: Menggunakan display: none untuk Step */
     .step-content { display: none; animation: fadeInStep 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; width: 100%; }
     .step-content.active { display: block; }
     @keyframes fadeInStep { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* Input Styling Premium */
     input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select, textarea {
       background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white;
       transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset; appearance: none;
@@ -111,14 +107,12 @@
       outline: none; border-color: var(--neon-green); 
       box-shadow: 0 0 0 1px var(--neon-green) inset, 0 0 10px rgba(57,255,20,0.1); 
     }
-    
     select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2339ff14' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
       background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;
     }
     select option { background-color: var(--bg-dark); color: white; }
 
-    /* SPSS Table Styling Update (Termasuk export PDF support) */
     .spss-wrapper { background: white; color: black; padding: 30px; border-radius: 8px; margin-bottom: 20px;}
     .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
     .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;}
@@ -148,20 +142,17 @@
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: rgba(57, 255, 20, 0.3); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
-
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body class="p-3 sm:p-6 md:p-8 flex justify-center items-start min-h-screen">
 
-  <!-- Global Loader -->
   <div id="loader">
     <div class="spinner mb-5"></div>
     <p class="text-neon text-sm font-bold tracking-[0.2em] animate-pulse">AXA XYZ SYSTEM INIT</p>
     <p class="text-gray-400 text-xs mt-2" id="loader-subtext">Mengambil Database...</p>
   </div>
 
-  <!-- Custom Alert Modal -->
   <div id="custom-alert" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
     <div class="glass-card p-6 rounded-2xl max-w-sm w-full text-center border shadow-xl transform scale-95 transition-transform duration-300" id="custom-alert-box">
       <div class="w-16 h-16 mx-auto bg-red-900/30 rounded-full flex items-center justify-center mb-4 border border-red-500 text-red-500" id="alert-icon-container">
@@ -181,10 +172,8 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
     </button>
 
-    <!-- Header & Progress Bar -->
     <div class="mb-8" id="progress-container">
       <div class="text-center mb-6 flex flex-col items-center">
-        <!-- CUSTOM FAVICON LOGO IMPLEMENTATION -->
         <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
         <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Kuesioner <span class="text-neon">OHQE</span></h1>
         <p class="text-xs sm:text-sm text-gray-400 mt-1">Klinik Endodontik AXA XYZ</p>
@@ -201,9 +190,8 @@
 
     <form id="ohqeForm" onsubmit="event.preventDefault(); submitData();">
       
-      <!-- STEP 1: BIODATA & VARIABEL SKRIPSI -->
+      <!-- STEP 1: BIODATA -->
       <div id="step-1" class="step-content active">
-        
         <div class="mb-8 p-5 bg-red-900/20 border border-red-500/50 rounded-xl relative overflow-hidden shadow-sm">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
           <h2 class="text-base font-bold text-red-400 mb-2 flex items-center">
@@ -227,7 +215,6 @@
         </h2>
         
         <div class="space-y-5">
-          <!-- Row 1: Nama & No HP -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
@@ -238,8 +225,6 @@
               <input type="tel" id="noHp" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Contoh: 08123456789">
             </div>
           </div>
-
-          <!-- Row 2: Usia & Gender -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
@@ -254,8 +239,6 @@
               </select>
             </div>
           </div>
-
-          <!-- Row 3: Pekerjaan & Pendidikan -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
@@ -278,8 +261,6 @@
               </select>
             </div>
           </div>
-
-          <!-- Row 4: Upah/UMR -->
           <div>
             <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
             <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
@@ -325,10 +306,8 @@
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
           <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 4</span> Visual Analogue Scale (VAS)
         </h2>
-        
         <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
           <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium">Pilih 1 angka yang paling menggambarkan tingkat intensitas nyeri gigi Anda saat ini.</p>
-          
           <div class="grid grid-cols-6 sm:grid-cols-11 gap-2 radio-group vas-group mb-6">
             <input type="radio" name="vas_score" id="vas_0" value="0" required onchange="updateVasDesc(0)"><label for="vas_0"><span class="num text-lg">0</span></label>
             <input type="radio" name="vas_score" id="vas_1" value="1" required onchange="updateVasDesc(1)"><label for="vas_1"><span class="num text-lg">1</span></label>
@@ -342,7 +321,6 @@
             <input type="radio" name="vas_score" id="vas_9" value="9" required onchange="updateVasDesc(9)"><label for="vas_9"><span class="num text-lg">9</span></label>
             <input type="radio" name="vas_score" id="vas_10" value="10" required onchange="updateVasDesc(10)"><label for="vas_10"><span class="num text-lg">10</span></label>
           </div>
-          
           <div class="p-4 bg-gray-900 border border-neon rounded-lg text-center min-h-[80px] flex items-center justify-center">
             <p id="vas-desc-text" class="text-white font-medium text-sm md:text-base">Silakan pilih angka di atas.</p>
           </div>
@@ -407,10 +385,15 @@
           <p class="text-xs sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p>
         </div>
       </div>
-      <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Mode Kuesioner
-      </button>
+      <div class="flex gap-2">
+        <button onclick="logout()" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
+           Logout
+        </button>
+        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Mode Kuesioner
+        </button>
+      </div>
     </div>
 
     <!-- TAB NAVIGATION -->
@@ -421,9 +404,17 @@
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
     </div>
 
-    <!-- TAB 1: DATA TABLE -->
+    <!-- TAB 1: DATA TABLE DENGAN SUB-TABS UNTUK OHQE, VAS, MDAS -->
     <div id="tab-data" class="block">
-      <div class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+      <div class="flex space-x-2 mb-4">
+        <button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="px-3 py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md">Tabel OHQE</button>
+        <button onclick="switchSubTable('vas')" id="btn-sub-vas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel VAS</button>
+        <button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel MDAS</button>
+        <span class="ml-auto text-xs text-green-400 flex items-center animate-pulse"><div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div> Auto-Sync Active</span>
+      </div>
+
+      <!-- OHQE TABLE -->
+      <div id="subtable-ohqe" class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
         <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
             <tr>
@@ -432,11 +423,43 @@
               <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
               <th class="px-5 py-4 font-semibold tracking-wide">Nomor HP</th>
               <th class="px-5 py-4 font-semibold tracking-wide">Gender</th>
-              <th class="px-5 py-4 font-semibold tracking-wide text-red-400">Skor VAS</th>
               <th class="px-5 py-4 font-semibold tracking-wide text-neon border-l border-gray-700/50">Total OHQE</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi</th>
             </tr>
           </thead>
-          <tbody id="admin-table-body" class="divide-y divide-gray-800/50"></tbody>
+          <tbody id="admin-table-body-ohqe" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+      </div>
+
+      <!-- VAS TABLE -->
+      <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-red-400 border-l border-gray-700/50">Skor VAS</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi VAS</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body-vas" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+      </div>
+
+      <!-- MDAS TABLE -->
+      <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-yellow-400 border-l border-gray-700/50">Skor MDAS</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi MDAS</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body-mdas" class="divide-y divide-gray-800/50"></tbody>
         </table>
       </div>
     </div>
@@ -445,7 +468,7 @@
     <div id="tab-spss" class="hidden">
       <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
-        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* untuk menentukan distribusi data, dilanjutkan dengan Uji Beda Parametrik (*Independent T-Test*) atau Non-Parametrik (*Mann-Whitney U*), Descriptives, dan Case Processing.</p>
+        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* untuk menentukan distribusi data, dilanjutkan dengan Uji Beda Parametrik (*Independent T-Test*) atau Non-Parametrik (*Mann-Whitney U*), Descriptives, dan Case Processing. <br><span class="text-white font-bold">Data yang dianalisis saat ini dikhususkan pada Skor OHQE.</span></p>
       </div>
 
       <div class="flex justify-center mb-6 gap-3">
@@ -456,7 +479,7 @@
       </div>
 
       <div id="spss-wrapper" class="hidden rounded-xl">
-        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center">
+        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center bg-white">
           <!-- Canvas dan Tabel akan digenerate disini -->
         </div>
       </div>
@@ -466,80 +489,68 @@
     <div id="tab-gpower" class="hidden">
       <div class="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-purple-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> G*Power 3.1 Simulator (A Priori Sample Size)</h3>
-        <p class="text-sm text-gray-300 mb-3">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b> (Kelompok Pulpitis vs Nekrosis).</p>
-        
-        <div class="bg-black/30 p-3 rounded border border-gray-600/50 mb-2 text-xs text-gray-300">
-          <p class="font-bold text-white mb-1">Panduan Pengisian Parameter (Khusus Peneliti):</p>
-          <ul class="list-disc pl-4 space-y-1">
-             <li><b>Tail(s):</b> Pilih <b>Two</b> (Dua arah) untuk mendeteksi perbedaan secara umum.</li>
-             <li><b>Effect size d:</b> Ukuran kekuatan perbedaan (Cohen's d). Standar: <b>0.5</b> (Sedang), atau 0.8 (Besar). Sesuaikan dengan jurnal referensi Anda.</li>
-             <li><b>α err prob (Alpha):</b> Tingkat batas kemaknaan (Signifikansi). Standar kedokteran gigi adalah <b>0.05</b>.</li>
-             <li><b>Power (1-β err prob):</b> Kekuatan uji statistik. Standar minimal penelitian klinis adalah <b>0.80</b> (80%) atau 0.90 (90%).</li>
-             <li><b>Allocation ratio:</b> Rasio jumlah sampel antar kelompok. Isi <b>1</b> jika jumlah sampel Pulpitis & Nekrosis diasumsikan seimbang.</li>
+        <p class="text-sm text-gray-300 mb-3">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b>.</p>
+        <p class="text-xs text-white font-bold mb-2">PANDUAN PENELITI: "PERBEDAAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT ANTARA PASIEN ENDODONTIK DENGAN PULPITIS IREVERSIBEL DAN NEKROSIS PULPA DI RSKDGM PROVINSI SULAWESI SELATAN"</p>
+        <div class="bg-black/40 p-4 rounded-lg border border-gray-600/50 mb-2 text-xs text-gray-300">
+          <ul class="list-disc pl-4 space-y-2">
+             <li><b>Tail(s):</b> Pilih <b>Two</b> (Dua arah) karena Anda mencari "Perbedaan" (bisa lebih tinggi atau lebih rendah).</li>
+             <li><b>Effect size d:</b> Ukuran kekuatan perbedaan secara klinis (Cohen's d). Default standar menengah adalah <b>0.5</b>.</li>
+             <li><b>α err prob (Alpha):</b> Tingkat batas kemaknaan (Signifikansi). Untuk riset kedokteran gigi umumnya <b>0.05</b> (Tingkat kepercayaan 95%).</li>
+             <li><b>Power (1-β err prob):</b> Probabilitas menolak H0 yang salah. Standar minimal penelitian klinis adalah <b>0.80</b> (80%).</li>
+             <li><b>Allocation ratio:</b> Rasio perbandingan jumlah sampel Grup 1 (Pulpitis) dan Grup 2 (Nekrosis). Isi <b>1</b> jika diasumsikan seimbang.</li>
           </ul>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Input Parameters -->
-        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
+        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 h-fit">
           <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Input Parameters</h4>
           <div class="space-y-4">
             <div class="flex justify-between items-center">
               <label class="text-sm text-gray-300">Tail(s)</label>
-              <select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none">
+              <select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none" onchange="calculateGPower()">
                 <option value="1">One</option>
                 <option value="2" selected>Two</option>
               </select>
             </div>
             <div class="flex justify-between items-center">
               <label class="text-sm text-gray-300">Effect size d</label>
-              <input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+              <input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
             </div>
             <div class="flex justify-between items-center">
               <label class="text-sm text-gray-300">α err prob</label>
-              <input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+              <input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
             </div>
             <div class="flex justify-between items-center">
               <label class="text-sm text-gray-300">Power (1-β err prob)</label>
-              <input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+              <input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
             </div>
             <div class="flex justify-between items-center">
               <label class="text-sm text-gray-300">Allocation ratio N2/N1</label>
-              <input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+              <input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
             </div>
-            <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate Sample Size</button>
+            <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate</button>
           </div>
         </div>
 
-        <!-- Output Parameters -->
-        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
-          <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
-          <div class="space-y-4" id="gp-output">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-400">Noncentrality parameter δ</span>
-              <span id="out-delta" class="font-bold text-white">-</span>
+        <!-- Output Parameters & Plot -->
+        <div class="flex flex-col gap-4">
+          <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
+            <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
+            <div class="space-y-2" id="gp-output">
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Noncentrality parameter δ</span><span id="out-delta" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center mt-2"><span class="text-sm text-gray-400">Sample size group 1</span><span id="out-n1" class="font-bold text-neon text-lg">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Sample size group 2</span><span id="out-n2" class="font-bold text-neon text-lg">-</span></div>
+              <div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-2xl">-</span></div>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-400">Critical t</span>
-              <span id="out-tcrit" class="font-bold text-white">-</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-400">Df</span>
-              <span id="out-df" class="font-bold text-white">-</span>
-            </div>
-            <div class="flex justify-between items-center mt-4">
-              <span class="text-sm text-gray-400">Sample size group 1</span>
-              <span id="out-n1" class="font-bold text-neon text-lg">-</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-400">Sample size group 2</span>
-              <span id="out-n2" class="font-bold text-neon text-lg">-</span>
-            </div>
-            <div class="flex justify-between items-center pt-3 border-t border-gray-600 mt-2">
-              <span class="text-sm font-bold text-white">Total sample size</span>
-              <span id="out-ntot" class="font-bold text-neon text-2xl">-</span>
-            </div>
+          </div>
+          
+          <!-- Graphic Plot Container -->
+          <div class="bg-white p-2 rounded-xl border border-gray-300 w-full" style="min-height: 200px;">
+             <canvas id="gpowerPlot"></canvas>
           </div>
         </div>
       </div>
@@ -569,10 +580,14 @@
     // =========================================================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwGhl3KoCh0tgjGlaqvMhyfXE7TLdg2yVTXUT76fuPN6Wk7aMAde3z3fEVANcRgPyU/exec"; 
 
-    // --- 2. GLOBAL VARIABLE PERTANYAAN ---
+    // --- 2. GLOBAL VARIABLES ---
     let qFisik = [];
     let qPsiko = [];
     let qEkspektasi = [];
+    let globalAdminOHQE = []; 
+    let globalAdminVAS = []; 
+    let globalAdminMDAS = []; 
+    let autoUpdateInterval = null; // Auto-update handle
     
     // MDAS Questions
     const qMDAS = [
@@ -606,13 +621,26 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminMode = urlParams.get('page') === 'admin';
-    let globalAdminData = []; 
 
     let chart1 = null; 
     let chart2 = null;
+    let gpowerChart = null;
 
-    // --- 3. INIT FUNCTION ---
+    // --- 3. INIT FUNCTION & AUTO LOGIN ---
     window.onload = () => {
+      if(isAdminMode) {
+        // Auto Login Check
+        if(localStorage.getItem('axa_admin_logged') === 'true') {
+           document.getElementById('loader').style.display = 'none';
+           document.getElementById('login-container').classList.add('hidden');
+           document.getElementById('admin-container').classList.remove('hidden');
+           fetchAdminData();
+           startAutoUpdate();
+           setTimeout(calculateGPower, 1000); // Init Gpower chart
+           return;
+        }
+      }
+
       if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json())
@@ -639,7 +667,7 @@
       renderQuestions(qFisik, 'container-fisik', 'F', ohqeLabels);
       renderQuestions(qPsiko, 'container-psiko', 'P', ohqeLabels);
       renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ohqeLabels);
-      renderQuestions(qMDAS, 'container-mdas', 'M', mdasLabels); // MDAS rendering
+      renderQuestions(qMDAS, 'container-mdas', 'M', mdasLabels);
       renderSettingsTab();
 
       setTimeout(() => {
@@ -655,7 +683,6 @@
       }, 300);
     }
 
-    // --- 3.5. CUSTOM ALERT ---
     function showCustomAlert(message, title = "Perhatian") {
       document.getElementById('custom-alert-title').innerText = title;
       document.getElementById('custom-alert-message').innerText = message;
@@ -704,7 +731,6 @@
       container.innerHTML = html;
     }
 
-    // --- VAS LOGIC ---
     function updateVasDesc(val) {
       const textEl = document.getElementById('vas-desc-text');
       textEl.innerHTML = `<span class="text-neon font-bold text-lg mr-2">Skala ${val}:</span> ${vasDescriptions[val]}`;
@@ -847,14 +873,11 @@
         pekerjaan: document.getElementById('pekerjaan').value,
         pendidikan: document.getElementById('pendidikan').value,
         umr: document.getElementById('umr').value,
-        // OHQE
         jawabanF: getAnswers('F', 19),
         jawabanP: getAnswers('P', 10),
         jawabanE: getAnswers('E', 8),
-        // VAS
         vasScore: vasScore,
         vasInter: vasDescriptions[vasScore],
-        // MDAS
         jawabanMDAS: mdasArr,
         mdasScore: mdasScore,
         mdasInter: mdasInter
@@ -913,9 +936,11 @@
       
       if(!GAS_URL) {
         if(u==="axaaxyz_01" && p==="axaxyz999") {
+          localStorage.setItem('axa_admin_logged', 'true');
           document.getElementById('login-container').classList.add('hidden');
           document.getElementById('admin-container').classList.remove('hidden');
           fetchAdminData();
+          setTimeout(calculateGPower, 1000);
         } else {
           showCustomAlert("URL GAS Belum diset. Gunakan axaaxyz_01 / axaxyz999 untuk demo.", "Demo Login Gagal");
         }
@@ -931,9 +956,12 @@
           try {
             const res = JSON.parse(text);
             if(res.success) {
+              localStorage.setItem('axa_admin_logged', 'true');
               document.getElementById('login-container').classList.add('hidden');
               document.getElementById('admin-container').classList.remove('hidden');
               fetchAdminData();
+              startAutoUpdate();
+              setTimeout(calculateGPower, 1000);
             } else {
               showCustomAlert("Username atau Password yang Anda masukkan salah!", "Login Gagal");
             }
@@ -948,8 +976,43 @@
         });
     }
 
-    function fetchAdminData() {
+    function logout() {
+      localStorage.removeItem('axa_admin_logged');
+      if(autoUpdateInterval) clearInterval(autoUpdateInterval);
+      window.location.reload();
+    }
+
+    // AUTO UPDATE LOGIC
+    function startAutoUpdate() {
+       autoUpdateInterval = setInterval(() => {
+          fetchAdminDataSilent();
+       }, 10000); // 10 seconds polling
+    }
+
+    function fetchAdminDataSilent() {
       if(!GAS_URL) return;
+      fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
+        .then(r => r.text())
+        .then(text => {
+          try {
+            const data = JSON.parse(text);
+            if(data.ohqe) {
+               globalAdminOHQE = data.ohqe; 
+               globalAdminVAS = data.vas;
+               globalAdminMDAS = data.mdas;
+               renderTables(); 
+            }
+          } catch(e) {}
+        }).catch(err => {});
+    }
+
+    function fetchAdminData() {
+      if(!GAS_URL) {
+         // Mock data parsing for testing without backend
+         globalAdminOHQE = []; globalAdminVAS = []; globalAdminMDAS = [];
+         renderTables();
+         return;
+      }
 
       fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
         .then(response => {
@@ -959,9 +1022,11 @@
         .then(text => {
           try {
             const data = JSON.parse(text);
-            if(Array.isArray(data)) {
-               globalAdminData = data; 
-               renderTable(data); 
+            if(data.ohqe) {
+               globalAdminOHQE = data.ohqe; 
+               globalAdminVAS = data.vas;
+               globalAdminMDAS = data.mdas;
+               renderTables(); 
             } else if (data.status === 'error') {
                showCustomAlert("Error dari server: " + data.message, "Fetch Error");
             } else {
@@ -994,36 +1059,95 @@
       document.getElementById('btn-'+tabId).classList.add('border-b-2', 'border-neon');
     }
 
-    function renderTable(data) {
-      const tb = document.getElementById('admin-table-body');
-      if(!data || !data.length) { tb.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Belum ada data responden.</td></tr>`; return; }
-      
-      let html = '';
-      data.forEach(row => {
-        // Diagnosis is now correctly mapped back to index 9
-        let diagnosis = row[9];
-        // OHQE scores start from index 10 to index 46
-        let totalOHQE = 0;
-        for(let i=10; i<=46; i++) { totalOHQE += parseInt(row[i]) || 0; }
-        
-        // VAS Score is appended at the very end of the row array (Index 47) from the backend getAdminData
-        let vasScore = row[47] || "-";
-        
-        html += `
-          <tr class="hover:bg-gray-800/80 transition-colors group">
-            <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
-            <td class="px-5 py-3.5 text-xs font-bold ${diagnosis==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${diagnosis || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
-            <td class="px-5 py-3.5 text-xs text-gray-300">${row[3]}</td>
-            <td class="px-5 py-3.5 text-sm text-gray-300">
-              <span class="px-2 py-1 text-[0.65rem] uppercase tracking-wider rounded bg-gray-800 border border-gray-700">${row[5]}</span>
-            </td>
-            <td class="px-5 py-3.5 font-bold text-red-400">${vasScore}</td>
-            <td class="px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${totalOHQE}</td>
-          </tr>
-        `;
+    function switchSubTable(type) {
+      document.getElementById('subtable-ohqe').classList.add('hidden');
+      document.getElementById('subtable-vas').classList.add('hidden');
+      document.getElementById('subtable-mdas').classList.add('hidden');
+      document.getElementById('subtable-'+type).classList.remove('hidden');
+
+      const btns = ['btn-sub-ohqe', 'btn-sub-vas', 'btn-sub-mdas'];
+      btns.forEach(btn => {
+        document.getElementById(btn).classList.remove('bg-neon', 'text-bg-dark');
+        document.getElementById(btn).classList.add('bg-gray-800', 'text-gray-400');
       });
-      tb.innerHTML = html;
+      document.getElementById('btn-sub-'+type).classList.replace('bg-gray-800', 'bg-neon');
+      document.getElementById('btn-sub-'+type).classList.replace('text-gray-400', 'text-bg-dark');
+    }
+
+    function renderTables() {
+      // 1. OHQE TABLE
+      const tbOHQE = document.getElementById('admin-table-body-ohqe');
+      if(!globalAdminOHQE || !globalAdminOHQE.length) { 
+          tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Belum ada data responden OHQE.</td></tr>`; 
+      } else {
+        let htmlOHQE = '';
+        globalAdminOHQE.forEach(row => {
+          let diagnosis = row[9];
+          let totalOHQE = 0;
+          for(let i=10; i<=46; i++) { totalOHQE += parseInt(row[i]) || 0; }
+          
+          let interOHQE = "Sedang";
+          if(totalOHQE < 74) interOHQE = "Baik";
+          else if(totalOHQE > 111) interOHQE = "Buruk";
+
+          htmlOHQE += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${diagnosis==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${diagnosis || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 text-xs text-gray-300">${row[3]}</td>
+              <td class="px-5 py-3.5 text-sm text-gray-300">
+                <span class="px-2 py-1 text-[0.65rem] uppercase tracking-wider rounded bg-gray-800 border border-gray-700">${row[5]}</span>
+              </td>
+              <td class="px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${totalOHQE}</td>
+              <td class="px-5 py-3.5 font-bold text-blue-400">${interOHQE}</td>
+            </tr>
+          `;
+        });
+        tbOHQE.innerHTML = htmlOHQE;
+      }
+
+      // 2. VAS TABLE
+      const tbVAS = document.getElementById('admin-table-body-vas');
+      if(!globalAdminVAS || !globalAdminVAS.length) { 
+          tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Belum ada data responden VAS.</td></tr>`; 
+      } else {
+        let htmlVAS = '';
+        globalAdminVAS.forEach(row => {
+          // based on headers VAS: 0(ID), 1(Time), 2(Name), ..., 9(Diagnosis), 10(Scale), 11(Score), 12(Inter)
+          htmlVAS += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[11] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-blue-400">${row[12] || '-'}</td>
+            </tr>
+          `;
+        });
+        tbVAS.innerHTML = htmlVAS;
+      }
+
+      // 3. MDAS TABLE
+      const tbMDAS = document.getElementById('admin-table-body-mdas');
+      if(!globalAdminMDAS || !globalAdminMDAS.length) { 
+          tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Belum ada data responden MDAS.</td></tr>`; 
+      } else {
+        let htmlMDAS = '';
+        globalAdminMDAS.forEach(row => {
+          // based on headers MDAS: 0(ID), ..., 9(Diag), 10-14(Q1-5), 15(Score), 16(Inter)
+          htmlMDAS += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[15] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-blue-400">${row[16] || '-'}</td>
+            </tr>
+          `;
+        });
+        tbMDAS.innerHTML = htmlMDAS;
+      }
     }
 
     // --- 8. EDITOR PERTANYAAN ADMIN ---
@@ -1096,27 +1220,23 @@
       });
     }
 
-    // --- 9. G*POWER CALCULATOR LOGIC ---
+    // --- 9. G*POWER CALCULATOR LOGIC (UPGRADED WITH GRAPH) ---
     function calculateGPower() {
       const tails = parseFloat(document.getElementById('gp-tail').value);
       const d = parseFloat(document.getElementById('gp-d').value);
       const alpha = parseFloat(document.getElementById('gp-alpha').value);
       const power = parseFloat(document.getElementById('gp-power').value);
-      const ratio = parseFloat(document.getElementById('gp-ratio').value); // N2/N1
+      const ratio = parseFloat(document.getElementById('gp-ratio').value); 
 
-      // Z scores for Alpha and Beta
       const zAlpha = Math.abs(jStat.normal.inv(tails === 2 ? alpha/2 : alpha, 0, 1));
       const zBeta = Math.abs(jStat.normal.inv(1-power, 0, 1));
       
-      // Independent T-Test Sample Size Formula calculation (approximation)
       const n1_calc = ((1 + 1/ratio) * Math.pow(zAlpha + zBeta, 2)) / Math.pow(d, 2);
-      
       const n1 = Math.ceil(n1_calc);
       const n2 = Math.ceil(n1 * ratio);
       const nTotal = n1 + n2;
       const df = nTotal - 2;
       
-      // Critical t and Noncentrality parameter calculation
       const tCrit = jStat.studentt.inv(tails === 2 ? 1-alpha/2 : 1-alpha, df);
       const nonCentrality = d * Math.sqrt((n1 * n2) / nTotal);
 
@@ -1126,6 +1246,101 @@
       document.getElementById('out-n1').innerText = n1;
       document.getElementById('out-n2').innerText = n2;
       document.getElementById('out-ntot').innerText = nTotal;
+
+      drawGPowerPlot(df, tCrit, nonCentrality, tails);
+    }
+
+    function drawGPowerPlot(df, tCrit, delta, tails) {
+       const ctx = document.getElementById('gpowerPlot').getContext('2d');
+       if(gpowerChart) gpowerChart.destroy();
+
+       let labels = [];
+       let dataH0 = [];
+       let dataH1 = [];
+       
+       let minX = -4;
+       let maxX = Math.max(4, delta + 4);
+       let step = (maxX - minX) / 100;
+       
+       for(let x = minX; x <= maxX; x += step) {
+           labels.push(x.toFixed(2));
+           // Distribution H0 (Central T)
+           dataH0.push(jStat.studentt.pdf(x, df));
+           // Distribution H1 (Approximated Non-Central T by shifting)
+           dataH1.push(jStat.studentt.pdf(x - delta, df));
+       }
+
+       gpowerChart = new Chart(ctx, {
+           type: 'line',
+           data: {
+               labels: labels,
+               datasets: [
+                   {
+                       label: 'H0 Distribution',
+                       data: dataH0,
+                       borderColor: 'red',
+                       borderWidth: 2,
+                       pointRadius: 0,
+                       fill: false,
+                       tension: 0.4
+                   },
+                   {
+                       label: 'H1 Distribution',
+                       data: dataH1,
+                       borderColor: 'blue',
+                       borderWidth: 2,
+                       borderDash: [5, 5],
+                       pointRadius: 0,
+                       fill: false,
+                       tension: 0.4
+                   }
+               ]
+           },
+           options: {
+               responsive: true,
+               maintainAspectRatio: false,
+               plugins: {
+                   legend: { display: false },
+                   title: { display: true, text: `critical t = ${tCrit.toFixed(5)}`, color: 'black' },
+                   annotation: {
+                      annotations: {
+                         line1: {
+                            type: 'line',
+                            xMin: tCrit.toFixed(2),
+                            xMax: tCrit.toFixed(2),
+                            borderColor: 'green',
+                            borderWidth: 2,
+                         }
+                      }
+                   }
+               },
+               scales: {
+                   x: { 
+                      ticks: {
+                         callback: function(val, index) {
+                            // Show fewer labels for cleaner x axis
+                            return index % 20 === 0 ? this.getLabelForValue(val) : '';
+                         }
+                      }
+                   },
+                   y: { display: true, min: 0 }
+               }
+           },
+           plugins: [{
+              id: 'custom-text',
+              afterDraw: (chart) => {
+                 const ctx = chart.ctx; ctx.save(); ctx.fillStyle = 'blue'; ctx.font = 'bold 16px Arial';
+                 let xPosBeta = chart.scales.x.getPixelForValue((tCrit - 1).toFixed(2));
+                 let yPos = chart.scales.y.getPixelForValue(0.1);
+                 ctx.fillText(`β`, xPosBeta, yPos);
+                 
+                 ctx.fillStyle = 'red';
+                 let xPosAlpha = chart.scales.x.getPixelForValue((tCrit + 0.5).toFixed(2));
+                 ctx.fillText(`α`, xPosAlpha, yPos + 10);
+                 ctx.restore();
+              }
+           }]
+       });
     }
 
     // --- 10. SPSS STATISTICAL ENGINE ---
@@ -1180,11 +1395,9 @@
         let group1 = []; // Pulpitis Ireversibel
         let group2 = []; // Nekrosis Pulpa
         
-        globalAdminData.forEach(r => {
+        globalAdminOHQE.forEach(r => {
           let score = 0;
-          // Fix Index Mapping: OHQE answers start at 10 to 46
           for(let i=10; i<=46; i++) score += parseInt(r[i]) || 0;
-          // Diagnosis is at Index 9
           if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score);
           if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score);
         });

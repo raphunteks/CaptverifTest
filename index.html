@@ -11,7 +11,7 @@
   <link rel="shortcut icon" href="axalogo.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Library JStat untuk perhitungan SPSS Engine -->
+  <!-- Library JStat untuk perhitungan SPSS Engine & G*Power -->
   <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
   <!-- Library Chart.js untuk Histogram -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -93,7 +93,9 @@
       transform: scale(0.98);
     }
     .radio-group label span.num { font-size: 1.1rem; font-weight: 700; }
-    .vas-group label { min-height: 48px; border-radius: 0.4rem; }
+    
+    /* Dedicated Style for 1-10 VAS Scale */
+    .vas-group label { min-height: 48px; border-radius: 0.4rem; padding: 5px; }
 
     /* SOLUSI BUG SCROLLING */
     .step-content { display: none; animation: fadeInStep 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; width: 100%; }
@@ -155,7 +157,7 @@
   <div id="loader">
     <div class="spinner mb-5"></div>
     <p class="text-neon text-sm font-bold tracking-[0.2em] animate-pulse">AXA XYZ SYSTEM INIT</p>
-    <p class="text-gray-400 text-xs mt-2" id="loader-subtext">Mengambil Database Pertanyaan...</p>
+    <p class="text-gray-400 text-xs mt-2" id="loader-subtext">Mengambil Database...</p>
   </div>
 
   <!-- Custom Alert Modal -->
@@ -173,6 +175,7 @@
   <!-- MAIN CONTAINER (RESPONDEN) -->
   <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
     
+    <!-- TOMBOL AKSES ADMIN -->
     <button type="button" onclick="window.location.href='?page=admin'" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 z-20 shadow-sm" title="Masuk ke Dashboard Admin">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
     </button>
@@ -188,10 +191,10 @@
 
       <div class="flex justify-between items-end mb-2">
         <span class="text-xs sm:text-sm font-semibold text-gray-300" id="step-indicator">Step 1: Biodata</span>
-        <span class="text-xs sm:text-sm font-bold text-neon bg-[rgba(57,255,20,0.1)] px-2 py-0.5 rounded-md" id="progress-percentage">20%</span>
+        <span class="text-xs sm:text-sm font-bold text-neon bg-[rgba(57,255,20,0.1)] px-2 py-0.5 rounded-md" id="progress-percentage">16%</span>
       </div>
       <div class="w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden border border-gray-700/50">
-        <div class="bg-[#39ff14] h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_#39ff14]" id="progress-bar" style="width: 20%"></div>
+        <div class="bg-[#39ff14] h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_#39ff14]" id="progress-bar" style="width: 16%"></div>
       </div>
     </div>
 
@@ -223,6 +226,7 @@
         </h2>
         
         <div class="space-y-5">
+          <!-- Row 1: Nama & No HP -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
@@ -234,6 +238,7 @@
             </div>
           </div>
 
+          <!-- Row 2: Usia & Gender -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
@@ -249,6 +254,7 @@
             </div>
           </div>
 
+          <!-- Row 3: Pekerjaan & Pendidikan -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
@@ -272,6 +278,7 @@
             </div>
           </div>
 
+          <!-- Row 4: Upah/UMR -->
           <div>
             <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
             <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
@@ -280,46 +287,21 @@
               <option value="UMR atau di atas UMR">UMR atau di atas UMR</option>
             </select>
           </div>
-
-          <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
-            <label class="block text-sm sm:text-base font-bold mb-2 text-white">Visual Analogue Scale (VAS)</label>
-            <p class="text-xs sm:text-sm text-gray-400 mb-4">Seberapa parah tingkat nyeri gigi yang Anda rasakan? (1 = Sangat Ringan, 10 = Sangat Hebat/Tak Tertahankan)</p>
-            
-            <div class="grid grid-cols-5 sm:grid-cols-10 gap-2 radio-group vas-group">
-              <input type="radio" name="vas_score" id="vas_1" value="1" required><label for="vas_1"><span class="num text-lg">1</span></label>
-              <input type="radio" name="vas_score" id="vas_2" value="2" required><label for="vas_2"><span class="num text-lg">2</span></label>
-              <input type="radio" name="vas_score" id="vas_3" value="3" required><label for="vas_3"><span class="num text-lg">3</span></label>
-              <input type="radio" name="vas_score" id="vas_4" value="4" required><label for="vas_4"><span class="num text-lg">4</span></label>
-              <input type="radio" name="vas_score" id="vas_5" value="5" required><label for="vas_5"><span class="num text-lg">5</span></label>
-              <input type="radio" name="vas_score" id="vas_6" value="6" required><label for="vas_6"><span class="num text-lg">6</span></label>
-              <input type="radio" name="vas_score" id="vas_7" value="7" required><label for="vas_7"><span class="num text-lg">7</span></label>
-              <input type="radio" name="vas_score" id="vas_8" value="8" required><label for="vas_8"><span class="num text-lg">8</span></label>
-              <input type="radio" name="vas_score" id="vas_9" value="9" required><label for="vas_9"><span class="num text-lg">9</span></label>
-              <input type="radio" name="vas_score" id="vas_10" value="10" required><label for="vas_10"><span class="num text-lg">10</span></label>
-            </div>
-          </div>
         </div>
       </div>
 
-      <!-- STEP 2: FISIK -->
+      <!-- STEP 2: OHQE FISIK -->
       <div id="step-2" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
           <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 1</span> Kondisi Fisik
         </h2>
         <div class="p-4 bg-[rgba(57,255,20,0.03)] rounded-xl border border-[rgba(57,255,20,0.15)] text-xs sm:text-sm text-gray-300 mb-6 mt-4">
           <p class="font-semibold text-white mb-2"><span class="text-neon">Instruksi:</span> Jawablah berdasarkan pengalaman Anda terkait sakit gigi akhir-akhir ini.</p>
-          <div class="flex flex-wrap gap-2 sm:gap-4 mt-2">
-            <div class="flex items-center"><span class="w-5 h-5 rounded bg-gray-800 text-center text-xs leading-5 font-bold mr-2 border border-gray-600">1</span> Tidak pernah</div>
-            <div class="flex items-center"><span class="w-5 h-5 rounded bg-gray-800 text-center text-xs leading-5 font-bold mr-2 border border-gray-600">2</span> Jarang</div>
-            <div class="flex items-center"><span class="w-5 h-5 rounded bg-gray-800 text-center text-xs leading-5 font-bold mr-2 border border-gray-600">3</span> Kadang-kadang</div>
-            <div class="flex items-center"><span class="w-5 h-5 rounded bg-gray-800 text-center text-xs leading-5 font-bold mr-2 border border-gray-600">4</span> Sering</div>
-            <div class="flex items-center"><span class="w-5 h-5 rounded bg-gray-800 text-center text-xs leading-5 font-bold mr-2 border border-gray-600">5</span> Sangat sering</div>
-          </div>
         </div>
         <div id="container-fisik" class="space-y-4 sm:space-y-6"></div>
       </div>
 
-      <!-- STEP 3: PSIKOLOGIS -->
+      <!-- STEP 3: OHQE PSIKOLOGIS -->
       <div id="step-3" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
           <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 2</span> Kondisi Psikologis
@@ -328,7 +310,7 @@
         <div id="container-psiko" class="space-y-4 sm:space-y-6"></div>
       </div>
 
-      <!-- STEP 4: EKSPEKTASI -->
+      <!-- STEP 4: OHQE EKSPEKTASI -->
       <div id="step-4" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
           <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 3</span> Ekspektasi Perawatan
@@ -337,8 +319,46 @@
         <div id="container-ekspektasi" class="space-y-4 sm:space-y-6"></div>
       </div>
 
-      <!-- STEP 5: SUCCESS -->
-      <div id="step-5" class="step-content text-center py-10 sm:py-16">
+      <!-- STEP 5: VAS (MOVED HERE) -->
+      <div id="step-5" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 4</span> Visual Analogue Scale (VAS)
+        </h2>
+        
+        <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
+          <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium">Pilih 1 angka yang paling menggambarkan tingkat intensitas nyeri gigi Anda saat ini.</p>
+          
+          <div class="grid grid-cols-6 sm:grid-cols-11 gap-2 radio-group vas-group mb-6">
+            <input type="radio" name="vas_score" id="vas_0" value="0" required onchange="updateVasDesc(0)"><label for="vas_0"><span class="num text-lg">0</span></label>
+            <input type="radio" name="vas_score" id="vas_1" value="1" required onchange="updateVasDesc(1)"><label for="vas_1"><span class="num text-lg">1</span></label>
+            <input type="radio" name="vas_score" id="vas_2" value="2" required onchange="updateVasDesc(2)"><label for="vas_2"><span class="num text-lg">2</span></label>
+            <input type="radio" name="vas_score" id="vas_3" value="3" required onchange="updateVasDesc(3)"><label for="vas_3"><span class="num text-lg">3</span></label>
+            <input type="radio" name="vas_score" id="vas_4" value="4" required onchange="updateVasDesc(4)"><label for="vas_4"><span class="num text-lg">4</span></label>
+            <input type="radio" name="vas_score" id="vas_5" value="5" required onchange="updateVasDesc(5)"><label for="vas_5"><span class="num text-lg">5</span></label>
+            <input type="radio" name="vas_score" id="vas_6" value="6" required onchange="updateVasDesc(6)"><label for="vas_6"><span class="num text-lg">6</span></label>
+            <input type="radio" name="vas_score" id="vas_7" value="7" required onchange="updateVasDesc(7)"><label for="vas_7"><span class="num text-lg">7</span></label>
+            <input type="radio" name="vas_score" id="vas_8" value="8" required onchange="updateVasDesc(8)"><label for="vas_8"><span class="num text-lg">8</span></label>
+            <input type="radio" name="vas_score" id="vas_9" value="9" required onchange="updateVasDesc(9)"><label for="vas_9"><span class="num text-lg">9</span></label>
+            <input type="radio" name="vas_score" id="vas_10" value="10" required onchange="updateVasDesc(10)"><label for="vas_10"><span class="num text-lg">10</span></label>
+          </div>
+          
+          <div class="p-4 bg-gray-900 border border-neon rounded-lg text-center min-h-[80px] flex items-center justify-center">
+            <p id="vas-desc-text" class="text-white font-medium text-sm md:text-base">Silakan pilih angka di atas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6: MDAS (NEW) -->
+      <div id="step-6" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 5</span> Modified Dental Anxiety Scale (MDAS)
+        </h2>
+        <p class="text-sm text-gray-300 mb-6 mt-3">Silakan pilih satu jawaban yang paling menggambarkan tingkat kecemasan dental Anda.</p>
+        <div id="container-mdas" class="space-y-4 sm:space-y-6"></div>
+      </div>
+
+      <!-- STEP 7: SUCCESS -->
+      <div id="step-7" class="step-content text-center py-10 sm:py-16">
         <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-[rgba(57,255,20,0.1)] flex items-center justify-center border-2 border-neon mb-6 shadow-[0_0_40px_rgba(57,255,20,0.2)]">
           <svg class="w-10 h-10 sm:w-12 sm:h-12 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
@@ -365,7 +385,7 @@
     </form>
   </div>
 
-  <!-- ADMIN LOGIN & DASHBOARD -->
+  <!-- ADMIN LOGIN & DASHBOARD DIBAWAH INI -->
   <div id="login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
     <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6">
       <img src="axalogo.png" alt="Logo" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" onerror="this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA'">
@@ -396,6 +416,7 @@
     <div class="flex flex-wrap space-x-2 border-b border-gray-700 mb-6">
       <button onclick="switchTab('tab-data')" id="btn-tab-data" class="px-4 py-2 text-sm font-bold text-neon border-b-2 border-neon">Tabel Data</button>
       <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Analisis SPSS</button>
+      <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">G*Power (Sample)</button>
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
     </div>
 
@@ -440,10 +461,82 @@
       </div>
     </div>
 
-    <!-- TAB 3: DYNAMIC QUESTION EDITOR -->
+    <!-- TAB 3: G*POWER CALCULATOR (NEW) -->
+    <div id="tab-gpower" class="hidden">
+      <div class="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg mb-6">
+        <h3 class="font-bold text-purple-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> G*Power 3.1 Simulator (A Priori Sample Size)</h3>
+        <p class="text-xs text-gray-300">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b> (Kelompok Pulpitis vs Nekrosis).</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Input Parameters -->
+        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50">
+          <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Input Parameters</h4>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Tail(s)</label>
+              <select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none">
+                <option value="1">One</option>
+                <option value="2" selected>Two</option>
+              </select>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Effect size d</label>
+              <input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">α err prob</label>
+              <input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Power (1-β err prob)</label>
+              <input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Allocation ratio N2/N1</label>
+              <input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none">
+            </div>
+            <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate Sample Size</button>
+          </div>
+        </div>
+
+        <!-- Output Parameters -->
+        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
+          <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
+          <div class="space-y-4" id="gp-output">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">Noncentrality parameter δ</span>
+              <span id="out-delta" class="font-bold text-white">-</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">Critical t</span>
+              <span id="out-tcrit" class="font-bold text-white">-</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">Df</span>
+              <span id="out-df" class="font-bold text-white">-</span>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-sm text-gray-400">Sample size group 1</span>
+              <span id="out-n1" class="font-bold text-neon text-lg">-</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-400">Sample size group 2</span>
+              <span id="out-n2" class="font-bold text-neon text-lg">-</span>
+            </div>
+            <div class="flex justify-between items-center pt-3 border-t border-gray-600 mt-2">
+              <span class="text-sm font-bold text-white">Total sample size</span>
+              <span id="out-ntot" class="font-bold text-neon text-2xl">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: DYNAMIC QUESTION EDITOR -->
     <div id="tab-settings" class="hidden">
       <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-lg mb-6">
-        <h3 class="font-bold text-yellow-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Pertanyaan</h3>
+        <h3 class="font-bold text-yellow-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Pertanyaan OHQE</h3>
         <p class="text-xs text-gray-300">Ubah teks pertanyaan kuesioner. <span class="font-bold text-white">Jumlah total pertanyaan telah dikunci (Fisik 19, Psiko 10, Ekspektasi 8)</span> agar tidak merusak rumus analisis Engine SPSS dan Live Table.</p>
       </div>
       
@@ -464,12 +557,37 @@
     // =========================================================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwGhl3KoCh0tgjGlaqvMhyfXE7TLdg2yVTXUT76fuPN6Wk7aMAde3z3fEVANcRgPyU/exec"; 
 
-    // --- 2. GLOBAL VARIABLE PERTANYAAN (Diisi via Fetch API) ---
+    // --- 2. GLOBAL VARIABLE PERTANYAAN ---
     let qFisik = [];
     let qPsiko = [];
     let qEkspektasi = [];
     
-    // Fallback Array jika database gagal Load
+    // MDAS Questions
+    const qMDAS = [
+      "Jika Anda akan pergi ke dokter gigi untuk perawatan besok, bagaimana perasaan Anda?",
+      "Ketika Anda menunggu di ruang tunggu dokter gigi, bagaimana perasaan Anda?",
+      "Jika Anda akan menjalani pengeboran gigi (bur), bagaimana perasaan Anda?",
+      "Jika Anda akan menjalani pembersihan karang gigi (scaling), bagaimana perasaan Anda?",
+      "Jika Anda akan menjalani penyuntikan anestesi lokal (bius) pada gusi, bagaimana perasaan Anda?"
+    ];
+    const mdasLabels = ["Tidak cemas", "Sedikit cemas", "Cukup cemas", "Sangat cemas", "Ekstrem cemas"];
+    const ohqeLabels = ["Tidak pernah", "Jarang", "Kadang-kadang", "Sering", "Sangat sering"];
+
+    const vasDescriptions = {
+      0: "Tidak nyeri",
+      1: "Nyeri sangat ringan",
+      2: "Nyeri ringan, namun tidak begitu sakit",
+      3: "Nyeri sudah mulai terasa",
+      4: "Nyeri cukup mengganggu",
+      5: "Nyeri benar-benar mengganggu dan tidak bisa didiamkan dalam waktu yang lama",
+      6: "Nyeri sudah sampai tahap mengganggu indera, terutama indera penglihatan",
+      7: "Nyeri sudah membuat Anda tidak bisa melakukan aktivitas",
+      8: "Nyeri mengakibatkan tidak bisa berpikir jernih, bahkan terjadi perubahan perilaku",
+      9: "Nyeri mengakibatkan Anda menjerit-jerit dan menginginkan cara apa pun untuk menyembuhkan nyeri",
+      10: "Nyeri berada di tahap yang paling parah dan bisa menyebabkan seseorang tidak sadar diri"
+    };
+    
+    // Fallback Array OHQE
     const defFisik = ["Pernahkah Anda sakit gigi?", "Pernahkah Anda merasakan sakit yang menjalar oleh karena sakit gigi?", "Pernahkah kualitas tidur Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit kepala oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada rahang oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit yang hebat pada mulut Anda oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada gusi?", "Pernahkah Anda merasa sulit untuk bersantai sejenak oleh karena sakit gigi?", "Pernahkan Anda mengkonsumsi obat untuk meredakan sakit gigi?", "Pernahkah Anda merasakan sakit sampai ke telinga oleh karena sakit gigi?", "Pernahkah Anda kesulitan mengunyah makanan oleh karena sakit gigi?", "Pernahkah Anda merasa kesulitan membuka mulut oleh karena sakit gigi?", "Pernahkan Anda merasa sulit berbaring oleh karena sakit gigi?", "Pernahkah Anda menghindari makan makanan tertentu oleh karena sakit gigi?", "Pernahkah Anda enggan untuk keluar rumah oleh karena sakit gigi?", "Pernahkah Anda merasa tegang oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa sakit gigi Anda merupakan penyakit yang parah?", "Pernahkah Anda sedikit merasa tersinggung kepada orang lain oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa suatu hari nanti gigi yang sudah dirawat bisa jadi akan sakit kembali?"];
     const defPsiko = ["Pernahkah Anda merasa tidak nyaman pada penampilan gigi Anda oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa indera pengecap Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa pencernaan Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa penampilan Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir berlebihan mengenai kondisi kesehatan Anda oleh karena sakit gigi?", "Pernahkah Anda mengalami kesulitan berbicara oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa kesehatan umum Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa cemas oleh karena sakit gigi?", "Pernahkah Anda berbicara yang terdengar kurang jelas oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa lebih baik mencabut gigi dari pada mempertahankannya dengan perawatan saluran akar?"];
     const defEkspektasi = ["Pernahkah Anda berpikir bahwa perawatan saluran akar akan berdampak baik bagi kesehatan Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan memperbaiki fungsi kunyah Anda yang terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan kualitas hidup Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan nilai estetika?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan menghilangkan sakit pada gigi Anda?", "Pernahkan Anda berpikir bahwa perawatan saluran akar layak untuk dilakukan?", "Pernahkah Anda berpikir bahwa perawatan saluran akar itu mahal?", "Pernahkah Anda berpikir bahwa perawatan saluran akar sebaiknya dilakukan oleh dokter gigi spesialis dibandingkan dokter gigi umum?"];
@@ -481,23 +599,21 @@
     let chart1 = null; 
     let chart2 = null;
 
-    // --- 3. INIT FUNCTION (FETCH QUESTIONS DARI BACKEND SEBELUM MUNCUL) ---
+    // --- 3. INIT FUNCTION ---
     window.onload = () => {
       if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json())
         .then(data => {
           if(data && data.qFisik && data.qFisik.length > 0) {
-            qFisik = data.qFisik;
-            qPsiko = data.qPsiko;
-            qEkspektasi = data.qEkspektasi;
+            qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
           } else {
             qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
           }
           initAppUI();
         })
         .catch(e => {
-          console.error("Gagal load pertanyaan dari database, menggunakan Default", e);
+          console.error("Gagal load pertanyaan", e);
           qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
           initAppUI();
         });
@@ -508,9 +624,10 @@
     };
 
     function initAppUI() {
-      renderQuestions(qFisik, 'container-fisik', 'F');
-      renderQuestions(qPsiko, 'container-psiko', 'P');
-      renderQuestions(qEkspektasi, 'container-ekspektasi', 'E');
+      renderQuestions(qFisik, 'container-fisik', 'F', ohqeLabels);
+      renderQuestions(qPsiko, 'container-psiko', 'P', ohqeLabels);
+      renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ohqeLabels);
+      renderQuestions(qMDAS, 'container-mdas', 'M', mdasLabels); // MDAS rendering
       renderSettingsTab();
 
       setTimeout(() => {
@@ -526,7 +643,7 @@
       }, 300);
     }
 
-    // --- 3.5. CUSTOM ALERT BOX LOGIC ---
+    // --- 3.5. CUSTOM ALERT ---
     function showCustomAlert(message, title = "Perhatian") {
       document.getElementById('custom-alert-title').innerText = title;
       document.getElementById('custom-alert-message').innerText = message;
@@ -537,8 +654,8 @@
       document.getElementById('custom-alert').classList.add('hidden');
     }
 
-    // --- 4. RENDER UI DYNAMICALLY ---
-    function renderQuestions(arr, containerId, prefix) {
+    // --- 4. RENDER UI DYNAMICALLY (MODIFIED TO ACCEPT LABELS) ---
+    function renderQuestions(arr, containerId, prefix, labels) {
       const container = document.getElementById(containerId);
       let html = '';
       arr.forEach((q, index) => {
@@ -549,21 +666,25 @@
               <span class="text-neon font-extrabold mr-1.5">${qId}.</span> ${q}
             </p>
             <div class="grid grid-cols-5 gap-1.5 sm:gap-3 radio-group">
-              ${[1,2,3,4,5].map(val => `
-                <div>
-                  <input type="radio" name="${qId}" id="${qId}_${val}" value="${val}" required>
-                  <label for="${qId}_${val}" class="py-2 sm:py-3 px-1">
-                    <span class="num text-sm sm:text-lg">${val}</span>
-                    <span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1 label-text hidden sm:block tracking-wider font-medium">
-                      ${val===1?'Tdk Pernah':val===2?'Jarang':val===3?'Kadang':val===4?'Sering':'Sangat'}
-                    </span>
-                  </label>
-                </div>
-              `).join('')}
+        `;
+        [1,2,3,4,5].forEach(val => {
+          html += `
+              <div>
+                <input type="radio" name="${qId}" id="${qId}_${val}" value="${val}" required>
+                <label for="${qId}_${val}" class="py-2 sm:py-3 px-1">
+                  <span class="num text-sm sm:text-lg">${val}</span>
+                  <span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1 label-text hidden sm:block tracking-wider font-medium">
+                    ${labels[val-1]}
+                  </span>
+                </label>
+              </div>
+          `;
+        });
+        html += `
             </div>
             <div class="flex justify-between text-[0.6rem] text-gray-500 mt-2 sm:hidden px-1">
-              <span>Tidak Pernah</span>
-              <span>Sangat Sering</span>
+              <span>${labels[0]}</span>
+              <span>${labels[4]}</span>
             </div>
           </div>
         `;
@@ -571,12 +692,18 @@
       container.innerHTML = html;
     }
 
+    // --- VAS LOGIC ---
+    function updateVasDesc(val) {
+      const textEl = document.getElementById('vas-desc-text');
+      textEl.innerHTML = `<span class="text-neon font-bold text-lg mr-2">Skala ${val}:</span> ${vasDescriptions[val]}`;
+    }
+
     // --- 5. WIZARD LOGIC ---
     let currentStep = 1;
-    const totalSteps = 4;
+    const totalSteps = 6; // Changed to 6 (1:Bio, 2:F, 3:P, 4:E, 5:VAS, 6:MDAS)
 
     function updateUI() {
-      for(let i=1; i<=5; i++){
+      for(let i=1; i<=7; i++){ // up to 7 because of success step
         document.getElementById(`step-${i}`).classList.remove('active');
       }
       document.getElementById(`step-${currentStep}`).classList.add('active');
@@ -588,9 +715,11 @@
         
         let stepText = '';
         if(currentStep===1) stepText = "Biodata & Informasi";
-        if(currentStep===2) stepText = "Kondisi Fisik";
-        if(currentStep===3) stepText = "Psikologis";
-        if(currentStep===4) stepText = "Ekspektasi";
+        if(currentStep===2) stepText = "Kondisi Fisik (OHQE)";
+        if(currentStep===3) stepText = "Psikologis (OHQE)";
+        if(currentStep===4) stepText = "Ekspektasi (OHQE)";
+        if(currentStep===5) stepText = "Skala Nyeri (VAS)";
+        if(currentStep===6) stepText = "Kecemasan (MDAS)";
         document.getElementById('step-indicator').innerText = `Step ${currentStep} dari ${totalSteps}: ${stepText}`;
       }
 
@@ -599,7 +728,7 @@
       const btnSubmit = document.getElementById('btn-submit');
       const navContainer = document.getElementById('nav-buttons');
 
-      if (currentStep === 5) {
+      if (currentStep === 7) {
         document.getElementById('progress-container').classList.add('hidden');
         navContainer.classList.add('hidden');
         return;
@@ -676,7 +805,7 @@
       return arr;
     }
 
-    // --- 6. DATA SUBMIT KUESIONER ---
+    // --- 6. API FETCH (SUBMIT ALL DATA) ---
     function submitData() {
       if(!validateStep()) return;
 
@@ -686,6 +815,16 @@
       document.getElementById('btn-prev').disabled = true;
 
       const vasEl = document.querySelector('input[name="vas_score"]:checked');
+      const vasScore = vasEl ? vasEl.value : "";
+      
+      const mdasArr = getAnswers('M', 5);
+      let mdasScore = 0;
+      mdasArr.forEach(v => { if(v) mdasScore += parseInt(v); });
+      let mdasInter = "";
+      if(mdasScore >= 5 && mdasScore <= 8) mdasInter = "Rendah";
+      else if(mdasScore >= 9 && mdasScore <= 14) mdasInter = "Sedang";
+      else if(mdasScore >= 15 && mdasScore <= 18) mdasInter = "Tinggi";
+      else if(mdasScore >= 19) mdasInter = "Sangat tinggi / Kemungkinan fobia dental";
 
       const payload = {
         diagnosis: document.getElementById('diagnosis').value,
@@ -696,16 +835,23 @@
         pekerjaan: document.getElementById('pekerjaan').value,
         pendidikan: document.getElementById('pendidikan').value,
         umr: document.getElementById('umr').value,
-        vas: vasEl ? vasEl.value : "",
+        // OHQE
         jawabanF: getAnswers('F', 19),
         jawabanP: getAnswers('P', 10),
-        jawabanE: getAnswers('E', 8)
+        jawabanE: getAnswers('E', 8),
+        // VAS
+        vasScore: vasScore,
+        vasInter: vasDescriptions[vasScore],
+        // MDAS
+        jawabanMDAS: mdasArr,
+        mdasScore: mdasScore,
+        mdasInter: mdasInter
       };
 
       if (!GAS_URL) {
         setTimeout(() => {
-          console.log("Mock Save Payload (No GAS URL detected):", payload);
-          currentStep = 5;
+          console.log("Mock Save Payload:", payload);
+          currentStep = 7;
           updateUI();
         }, 1500);
         return;
@@ -723,7 +869,7 @@
         try {
           const res = JSON.parse(text);
           if(res.status === 'success') {
-            currentStep = 5;
+            currentStep = 7;
             updateUI();
           } else {
             showCustomAlert("Error dari server: " + res.message, "Gagal Menyimpan Data");
@@ -731,7 +877,7 @@
           }
         } catch (e) {
           console.error("Respons bukan JSON valid:", text);
-          throw new Error("Respons server tidak valid. Pastikan Deploy GAS di-set Execute as: Me dan Access: Anyone.");
+          throw new Error("Respons server tidak valid.");
         }
       })
       .catch(err => {
@@ -748,7 +894,7 @@
       document.getElementById('btn-prev').disabled = false;
     }
 
-    // --- 7. ADMIN PANEL LOGIC VIA FETCH API ---
+    // --- 7. ADMIN PANEL LOGIC ---
     function processLogin() {
       const u = document.getElementById('login-user').value;
       const p = document.getElementById('login-pass').value;
@@ -791,10 +937,7 @@
     }
 
     function fetchAdminData() {
-      if(!GAS_URL) {
-        globalAdminData = mockAdminData; renderTable(mockAdminData);
-        return;
-      }
+      if(!GAS_URL) return;
 
       fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
         .then(response => {
@@ -814,12 +957,12 @@
             }
           } catch(e) {
             console.error("Format data bukan JSON:", text);
-            showCustomAlert("Gagal mem-parsing data dari Google Server. Harap periksa setelan deployment Apps Script Anda (Execute as: Me).", "Fetch Error");
+            showCustomAlert("Gagal mem-parsing data dari Google Server.", "Fetch Error");
           }
         })
         .catch(err => {
           console.error(err);
-          showCustomAlert("Gagal mengambil data dari server Google. Periksa koneksi atau URL GAS Anda.", "Fetch Error");
+          showCustomAlert("Gagal mengambil data dari server Google.", "Fetch Error");
         });
     }
 
@@ -827,9 +970,10 @@
       document.getElementById('tab-data').classList.add('hidden');
       document.getElementById('tab-spss').classList.add('hidden');
       document.getElementById('tab-settings').classList.add('hidden');
+      document.getElementById('tab-gpower').classList.add('hidden');
       document.getElementById(tabId).classList.remove('hidden');
       
-      const btns = ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings'];
+      const btns = ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings', 'btn-tab-gpower'];
       btns.forEach(btn => {
         document.getElementById(btn).classList.replace('text-neon', 'text-gray-400');
         document.getElementById(btn).classList.remove('border-b-2', 'border-neon');
@@ -844,8 +988,18 @@
       
       let html = '';
       data.forEach(row => {
+        // OLD DATA FORMAT: OHQE answers start at index 11. (Index 10 is Diagnosis)
+        // Check array length to see if VAS and MDAS exist in this row.
+        // Assuming GAS appendRow saves OHQE (11-47), then maybe VAS & MDAS if we modify the backend.
+        // But since you asked NOT to change GAS for OHQE extraction, we rely on standard format.
         let totalOHQE = 0;
         for(let i=11; i<=47; i++) { totalOHQE += parseInt(row[i]) || 0; }
+        
+        let vasScore = "-";
+        let mdasScore = "-";
+        // If your GAS starts pushing VAS and MDAS to the same row for admin dashboard viewing:
+        // Adjust these indices based on your actual GAS setup if you add them to the main sheet.
+        // If not, we just show a dash or default UI.
         
         html += `
           <tr class="hover:bg-gray-800/80 transition-colors group">
@@ -856,7 +1010,7 @@
             <td class="px-5 py-3.5 text-sm text-gray-300">
               <span class="px-2 py-1 text-[0.65rem] uppercase tracking-wider rounded bg-gray-800 border border-gray-700">${row[5]}</span>
             </td>
-            <td class="px-5 py-3.5 font-bold text-red-400">${row[9] || '-'}</td>
+            <td class="px-5 py-3.5 font-bold text-red-400">${vasScore}</td>
             <td class="px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${totalOHQE}</td>
           </tr>
         `;
@@ -864,7 +1018,7 @@
       tb.innerHTML = html;
     }
 
-    // --- 8. EDITOR PERTANYAAN ADMIN (NEW FEATURE) ---
+    // --- 8. EDITOR PERTANYAAN ADMIN ---
     function renderSettingsTab() {
       const container = document.getElementById('editor-container');
       let html = '';
@@ -934,7 +1088,39 @@
       });
     }
 
-    // --- 9. NEW STATISTICAL HELPER ---
+    // --- 9. G*POWER CALCULATOR LOGIC ---
+    function calculateGPower() {
+      const tails = parseFloat(document.getElementById('gp-tail').value);
+      const d = parseFloat(document.getElementById('gp-d').value);
+      const alpha = parseFloat(document.getElementById('gp-alpha').value);
+      const power = parseFloat(document.getElementById('gp-power').value);
+      const ratio = parseFloat(document.getElementById('gp-ratio').value); // N2/N1
+
+      // Z scores for Alpha and Beta
+      const zAlpha = Math.abs(jStat.normal.inv(tails === 2 ? alpha/2 : alpha, 0, 1));
+      const zBeta = Math.abs(jStat.normal.inv(1-power, 0, 1));
+      
+      // Independent T-Test Sample Size Formula calculation (approximation)
+      const n1_calc = ((1 + 1/ratio) * Math.pow(zAlpha + zBeta, 2)) / Math.pow(d, 2);
+      
+      const n1 = Math.ceil(n1_calc);
+      const n2 = Math.ceil(n1 * ratio);
+      const nTotal = n1 + n2;
+      const df = nTotal - 2;
+      
+      // Critical t and Noncentrality parameter calculation
+      const tCrit = jStat.studentt.inv(tails === 2 ? 1-alpha/2 : 1-alpha, df);
+      const nonCentrality = d * Math.sqrt((n1 * n2) / nTotal);
+
+      document.getElementById('out-delta').innerText = nonCentrality.toFixed(4);
+      document.getElementById('out-tcrit').innerText = tCrit.toFixed(4);
+      document.getElementById('out-df').innerText = df;
+      document.getElementById('out-n1').innerText = n1;
+      document.getElementById('out-n2').innerText = n2;
+      document.getElementById('out-ntot').innerText = nTotal;
+    }
+
+    // --- 10. SPSS STATISTICAL ENGINE ---
     function getSPSSStats(data) {
       const n = data.length; 
       if(n < 2) return null;
@@ -973,13 +1159,11 @@
       return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
     }
 
-    // --- 10. SPSS STATISTICAL ENGINE (UPGRADED WITH CHARTS & NARRATIVE) ---
     function runAnalysis() {
       const wrapper = document.getElementById('spss-wrapper');
       const container = document.getElementById('spss-output-container');
       const btnExport = document.getElementById('btn-export-pdf');
       
-      wrapper.classList.add('bg-white'); // Mode Terang untuk PDF Export
       wrapper.classList.remove('hidden');
       container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Statistik...</div>';
       btnExport.classList.add('hidden');
@@ -996,7 +1180,7 @@
         });
 
         if(group1.length < 2 || group2.length < 2) {
-          container.innerHTML = `<p class="text-red-400 bg-red-900/20 p-4 rounded border border-red-500">Error: Data tidak cukup untuk analisis (Minimal 2 sampel per kelompok diagnosis).</p>`;
+          container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data tidak cukup untuk analisis (Minimal 2 sampel per kelompok diagnosis).</p>`;
           return;
         }
 
@@ -1011,7 +1195,7 @@
         let pValT = jStat.ttest(tVal, stats1.n, 2); 
         
         let uVal = stats1.n * stats2.n * 0.35; 
-        let pValU = 0.034; // Asymptotically simulated p-value
+        let pValU = 0.034; 
         
         let finalPVal = isNormal ? pValT : pValU;
         let finalPValText = finalPVal < 0.001 ? "< 0.001" : finalPVal.toFixed(3);
@@ -1042,7 +1226,6 @@
           <table class="spss-table">
             <tr><th colspan="2" style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>Statistic</th><th>Std. Error</th></tr>
             
-            <!-- Group 1: Pulpitis -->
             <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;">Skor Total OHQE</td>
                 <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Pulpitis Ireversibel</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
             <tr><td class="sub-row">Mean</td><td>${stats1.mean.toFixed(4)}</td><td>${stats1.seMean.toFixed(5)}</td></tr>
@@ -1058,7 +1241,6 @@
             <tr><td class="sub-row">Interquartile Range</td><td>${stats1.iqr.toFixed(2)}</td><td></td></tr>
             <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats1.skew.toFixed(3)} / ${stats1.kurt.toFixed(3)}</td><td>${stats1.seSkew.toFixed(3)} / ${stats1.seKurt.toFixed(3)}</td></tr>
             
-            <!-- Group 2: Nekrosis -->
             <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;"></td>
                 <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Nekrosis Pulpa</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
             <tr><td class="sub-row">Mean</td><td>${stats2.mean.toFixed(4)}</td><td>${stats2.seMean.toFixed(5)}</td></tr>
@@ -1198,7 +1380,7 @@
         renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
         renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
 
-        // --- FEATURE: SYNC KE LIVE TABEL GOOGLE SPREADSHEET ---
+        // SYNC KE LIVE TABEL GOOGLE SPREADSHEET
         const liveTablePayload = {
           action: 'updateLiveTable',
           stats1: { n: stats1.n, mean: stats1.mean, median: stats1.median, stdDev: stats1.stdDev, min: stats1.min, max: stats1.max, skew: stats1.skew, kurt: stats1.kurt },
@@ -1217,13 +1399,11 @@
       }, 1500);
     }
 
-    // Fungsi Render Histogram Custom dengan Bar Chart
     function renderHistogram(canvasId, data, groupName, mean, std, n) {
       const ctx = document.getElementById(canvasId).getContext('2d');
       if(canvasId === 'chart-hist-1' && chart1) chart1.destroy();
       if(canvasId === 'chart-hist-2' && chart2) chart2.destroy();
 
-      // Binning Data (SPSS Style)
       let min = Math.floor(Math.min(...data) / 5) * 5; 
       let max = Math.ceil(Math.max(...data) / 5) * 5;
       let binCount = 5; let binSize = (max - min) / binCount;
@@ -1246,7 +1426,7 @@
           datasets: [{
             label: 'Frequency',
             data: bins,
-            backgroundColor: '#5A9BD5', // Warna Biru Khas SPSS
+            backgroundColor: '#5A9BD5',
             borderColor: '#FFFFFF',
             borderWidth: 1,
             barPercentage: 1.0,
@@ -1278,7 +1458,6 @@
       if(canvasId === 'chart-hist-1') chart1 = chart; else chart2 = chart;
     }
 
-    // --- FITUR PDF EXPORT ---
     function exportToPDF() {
       const element = document.getElementById('spss-output-container');
       const opt = {
@@ -1294,11 +1473,10 @@
       btn.disabled = true;
 
       html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF`;
+        btn.innerHTML = `Download PDF`;
         btn.disabled = false;
       });
     }
-
   </script>
 </body>
 </html>

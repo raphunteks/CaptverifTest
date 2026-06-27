@@ -97,7 +97,7 @@
     /* Dedicated Style for 1-10 VAS Scale */
     .vas-group label { min-height: 48px; border-radius: 0.4rem; padding: 5px; }
 
-    /* SOLUSI BUG SCROLLING */
+    /* SOLUSI BUG SCROLLING: Menggunakan display: none untuk Step */
     .step-content { display: none; animation: fadeInStep 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; width: 100%; }
     .step-content.active { display: block; }
     @keyframes fadeInStep { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
@@ -118,7 +118,7 @@
     }
     select option { background-color: var(--bg-dark); color: white; }
 
-    /* SPSS Table Styling Update */
+    /* SPSS Table Styling Update (Termasuk export PDF support) */
     .spss-wrapper { background: white; color: black; padding: 30px; border-radius: 8px; margin-bottom: 20px;}
     .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
     .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;}
@@ -148,6 +148,7 @@
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: rgba(57, 255, 20, 0.3); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
+
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
@@ -183,6 +184,7 @@
     <!-- Header & Progress Bar -->
     <div class="mb-8" id="progress-container">
       <div class="text-center mb-6 flex flex-col items-center">
+        <!-- CUSTOM FAVICON LOGO IMPLEMENTATION -->
         <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
         <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Kuesioner <span class="text-neon">OHQE</span></h1>
         <p class="text-xs sm:text-sm text-gray-400 mt-1">Klinik Endodontik AXA XYZ</p>
@@ -225,6 +227,7 @@
         </h2>
         
         <div class="space-y-5">
+          <!-- Row 1: Nama & No HP -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
@@ -236,6 +239,7 @@
             </div>
           </div>
 
+          <!-- Row 2: Usia & Gender -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
@@ -251,6 +255,7 @@
             </div>
           </div>
 
+          <!-- Row 3: Pekerjaan & Pendidikan -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
@@ -274,6 +279,7 @@
             </div>
           </div>
 
+          <!-- Row 4: Upah/UMR -->
           <div>
             <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
             <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">

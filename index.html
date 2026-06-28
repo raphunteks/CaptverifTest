@@ -598,7 +598,12 @@
       "Jika Anda akan menjalani penyuntikan anestesi lokal (bius) pada gusi, bagaimana perasaan Anda?"
     ];
     const mdasLabels = ["Tidak cemas", "Sedikit cemas", "Cukup cemas", "Sangat cemas", "Ekstrem cemas"];
+    
+    // Labels Asli untuk Fisik (F) & Psikologis (P)
     const ohqeLabels = ["Tidak pernah", "Jarang", "Kadang-kadang", "Sering", "Sangat sering"];
+    
+    // NEW: Label Khusus untuk Ekspektasi (E) sesuai arahan
+    const ekspektasiLabels = ["Sangat sering", "Sering", "Kadang-kadang", "Jarang", "Tidak pernah"];
 
     const vasDescriptions = {
       0: "Tidak nyeri",
@@ -664,9 +669,10 @@
     };
 
     function initAppUI() {
+      // Menggunakan label ohqeLabels untuk F dan P, lalu ekspektasiLabels untuk E
       renderQuestions(qFisik, 'container-fisik', 'F', ohqeLabels);
       renderQuestions(qPsiko, 'container-psiko', 'P', ohqeLabels);
-      renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ohqeLabels);
+      renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ekspektasiLabels); 
       renderQuestions(qMDAS, 'container-mdas', 'M', mdasLabels);
       renderSettingsTab();
 

@@ -172,6 +172,25 @@
     </div>
   </div>
 
+  <!-- PREVIEW MODAL RONTGEN/PDF -->
+  <div id="preview-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8">
+    <div class="glass-card w-full max-w-5xl h-[85vh] rounded-2xl flex flex-col overflow-hidden relative border border-gray-700 shadow-2xl">
+      <div class="p-4 bg-gray-900/90 border-b border-gray-700 flex justify-between items-center">
+         <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
+           <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> 
+           Pratinjau Radiografi / PDF
+         </h3>
+         <button onclick="closePreview()" class="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white transition shadow-lg">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+         </button>
+      </div>
+      <div class="flex-grow w-full bg-gray-800 flex items-center justify-center relative">
+         <div id="preview-loader" class="absolute w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+         <iframe id="preview-iframe" class="w-full h-full relative z-10" frameborder="0" allow="autoplay" allowfullscreen onload="document.getElementById('preview-loader').style.display='none'"></iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN CONTAINER (RESPONDEN) -->
   <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
     
@@ -609,7 +628,7 @@
               <th class="px-5 py-4 font-semibold tracking-wide w-48">ID Transaksi</th>
               <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
               <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Diagnosis</th>
-              <th class="px-5 py-4 font-semibold tracking-wide text-green-400 border-l border-gray-700/50 w-72">Aksi Upload Rontgen</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-green-400 border-l border-gray-700/50 w-[350px]">Aksi Rontgen</th>
             </tr>
           </thead>
           <tbody id="rontgen-table-body" class="divide-y divide-gray-800/50"></tbody>
@@ -635,7 +654,7 @@
     let globalAdminOHQE = []; 
     let globalAdminVAS = []; 
     let globalAdminMDAS = []; 
-    let globalAdminRontgen = []; // New Rontgen Array
+    let globalAdminRontgen = []; 
     let autoUpdateInterval = null; 
     
     // MDAS Questions
@@ -739,6 +758,20 @@
 
     function closeCustomAlert() {
       document.getElementById('custom-alert').classList.add('hidden');
+    }
+
+    // Modal Preview Logic
+    function showPreview(url) {
+      // Ubah url view menjadi preview agar bisa dirender di iframe Google Drive
+      const previewUrl = url.replace(/\/view.*$/, '/preview');
+      document.getElementById('preview-loader').style.display = 'block';
+      document.getElementById('preview-iframe').src = previewUrl;
+      document.getElementById('preview-modal').classList.remove('hidden');
+    }
+
+    function closePreview() {
+      document.getElementById('preview-iframe').src = '';
+      document.getElementById('preview-modal').classList.add('hidden');
     }
 
     // --- 4. RENDER UI DYNAMICALLY ---
@@ -876,9 +909,9 @@
 
       const payload = {
         diagnosis: document.getElementById('diagnosis').value,
-        diagPeri: document.getElementById('diagPeri').value, // Kolom Baru Opsional
-        gigiRawat: document.getElementById('gigiRawat').value, // Kolom Baru Opsional
-        jmlGigi: document.getElementById('jmlGigi').value, // Kolom Baru Opsional
+        diagPeri: document.getElementById('diagPeri').value, 
+        gigiRawat: document.getElementById('gigiRawat').value, 
+        jmlGigi: document.getElementById('jmlGigi').value, 
         nama: document.getElementById('nama').value,
         noHp: document.getElementById('noHp').value,
         usia: document.getElementById('usia').value,
@@ -1009,10 +1042,6 @@
     }
 
     function renderTables() {
-      // Index mapping menyesuaikan 3 Kolom Baru Khusus Peneliti. Total = 13 Data Awal.
-      // Q Fisik start = 13. Q Ekspektasi end = 49.
-      // Score OHQE = 50. Interpretasi OHQE = 51.
-      
       const tbOHQE = document.getElementById('admin-table-body-ohqe');
       if(!globalAdminOHQE.length) { tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10">Kosong.</td></tr>`; } 
       else {
@@ -1055,7 +1084,7 @@
       }
     }
 
-    // UPLOAD RONTGEN LOGIC
+    // --- UPLOAD RONTGEN & CRUD LOGIC ---
     function renderRontgenTable() {
        const tbRontgen = document.getElementById('rontgen-table-body');
        if(!tbRontgen) return;
@@ -1065,7 +1094,6 @@
        let html = '';
        globalAdminOHQE.forEach(row => {
           const id = row[0]; const nama = row[2]; const diag = row[9];
-          // Cek di array Rontgen
           const rRecord = globalAdminRontgen.find(rx => rx[0] === id);
           
           html += `
@@ -1077,12 +1105,29 @@
           `;
           
           if(rRecord && rRecord[3]) {
-              html += `<a href="${rRecord[3]}" target="_blank" class="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-lg text-xs transition shadow-md">Lihat Rontgen</a>`;
-          } else {
+              // Menu CRUD: Preview, Ganti (Edit), Hapus
               html += `
                 <div class="flex items-center gap-2">
-                   <input type="file" id="file_${id}" accept="image/*" class="text-xs text-gray-400 w-48 truncate">
-                   <button id="btn_upload_${id}" onclick="handleFileUpload('${id}', '${nama}', '${diag}')" class="px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded text-xs font-bold transition whitespace-nowrap">Upload</button>
+                   <button onclick="showPreview('${rRecord[3]}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
+                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Preview
+                   </button>
+                   <label for="file_${id}" class="cursor-pointer px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
+                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Ganti
+                   </label>
+                   <input type="file" id="file_${id}" accept="image/*, application/pdf" class="hidden" onchange="handleFileUpload('${id}', '${nama}', '${diag}')">
+                   <button onclick="deleteRontgen('${id}')" id="btn_del_${id}" title="Hapus Foto" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                   </button>
+                </div>
+              `;
+          } else {
+              // Jika Belum Upload
+              html += `
+                <div class="flex items-center gap-2">
+                   <input type="file" id="file_${id}" accept="image/*, application/pdf" class="text-xs text-gray-400 w-44 truncate">
+                   <button id="btn_upload_${id}" onclick="handleFileUpload('${id}', '${nama}', '${diag}')" class="px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
+                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload
+                   </button>
                 </div>
               `;
           }
@@ -1093,11 +1138,12 @@
 
     function handleFileUpload(id, nama, diagnosis) {
        const input = document.getElementById('file_' + id);
-       if (!input.files || input.files.length === 0) { showCustomAlert("Pilih file gambar rontgen (JPG/PNG) terlebih dahulu!", "Peringatan"); return; }
+       if (!input.files || input.files.length === 0) { showCustomAlert("Pilih file rontgen (JPG/PNG/PDF) terlebih dahulu!", "Peringatan"); return; }
        
        const file = input.files[0];
-       const btn = document.getElementById('btn_upload_' + id);
-       btn.innerText = "Mengupload..."; btn.disabled = true;
+       const btn = document.getElementById('btn_upload_' + id); // Hanya ada jika tombol hijau (Upload Baru)
+       if(btn) { btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`; btn.disabled = true; }
+       else { showCustomAlert("Mengganti file " + file.name + "...", "Memproses"); }
 
        const reader = new FileReader();
        reader.onload = function(e) {
@@ -1106,11 +1152,27 @@
            
            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
            .then(r => r.json()).then(res => {
-               if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Upload Berhasil"); } 
-               else { showCustomAlert(res.message, "Gagal"); btn.innerText = "Upload"; btn.disabled = false; }
-           }).catch(e => { showCustomAlert("Koneksi gagal saat upload", "Error"); btn.innerText = "Upload"; btn.disabled = false; });
+               if(res.status === 'success') { fetchAdminDataSilent(); closeCustomAlert(); setTimeout(()=>showCustomAlert(res.message, "Upload Berhasil"), 500); } 
+               else { showCustomAlert(res.message, "Gagal"); if(btn){btn.innerHTML = `<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload`; btn.disabled = false;} }
+           }).catch(e => { showCustomAlert("Koneksi gagal saat upload", "Error"); if(btn){btn.innerHTML = `<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload`; btn.disabled = false;} });
        };
        reader.readAsDataURL(file);
+    }
+
+    function deleteRontgen(id) {
+       if(!confirm("Anda yakin ingin menghapus data Rontgen pasien ini? (Tindakan ini tidak dapat dikembalikan)")) return;
+       const btn = document.getElementById('btn_del_' + id);
+       btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
+       btn.disabled = true;
+
+       fetch(GAS_URL, {
+         method: 'POST',
+         body: JSON.stringify({ action: 'deleteRontgen', id: id })
+       })
+       .then(r => r.json()).then(res => {
+           if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); }
+           else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; }
+       }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; });
     }
 
     // --- 8. EDITOR PERTANYAAN ADMIN ---

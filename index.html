@@ -431,7 +431,7 @@
     <!-- SPSS TAB MDAS -->
     <div id="tab-spss-mdas" class="hidden">
       <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
-        <h3 class="font-bold text-yellow-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Korelasi MDAS & OHQE)</h3>
+        <h3 class="font-bold text-yellow-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002-2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Korelasi MDAS & OHQE)</h3>
         <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi Kecemasan Dental (MDAS) terhadap Total OHQE dan tiap Subskala OHQE (Fisik, Psikologis, Ekspektasi)**. Sistem akan menampilkan matriks korelasi penuh berdasarkan Uji Parametrik/Non-Parametrik sesuai sebaran datanya.</p>
       </div>
       <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
@@ -558,7 +558,10 @@
     ];
 
     window.onload = () => {
-      loadWebSettings(); // Inisialisasi Web Settings
+      // Hanya jalankan di landing page utama (non admin) agar UX instan
+      if(!isAdminMode && !isRontgenMode && kunjunganType === 0) {
+          applyWebSettingsToDOM();
+      }
       
       if(isAdminMode) {
         if(localStorage.getItem('axa_admin_logged') === 'true') {
@@ -575,49 +578,81 @@
       }
 
       if(kunjunganType === 0) {
-          // Mode Gate / Landing Page
           document.getElementById('loader').style.display = 'none'; 
           document.getElementById('gate-container').classList.remove('hidden');
-          return;
       }
 
-      // Mode Kuesioner (K1, K2, K3)
       if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json()).then(data => {
           if(data && data.qFisik) {
             qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
-            if(data.configData) sysConfig = data.configData;
+            if(data.configData) {
+               sysConfig = data.configData;
+               // Tarik web settings dari database Google Sheet
+               if(sysConfig.webSettings) {
+                   webSettings = sysConfig.webSettings;
+                   applyWebSettingsToDOM(); // Eksekusi UI landing page secara Realtime
+               }
+            }
           }
-          setupFlowAndUI();
-        }).catch(e => { alert("Error koneksi sistem. Muat ulang halaman."); });
+          if(kunjunganType !== 0) setupFlowAndUI(); // Lanjut jika form
+        }).catch(e => { if(kunjunganType !== 0) alert("Error koneksi sistem."); });
       } else {
-        document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden');
+        if(kunjunganType !== 0) { document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden'); }
       }
     };
 
-    function loadWebSettings() {
-       let saved = localStorage.getItem('axa_web_settings');
-       if(saved) { webSettings = JSON.parse(saved); }
+    // Fungsi Render Tampilan berdasarkan Settings yang ada
+    function applyWebSettingsToDOM() {
+       const adminLink = document.getElementById('link-admin-panel');
+       const adminSep = document.getElementById('link-admin-sep');
        
+       if(adminLink && adminSep) {
+           adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
+           adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
+       }
+       
+       // Perbarui toggle switch di dashboard admin jika sedang dibuka
        if(document.getElementById('toggle-admin')) {
            document.getElementById('toggle-admin').checked = webSettings.adminPanel;
            document.getElementById('toggle-vas').checked = webSettings.syncVAS;
            document.getElementById('toggle-mdas').checked = webSettings.syncMDAS;
        }
-       
-       const adminLink = document.getElementById('link-admin-panel');
-       const adminSep = document.getElementById('link-admin-sep');
-       if(adminLink) adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
-       if(adminSep) adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
     }
 
+    // Fungsi menyimpan ke Database Google Sheets (Realtime)
     function updateWebSettings() {
-       webSettings.adminPanel = document.getElementById('toggle-admin').checked;
-       webSettings.syncVAS = document.getElementById('toggle-vas').checked;
-       webSettings.syncMDAS = document.getElementById('toggle-mdas').checked;
-       localStorage.setItem('axa_web_settings', JSON.stringify(webSettings));
-       loadWebSettings();
+       const btnAdmin = document.getElementById('toggle-admin');
+       const btnVas = document.getElementById('toggle-vas');
+       const btnMdas = document.getElementById('toggle-mdas');
+       
+       // 1. Simpan State lokal & perbarui DOM
+       webSettings.adminPanel = btnAdmin.checked;
+       webSettings.syncVAS = btnVas.checked;
+       webSettings.syncMDAS = btnMdas.checked;
+       applyWebSettingsToDOM();
+       
+       // 2. Kirim POST ke Backend
+       if (!GAS_URL) return;
+       const payload = {
+           action: 'saveWebSettings',
+           adminPanel: webSettings.adminPanel,
+           syncVAS: webSettings.syncVAS,
+           syncMDAS: webSettings.syncMDAS
+       };
+       
+       // Indikator Loading sementara
+       btnAdmin.disabled = true; btnVas.disabled = true; btnMdas.disabled = true;
+       
+       fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+       .then(r => r.json()).then(res => {
+           console.log("Web Settings Saved: " + res.message);
+           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
+       }).catch(e => {
+           console.error("Gagal menyimpan pengaturan web", e);
+           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
+       });
     }
 
     function setupFlowAndUI() {
@@ -924,7 +959,22 @@
               // Pause render Rontgen jika sedang milih file atau upload
               if(!isUploadingRontgen && !isAnyFileSelected()) { renderRontgenTable(); } 
               autoSyncSpss(); 
-              fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); 
+              
+              // Refresh sysConfig in silent background
+              fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ 
+                  qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; 
+                  if(d.configData) {
+                      sysConfig = d.configData; 
+                      if(sysConfig.webSettings) {
+                          webSettings = sysConfig.webSettings;
+                          // Hanya terapkan DOM jika di halaman root tanpa parameter agar tidak ganggu dashboard
+                          if(!isAdminMode && !isRontgenMode && kunjunganType === 0) {
+                              applyWebSettingsToDOM();
+                          }
+                      }
+                  }
+                  renderSettingsTab(); 
+              }); 
             } 
           } catch(e) {}
       }).catch(err => {});
@@ -941,7 +991,18 @@
               renderTables(); 
               renderRontgenTable(); 
               autoSyncSpss(); 
-              fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); 
+              
+              fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ 
+                  qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; 
+                  if(d.configData) {
+                      sysConfig = d.configData; 
+                      if(sysConfig.webSettings) {
+                          webSettings = sysConfig.webSettings;
+                          applyWebSettingsToDOM();
+                      }
+                  }
+                  renderSettingsTab(); 
+              }); 
             } else { 
               showCustomAlert(data.message || "Error", "Fetch Error"); 
             } 
@@ -1070,7 +1131,7 @@
           nRyt.push({ id: r.id, q: document.getElementById(`edit_ryt_${i}_q`).value, opts: opts, type: opts.length > 0 ? 'radio' : 'text', bindKey: r.bindKey });
       });
 
-      let updatedConfig = { mdas: nM, vas: nVas, lblOHQE: sysConfig.lblOHQE, lblEksp: sysConfig.lblEksp, lblMDAS: sysConfig.lblMDAS, riwayat: nRyt };
+      let updatedConfig = { mdas: nM, vas: nVas, lblOHQE: sysConfig.lblOHQE, lblEksp: sysConfig.lblEksp, lblMDAS: sysConfig.lblMDAS, riwayat: nRyt, webSettings: webSettings };
 
       if (!GAS_URL) { setTimeout(() => { qFisik=nF; qPsiko=nP; qEkspektasi=nE; sysConfig = updatedConfig; setupFlowAndUI(); btn.innerHTML=originalText; btn.disabled=false; }, 1000); return; }
 
@@ -1179,11 +1240,16 @@
       return 2 * (1 - jStat.studentt.cdf(Math.abs(t), n - 2));
     }
 
-    // HTML Generator for Univariate (Frequencies) Table WITH UPGRADED NARRATIVE
-    function generateFrequencyTable(data, colIndex, title, varName) {
+    // Get Frequencies Logic (Generates both data array and HTML)
+    function getFreqData(data, colIndex) {
         let counts = {};
-        let total = data.length;
         data.forEach(r => { let val = r[colIndex] || 'Unknown'; counts[val] = (counts[val] || 0) + 1; });
+        return counts;
+    }
+
+    function generateFrequencyHTML(data, colIndex, title, varName) {
+        let counts = getFreqData(data, colIndex);
+        let total = data.length;
         
         let sortedKeys = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
         let highestKey = sortedKeys[0];
@@ -1365,7 +1431,7 @@
 
             <p class="text-sm font-bold mb-2 text-blue-700">2. Hasil Uji Hipotesis Komparatif</p>
             <p class="text-sm text-justify leading-relaxed mb-4">
-              Berdasarkan tabel uji asumsi parameter <b>${testName}</b>, diperoleh nilai statistik uji sebesar <b>${statVal.toFixed(3)}</b> dengan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. ${isNormal ? `Nilai <i>degree of freedom (df)</i> sebesar <b>${df}</b> didapatkan dari total N dikurangi dua ($N_1 + N_2 - 2$). ` : ''}Karena nilai probabilitas signifikansi ${isSignificant ? '(p-value) < 0.05' : '(p-value) &ge; 0.05'}, maka hipotesis nol <b>H₀ ${isSignificant ? 'ditolak' : 'diterima'}</b> dan hipotesis alternatif <b>H₁ ${isSignificant ? 'diterima' : 'ditolak'}</b>. 
+              Berdasarkan tabel uji asumsi parameter <b>${testName}</b>, diperoleh nilai statistik uji sebesar <b>${statVal.toFixed(3)}</b> dengan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. ${isNormal ? `Nilai <i>degree of freedom (df)</i> sebesar <b>${df}</b> didapatkan dari total sampel N dikurangi dua ($N_1 + N_2 - 2$). ` : ''}Karena nilai probabilitas signifikansi ${isSignificant ? '(p-value) < 0.05' : '(p-value) &ge; 0.05'}, maka hipotesis nol <b>H₀ ${isSignificant ? 'ditolak' : 'diterima'}</b> dan hipotesis alternatif <b>H₁ ${isSignificant ? 'diterima' : 'ditolak'}</b>. 
             </p>
 
             <p class="text-sm font-bold mb-2 text-blue-700">3. Kesimpulan Akhir</p>
@@ -1378,8 +1444,8 @@
         // HISTOGRAM CONTAINERS
         htmlOutput += `
         <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1" style="height:300px; width:100%; min-height:300px; display:block;"></canvas></div></div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2" style="height:300px; width:100%; min-height:300px; display:block;"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1" style="min-height:300px; display:block; width:100%;"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2" style="min-height:300px; display:block; width:100%;"></canvas></div></div>
         `;
 
         container.innerHTML = htmlOutput;
@@ -1434,10 +1500,10 @@
         let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">HUBUNGAN NYERI ENDODONTIK DENGAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
         
         htmlOutput += `<div class="grid grid-cols-1 gap-6">`;
-        htmlOutput += generateFrequencyTable(matchedData, 4, 'Distribusi Frekuensi Berdasarkan Usia', 'usia');
-        htmlOutput += generateFrequencyTable(matchedData, 5, 'Distribusi Frekuensi Berdasarkan Jenis Kelamin', 'jenis kelamin');
-        htmlOutput += generateFrequencyTable(matchedData, 7, 'Distribusi Frekuensi Berdasarkan Pendidikan', 'pendidikan');
-        htmlOutput += generateFrequencyTable(matchedData, 6, 'Distribusi Frekuensi Berdasarkan Pekerjaan', 'pekerjaan');
+        htmlOutput += generateFrequencyHTML(matchedData, 4, 'Distribusi Frekuensi Berdasarkan Usia', 'usia');
+        htmlOutput += generateFrequencyHTML(matchedData, 5, 'Distribusi Frekuensi Berdasarkan Jenis Kelamin', 'jenis kelamin');
+        htmlOutput += generateFrequencyHTML(matchedData, 7, 'Distribusi Frekuensi Berdasarkan Pendidikan', 'pendidikan');
+        htmlOutput += generateFrequencyHTML(matchedData, 6, 'Distribusi Frekuensi Berdasarkan Pekerjaan', 'pekerjaan');
         htmlOutput += `</div><hr class="my-8 border-gray-400 border-2">`;
 
         // 2. Normality & Bivariate Math
@@ -1468,7 +1534,13 @@
                 vasMean: vasMean, vasStd: vasStd, ohqeMean: ohqeMean, ohqeStd: ohqeStd,
                 n: n, pNormVAS: pNormVas.toFixed(3), pNormOHQE: pNormOhqe.toFixed(3),
                 testName: testName, corrVal: r.toFixed(3), pVal: pVal.toFixed(3),
-                conclusion: syncConclusion
+                conclusion: syncConclusion,
+                freqs: {
+                    usia: getFreqData(matchedData, 4),
+                    jk: getFreqData(matchedData, 5),
+                    pendidikan: getFreqData(matchedData, 7),
+                    pekerjaan: getFreqData(matchedData, 6)
+                }
             };
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payloadVAS) }).catch(e=>console.error(e));
         }
@@ -1562,6 +1634,7 @@
       btnExport.classList.add('hidden');
 
       setTimeout(() => {
+        let matchedData = [];
         let mdasScores = [], totOhqe = [], fisOhqe = [], psiOhqe = [], eksOhqe = [];
 
         globalAdminMDAS.forEach(mRow => {
@@ -1579,6 +1652,7 @@
                 for(let i=45; i<=52; i++) sEks += (parseInt(ohqeRow[i])||0);
 
                 if(ohqeTotal > 0) {
+                    matchedData.push(ohqeRow); // Untuk Demografi
                     mdasScores.push(mdas); totOhqe.push(ohqeTotal); fisOhqe.push(sFis); psiOhqe.push(sPsi); eksOhqe.push(sEks);
                 }
             }
@@ -1589,7 +1663,7 @@
         }
 
         const n = mdasScores.length;
-        
+
         // P-Normality check for logic switch
         let pnMDAS = calculateNormalityPValue(mdasScores);
         let pnTot = calculateNormalityPValue(totOhqe);
@@ -1626,12 +1700,26 @@
                     { pair: "MDAS & Psikologis", testName: m3.test, corrVal: m3.r.toFixed(3), pVal: m3.p.toFixed(3), sigText: m3.isSig ? "Signifikan" : "Tidak Signifikan" },
                     { pair: "MDAS & Ekspektasi", testName: m4.test, corrVal: m4.r.toFixed(3), pVal: m4.p.toFixed(3), sigText: m4.isSig ? "Signifikan" : "Tidak Signifikan" }
                 ],
-                conclusion: "Pengujian Korelasi MDAS dengan Kualitas Hidup OHQE dan Subskalanya telah berhasil dilakukan secara komprehensif. Silakan merujuk pada tabel PDF untuk narasi lengkap."
+                conclusion: "Pengujian Korelasi MDAS dengan Kualitas Hidup OHQE dan Subskalanya telah berhasil dilakukan secara komprehensif. Silakan merujuk pada tabel PDF untuk narasi lengkap.",
+                freqs: {
+                    usia: getFreqData(matchedData, 4),
+                    jk: getFreqData(matchedData, 5),
+                    pendidikan: getFreqData(matchedData, 7),
+                    pekerjaan: getFreqData(matchedData, 6)
+                }
             };
             fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payloadMDAS) }).catch(e=>console.error(e));
         }
 
         let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">KORELASI ANTARA KECEMASAN PERAWATAN GIGI DAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
+
+        // Univariate Section (New in MDAS)
+        htmlOutput += `<div class="grid grid-cols-1 gap-6">`;
+        htmlOutput += generateFrequencyHTML(matchedData, 4, 'Distribusi Frekuensi Berdasarkan Usia', 'usia');
+        htmlOutput += generateFrequencyHTML(matchedData, 5, 'Distribusi Frekuensi Berdasarkan Jenis Kelamin', 'jenis kelamin');
+        htmlOutput += generateFrequencyHTML(matchedData, 7, 'Distribusi Frekuensi Berdasarkan Pendidikan', 'pendidikan');
+        htmlOutput += generateFrequencyHTML(matchedData, 6, 'Distribusi Frekuensi Berdasarkan Pekerjaan', 'pekerjaan');
+        htmlOutput += `</div><hr class="my-8 border-gray-400 border-2">`;
 
         // Correlation Matrix Table
         htmlOutput += `

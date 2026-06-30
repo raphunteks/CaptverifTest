@@ -131,6 +131,13 @@
     #loader { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; transition: opacity 0.5s; }
     .spinner { width: 50px; height: 50px; border: 3px solid rgba(57, 255, 20, 0.1); border-radius: 50%; border-top-color: var(--neon-green); animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Custom Toggle Switch Style */
+    .toggle-checkbox:checked { right: 0; border-color: #39ff14; }
+    .toggle-checkbox:checked + .toggle-label { background-color: rgba(57,255,20,0.3); border-color: #39ff14; }
+    .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+    .toggle-label { width: 3.5rem; height: 1.75rem; background-color: rgba(255,255,255,0.1); border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; border: 1px solid rgba(255,255,255,0.2); display: inline-block; }
+    .toggle-label:after { content: ''; position: absolute; top: 2px; left: 2px; width: 1.35rem; height: 1.35rem; background-color: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
@@ -181,8 +188,9 @@
     </div>
     
     <div class="mt-8 pt-6 border-t border-gray-800 flex justify-center gap-4">
-      <button onclick="window.location.href='?page=admin'" class="text-xs text-gray-500 hover:text-white transition">Admin Panel</button>
-      <span class="text-gray-700">•</span>
+      <!-- Admin Panel link hidden by default, toggled via web settings -->
+      <button id="link-admin-panel" onclick="window.location.href='?page=admin'" class="text-xs text-gray-500 hover:text-white transition" style="display:none;">Admin Panel</button>
+      <span id="link-admin-sep" class="text-gray-700" style="display:none;">•</span>
       <button onclick="window.location.href='?page=uploadrontgen'" class="text-xs text-gray-500 hover:text-blue-400 transition">Rontgen DB</button>
     </div>
   </div>
@@ -377,12 +385,11 @@
     <div class="flex overflow-x-auto space-x-2 border-b border-gray-700 mb-6 pb-1 snap-x hide-scroll">
       <button onclick="switchTab('tab-data')" id="btn-tab-data" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-neon border-b-2 border-neon whitespace-nowrap">Tabel Data</button>
       <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS OHQE</button>
-      <!-- TAMBAHAN TAB BARU VAS DAN MDAS -->
       <button onclick="switchTab('tab-spss-vas')" id="btn-tab-spss-vas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS VAS</button>
       <button onclick="switchTab('tab-spss-mdas')" id="btn-tab-spss-mdas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS MDAS</button>
-      <!-- END TAMBAHAN -->
       <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">G*Power (Sample)</button>
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Pengaturan Teks Sistem</button>
+      <button onclick="switchTab('tab-websettings')" id="btn-tab-websettings" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-purple-400 hover:text-purple-300 transition whitespace-nowrap">Setting Web</button>
     </div>
     <div id="tab-data" class="block">
       <div class="flex overflow-x-auto space-x-2 mb-4 pb-2 hide-scroll"><button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md shadow-md">Tabel OHQE</button><button onclick="switchSubTable('vas')" id="btn-sub-vas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel VAS</button><button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel MDAS</button><span class="shrink-0 ml-auto text-[0.65rem] sm:text-xs text-green-400 flex items-center animate-pulse pl-4"><div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 mr-1.5 sm:mr-2"></div> Auto-Sync</span></div>
@@ -409,7 +416,7 @@
     <!-- SPSS TAB VAS -->
     <div id="tab-spss-vas" class="hidden">
       <div class="bg-red-900/20 border border-red-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
-        <h3 class="font-bold text-red-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Hubungan VAS & OHQE)</h3>
+        <h3 class="font-bold text-red-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002-2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Hubungan VAS & OHQE)</h3>
         <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi/Hubungan Nyeri Endodontik (VAS) dengan Kualitas Hidup (OHQE)**. Secara otomatis melakukan Frequency Demografi (Univariat), Uji Normalitas, dan Uji Korelasi Bivariat (Pearson / Spearman).</p>
       </div>
       <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
@@ -436,10 +443,60 @@
       </div>
     </div>
     
+    <!-- GPOWER TAB -->
     <div id="tab-gpower" class="hidden"><div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 h-fit shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Input Parameters</h4><div class="space-y-3 sm:space-y-4"><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Power (1-β)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><button onclick="calculateGPower()" class="w-full mt-5 py-3.5 sm:py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors text-sm sm:text-base shadow-lg">Calculate</button></div></div><div class="flex flex-col gap-4 sm:gap-4"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 relative shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Output Parameters</h4><div class="space-y-2 sm:space-y-2" id="gp-output"><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Noncentrality δ</span><span id="out-delta" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center mt-2"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 1</span><span id="out-n1" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 2</span><span id="out-n2" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-xs sm:text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-xl sm:text-2xl">-</span></div></div></div><div class="bg-white p-2 rounded-xl border border-gray-300 w-full shadow-inner" style="min-height: 180px;"><canvas id="gpowerPlot"></canvas></div></div></div></div>
+    
+    <!-- PENGATURAN TEKS TAB -->
     <div id="tab-settings" class="hidden"><div class="bg-yellow-900/20 border border-yellow-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm"><h3 class="font-bold text-yellow-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2-2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Sistem Master</h3><p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Ubah seluruh teks kuesioner, opsi, dan keterangan dari sini.</p></div><div class="space-y-6 sm:space-y-8" id="editor-container"></div><div class="mt-8 border-t border-gray-700 pt-6 flex justify-end"><button id="btn-save-questions" onclick="saveEditedQuestions()" class="w-full sm:w-auto px-6 py-3.5 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center justify-center text-sm"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Seluruh Perubahan ke Database</button></div></div>
+
+    <!-- SETTING WEB TAB -->
+    <div id="tab-websettings" class="hidden">
+      <div class="bg-purple-900/20 border border-purple-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
+        <h3 class="font-bold text-purple-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Konfigurasi Website Master</h3>
+        <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Pengaturan perilaku website dan izin sinkronisasi ke Database Google Sheets.</p>
+      </div>
+
+      <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700/50 shadow-md max-w-2xl mx-auto space-y-6">
+        <!-- Toggle 1 -->
+        <label class="flex items-center justify-between cursor-pointer group">
+          <div class="flex-grow pr-4">
+            <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">1. Tombol Admin Panel</h4>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Menampilkan tautan akses Admin Dashboard pada menu halaman utama.</p>
+          </div>
+          <div class="relative shrink-0">
+            <input type="checkbox" id="toggle-admin" class="sr-only toggle-checkbox" onchange="updateWebSettings()">
+            <div class="toggle-label"></div>
+          </div>
+        </label>
+        <hr class="border-gray-700">
+        <!-- Toggle 2 -->
+        <label class="flex items-center justify-between cursor-pointer group">
+          <div class="flex-grow pr-4">
+            <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">2. Sinkronisasi Live Tabel VAS</h4>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Mengizinkan sistem mengirim kalkulasi *Output SPSS VAS* secara otomatis ke Google Sheets.</p>
+          </div>
+          <div class="relative shrink-0">
+            <input type="checkbox" id="toggle-vas" class="sr-only toggle-checkbox" onchange="updateWebSettings()">
+            <div class="toggle-label"></div>
+          </div>
+        </label>
+        <hr class="border-gray-700">
+        <!-- Toggle 3 -->
+        <label class="flex items-center justify-between cursor-pointer group">
+          <div class="flex-grow pr-4">
+            <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">3. Sinkronisasi Live Tabel MDAS</h4>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Mengizinkan sistem mengirim kalkulasi *Output SPSS MDAS* secara otomatis ke Google Sheets.</p>
+          </div>
+          <div class="relative shrink-0">
+            <input type="checkbox" id="toggle-mdas" class="sr-only toggle-checkbox" onchange="updateWebSettings()">
+            <div class="toggle-label"></div>
+          </div>
+        </label>
+      </div>
+    </div>
   </div>
 
+  <!-- RONTGEN CONTAINERS -->
   <div id="rontgen-login-container" class="glass-card rounded-2xl w-[90%] max-w-sm p-6 sm:p-8 hidden my-auto text-center mx-auto mt-20 shadow-2xl">
     <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center mb-6 bg-blue-900/30 rounded-full border border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.2)]"><svg class="w-10 h-10 sm:w-12 sm:h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></div>
     <h2 class="text-lg sm:text-xl font-bold text-white tracking-wider mb-2">RONTGEN ACCESS</h2>
@@ -471,6 +528,8 @@
     let autoUpdateInterval = null; 
     let isUploadingRontgen = false;
     let lastAutoSyncCount = 0;
+    
+    let webSettings = { adminPanel: false, syncVAS: false, syncMDAS: false };
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -499,6 +558,8 @@
     ];
 
     window.onload = () => {
+      loadWebSettings(); // Inisialisasi Web Settings
+      
       if(isAdminMode) {
         if(localStorage.getItem('axa_admin_logged') === 'true') {
            document.getElementById('loader').style.display = 'none'; document.getElementById('admin-container').classList.remove('hidden');
@@ -534,6 +595,30 @@
         document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden');
       }
     };
+
+    function loadWebSettings() {
+       let saved = localStorage.getItem('axa_web_settings');
+       if(saved) { webSettings = JSON.parse(saved); }
+       
+       if(document.getElementById('toggle-admin')) {
+           document.getElementById('toggle-admin').checked = webSettings.adminPanel;
+           document.getElementById('toggle-vas').checked = webSettings.syncVAS;
+           document.getElementById('toggle-mdas').checked = webSettings.syncMDAS;
+       }
+       
+       const adminLink = document.getElementById('link-admin-panel');
+       const adminSep = document.getElementById('link-admin-sep');
+       if(adminLink) adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
+       if(adminSep) adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
+    }
+
+    function updateWebSettings() {
+       webSettings.adminPanel = document.getElementById('toggle-admin').checked;
+       webSettings.syncVAS = document.getElementById('toggle-vas').checked;
+       webSettings.syncMDAS = document.getElementById('toggle-mdas').checked;
+       localStorage.setItem('axa_web_settings', JSON.stringify(webSettings));
+       loadWebSettings();
+    }
 
     function setupFlowAndUI() {
         // Setup Active Steps Based on Kunjungan Type
@@ -865,11 +950,24 @@
     }
 
     function switchTab(tabId) {
-      ['tab-data', 'tab-spss', 'tab-spss-vas', 'tab-spss-mdas', 'tab-settings', 'tab-gpower'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['tab-data', 'tab-spss', 'tab-spss-vas', 'tab-spss-mdas', 'tab-settings', 'tab-gpower', 'tab-websettings'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById(tabId).classList.remove('hidden');
-      ['btn-tab-data', 'btn-tab-spss', 'btn-tab-spss-vas', 'btn-tab-spss-mdas', 'btn-tab-settings', 'btn-tab-gpower'].forEach(btn => { document.getElementById(btn).classList.replace('text-neon', 'text-gray-400'); document.getElementById(btn).classList.remove('border-b-2', 'border-neon'); });
-      document.getElementById('btn-'+tabId).classList.replace('text-gray-400', 'text-neon'); document.getElementById('btn-'+tabId).classList.add('border-b-2', 'border-neon');
+      ['btn-tab-data', 'btn-tab-spss', 'btn-tab-spss-vas', 'btn-tab-spss-mdas', 'btn-tab-settings', 'btn-tab-gpower', 'btn-tab-websettings'].forEach(btn => { 
+          document.getElementById(btn).classList.replace('text-neon', 'text-gray-400');
+          document.getElementById(btn).classList.replace('text-purple-400', 'text-gray-400');
+          document.getElementById(btn).classList.remove('border-b-2', 'border-neon', 'border-purple-400'); 
+      });
+      
+      const activeBtn = document.getElementById('btn-'+tabId);
+      if(tabId === 'tab-websettings') {
+          activeBtn.classList.replace('text-gray-400', 'text-purple-400');
+          activeBtn.classList.add('border-b-2', 'border-purple-400');
+      } else {
+          activeBtn.classList.replace('text-gray-400', 'text-neon'); 
+          activeBtn.classList.add('border-b-2', 'border-neon');
+      }
     }
+    
     function switchSubTable(type) {
       ['subtable-ohqe', 'subtable-vas', 'subtable-mdas'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById('subtable-'+type).classList.remove('hidden');
@@ -1280,8 +1378,8 @@
         // HISTOGRAM CONTAINERS
         htmlOutput += `
         <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1" style="height:300px; width:100%;"></canvas></div></div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2" style="height:300px; width:100%;"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1" style="height:300px; width:100%; min-height:300px; display:block;"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2" style="height:300px; width:100%; min-height:300px; display:block;"></canvas></div></div>
         `;
 
         container.innerHTML = htmlOutput;
@@ -1291,7 +1389,7 @@
         setTimeout(() => {
             renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
             renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
-        }, 100);
+        }, 500);
 
       }, 1500);
     }
@@ -1353,6 +1451,27 @@
         let pVal = getCorrelationPValue(r, n);
         let pValText = pVal < 0.001 ? "< 0.001" : pVal.toFixed(3);
         let isSig = pVal < 0.05;
+
+        // Sync to Google Sheets if allowed
+        if (webSettings.syncVAS && GAS_URL) {
+            let vasMean = jStat.mean(vasScores).toFixed(3);
+            let vasStd = jStat.stdev(vasScores, true).toFixed(3);
+            let ohqeMean = jStat.mean(ohqeScores).toFixed(3);
+            let ohqeStd = jStat.stdev(ohqeScores, true).toFixed(3);
+            
+            let syncConclusion = isSig && r < 0 
+               ? "Terdapat hubungan negatif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut."
+               : (isSig && r > 0 ? "Terdapat hubungan positif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup." : "Tidak terdapat hubungan yang signifikan secara statistik antara tingkat nyeri endodontik dengan kualitas hidup.");
+
+            const payloadVAS = {
+                action: 'updateLiveTableVAS',
+                vasMean: vasMean, vasStd: vasStd, ohqeMean: ohqeMean, ohqeStd: ohqeStd,
+                n: n, pNormVAS: pNormVas.toFixed(3), pNormOHQE: pNormOhqe.toFixed(3),
+                testName: testName, corrVal: r.toFixed(3), pVal: pVal.toFixed(3),
+                conclusion: syncConclusion
+            };
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payloadVAS) }).catch(e=>console.error(e));
+        }
 
         // Normality Table
         htmlOutput += `
@@ -1490,6 +1609,27 @@
         let m2 = getMatrixCell(mdasScores, pnMDAS, fisOhqe, pnFis);
         let m3 = getMatrixCell(mdasScores, pnMDAS, psiOhqe, pnPsi);
         let m4 = getMatrixCell(mdasScores, pnMDAS, eksOhqe, pnEks);
+
+        // Sync to Google Sheets if allowed
+        if (webSettings.syncMDAS && GAS_URL) {
+            const payloadMDAS = {
+                action: 'updateLiveTableMDAS',
+                n: n,
+                mdasMean: jStat.mean(mdasScores).toFixed(3), mdasStd: jStat.stdev(mdasScores, true).toFixed(3),
+                ohqeMean: jStat.mean(totOhqe).toFixed(3), ohqeStd: jStat.stdev(totOhqe, true).toFixed(3),
+                fisikMean: jStat.mean(fisOhqe).toFixed(3), fisikStd: jStat.stdev(fisOhqe, true).toFixed(3),
+                psikoMean: jStat.mean(psiOhqe).toFixed(3), psikoStd: jStat.stdev(psiOhqe, true).toFixed(3),
+                ekspMean: jStat.mean(eksOhqe).toFixed(3), ekspStd: jStat.stdev(eksOhqe, true).toFixed(3),
+                correlations: [
+                    { pair: "MDAS & Total OHQE", testName: m1.test, corrVal: m1.r.toFixed(3), pVal: m1.p.toFixed(3), sigText: m1.isSig ? "Signifikan" : "Tidak Signifikan" },
+                    { pair: "MDAS & Fisik", testName: m2.test, corrVal: m2.r.toFixed(3), pVal: m2.p.toFixed(3), sigText: m2.isSig ? "Signifikan" : "Tidak Signifikan" },
+                    { pair: "MDAS & Psikologis", testName: m3.test, corrVal: m3.r.toFixed(3), pVal: m3.p.toFixed(3), sigText: m3.isSig ? "Signifikan" : "Tidak Signifikan" },
+                    { pair: "MDAS & Ekspektasi", testName: m4.test, corrVal: m4.r.toFixed(3), pVal: m4.p.toFixed(3), sigText: m4.isSig ? "Signifikan" : "Tidak Signifikan" }
+                ],
+                conclusion: "Pengujian Korelasi MDAS dengan Kualitas Hidup OHQE dan Subskalanya telah berhasil dilakukan secara komprehensif. Silakan merujuk pada tabel PDF untuk narasi lengkap."
+            };
+            fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payloadMDAS) }).catch(e=>console.error(e));
+        }
 
         let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">KORELASI ANTARA KECEMASAN PERAWATAN GIGI DAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
 

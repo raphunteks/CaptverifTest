@@ -94,6 +94,30 @@
     </div>
   </div>
 
+  <div id="custom-confirm" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+    <div class="glass-card p-5 sm:p-6 rounded-2xl max-w-[90vw] sm:max-w-sm w-full text-center border shadow-2xl">
+      <h3 class="text-lg font-bold text-white mb-2">Konfirmasi</h3>
+      <p class="text-sm text-gray-300 mb-6 leading-relaxed" id="custom-confirm-message"></p>
+      <div class="flex flex-col-reverse sm:flex-row gap-3">
+        <button type="button" onclick="closeCustomConfirm()" class="w-full py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl transition-colors">BATAL</button>
+        <button type="button" id="custom-confirm-ok" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors shadow-lg shadow-red-900/50">YA, HAPUS</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-6 md:p-8">
+    <div class="glass-card w-full max-w-5xl h-[90vh] sm:h-[85vh] rounded-2xl flex flex-col overflow-hidden relative border border-gray-700 shadow-2xl">
+      <div class="p-3 sm:p-4 bg-gray-900/95 border-b border-gray-700 flex justify-between items-center z-20">
+         <h3 class="text-white font-bold text-sm sm:text-base md:text-lg flex items-center truncate pr-2">Pratinjau Radiografi</h3>
+         <button onclick="closePreview()" class="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white transition shadow-lg shrink-0">X</button>
+      </div>
+      <div class="flex-grow w-full bg-gray-800 flex items-center justify-center relative">
+         <div id="preview-loader" class="absolute w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+         <iframe id="preview-iframe" class="w-full h-full relative z-10" frameborder="0" allow="autoplay" allowfullscreen onload="document.getElementById('preview-loader').style.display='none'"></iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- MENU LANDING KUNJUNGAN -->
   <div id="landing-container" class="glass-card rounded-2xl w-[90%] max-w-lg p-6 sm:p-10 hidden my-auto text-center mx-auto shadow-2xl">
     <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center mb-4">
@@ -103,32 +127,21 @@
     <p class="text-xs sm:text-sm text-gray-400 font-medium mb-8">Pilih Tahap Kunjungan Responden</p>
     
     <div class="space-y-4">
-      <button onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-neon hover:text-neon rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg flex items-center justify-center group">
-        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-neon transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        KUNJUNGAN 1
-      </button>
-      <button onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-yellow-400 hover:text-yellow-400 rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg flex items-center justify-center group">
-        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-yellow-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-        KUNJUNGAN 2
-      </button>
-      <button onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-blue-400 hover:text-blue-400 rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg flex items-center justify-center group">
-        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        KUNJUNGAN 3
-      </button>
+      <button onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-neon hover:text-neon rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg">KUNJUNGAN 1</button>
+      <button onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-yellow-400 hover:text-yellow-400 rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg">KUNJUNGAN 2</button>
+      <button onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800/80 border border-gray-600 hover:border-blue-400 hover:text-blue-400 rounded-xl font-bold tracking-widest text-sm transition-all shadow-lg">KUNJUNGAN 3</button>
     </div>
     
     <div class="mt-8 pt-6 border-t border-gray-700/50 flex justify-between">
-      <button onclick="window.location.href='?page=uploadrontgen'" class="text-xs text-gray-400 hover:text-white flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Rontgen</button>
-      <button onclick="window.location.href='?page=admin'" class="text-xs text-gray-400 hover:text-white flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Admin</button>
+      <button onclick="window.location.href='?page=uploadrontgen'" class="text-xs text-gray-400 hover:text-white">Rontgen</button>
+      <button onclick="window.location.href='?page=admin'" class="text-xs text-gray-400 hover:text-white">Admin Dashboard</button>
     </div>
   </div>
 
   <!-- MAIN CONTAINER (RESPONDEN) -->
   <div id="app-container" class="glass-card rounded-2xl w-[95%] sm:w-full max-w-4xl p-4 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative mx-auto">
     <div class="absolute top-3 right-3 sm:top-6 sm:right-6 flex gap-2 z-20">
-      <button type="button" onclick="window.location.href='?'" class="p-2 sm:p-2.5 rounded-full bg-gray-800 border border-gray-700 hover:border-red-400 text-gray-400 hover:text-red-400 transition shadow-md" title="Menu Utama">
-        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-      </button>
+      <button type="button" onclick="window.location.href='?'" class="p-2 sm:p-2.5 rounded-full bg-gray-800 border border-gray-700 hover:border-red-400 text-gray-400 hover:text-red-400 transition shadow-md" title="Menu Utama">X</button>
     </div>
 
     <div class="mb-6 sm:mb-8 mt-2 sm:mt-0" id="progress-container">
@@ -152,13 +165,11 @@
       <div id="step-1" class="step-content">
         <div class="mb-6 sm:mb-8 p-4 sm:p-5 bg-red-900/20 border border-red-500/50 rounded-xl relative overflow-hidden shadow-sm">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
-          <h2 class="text-sm sm:text-base font-bold text-red-400 mb-2 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> BAGIAN KHUSUS PENELITI
-          </h2>
+          <h2 class="text-sm sm:text-base font-bold text-red-400 mb-2">BAGIAN KHUSUS PENELITI</h2>
           <div class="space-y-4">
               <div>
                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
-                <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+                <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 cursor-pointer">
                   <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
                   <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
                   <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
@@ -514,6 +525,17 @@
 
     let currentStepIndex = 0;
     
+    // DEFINISI JUDUL SETIAP STEP
+    const stepTitles = {
+      '1': 'Biodata & Informasi',
+      'ohqe-f': 'Kondisi Fisik (OHQE)',
+      'ohqe-p': 'Kondisi Psikologis (OHQE)',
+      'ohqe-e': 'Ekspektasi Perawatan (OHQE)',
+      'vas': 'Skala Nyeri (VAS)',
+      'riwayat': 'Riwayat Nyeri',
+      'mdas': 'Kecemasan Dental (MDAS)'
+    };
+    
     function updateUI() {
       ['1','ohqe-f','ohqe-p','ohqe-e','vas','riwayat','mdas','success'].forEach(s => {
          const el = document.getElementById('step-'+s); if(el) el.classList.remove('active');
@@ -526,6 +548,9 @@
          const pct = ((currentStepIndex+1) / activeSteps.length) * 100;
          document.getElementById('progress-bar').style.width = `${pct}%`;
          document.getElementById('progress-percentage').innerText = `${Math.round(pct)}%`;
+         
+         // UPDATE TEKS INDIKATOR STEP SECARA DINAMIS
+         document.getElementById('step-indicator').innerText = `Step ${currentStepIndex + 1} dari ${activeSteps.length}: ${stepTitles[stepId]}`;
          
          if(stepId === 'vas') {
             const val = document.querySelector('input[name="vas_score"]:checked')?.value;
@@ -562,6 +587,8 @@
 
       const inputs = stepDiv.querySelectorAll('input[required], select[required]');
       let isValid = true;
+      let firstInvalidEl = null;
+      
       const radioGroups = new Set();
       stepDiv.querySelectorAll('input[type="radio"][required]').forEach(r => radioGroups.add(r.name));
       
@@ -570,14 +597,28 @@
       }
 
       for(let name of radioGroups) {
-        if(!stepDiv.querySelector(`input[name="${name}"]:checked`)) { isValid = false; }
+        if(!stepDiv.querySelector(`input[name="${name}"]:checked`)) { 
+           isValid = false; 
+           if(!firstInvalidEl) {
+              const rInput = stepDiv.querySelector(`input[name="${name}"]`);
+              if(rInput) firstInvalidEl = rInput.closest('.p-4') || rInput.closest('.radio-group');
+           }
+        }
       }
 
       inputs.forEach(input => {
-        if(input.type !== 'radio' && !input.value.trim()) { isValid = false; input.classList.add('border-red-500'); setTimeout(()=>input.classList.remove('border-red-500'),2000); }
+        if(input.type !== 'radio' && !input.value.trim()) { 
+           isValid = false; 
+           input.classList.add('border-red-500'); 
+           setTimeout(()=>input.classList.remove('border-red-500'),2000); 
+           if(!firstInvalidEl) firstInvalidEl = input;
+        }
       });
 
-      if(!isValid) showCustomAlert("Mohon lengkapi isian Wajib pada halaman ini.", "Data Belum Lengkap");
+      if(!isValid) {
+         showCustomAlert("⚠️ Mohon lengkapi isian Wajib pada halaman ini sebelum melanjutkan.", "Data Belum Lengkap");
+         if(firstInvalidEl) firstInvalidEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+      }
       return isValid;
     }
 

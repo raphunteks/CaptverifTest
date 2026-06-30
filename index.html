@@ -161,6 +161,7 @@
     <p class="text-gray-400 text-xs mt-2" id="loader-subtext">Mengambil Database...</p>
   </div>
 
+  <!-- MODAL CUSTOM ALERT -->
   <div id="custom-alert" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
     <div class="glass-card p-6 rounded-2xl max-w-sm w-full text-center border shadow-xl transform scale-95 transition-transform duration-300" id="custom-alert-box">
       <div class="w-16 h-16 mx-auto bg-red-900/30 rounded-full flex items-center justify-center mb-4 border border-red-500 text-red-500" id="alert-icon-container">
@@ -169,6 +170,18 @@
       <h3 class="text-lg font-bold text-white mb-2" id="custom-alert-title">Perhatian</h3>
       <p class="text-sm text-gray-300 mb-6" id="custom-alert-message">Pesan alert.</p>
       <button type="button" onclick="closeCustomAlert()" class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold rounded-xl transition-colors">MENGERTI</button>
+    </div>
+  </div>
+
+  <!-- MODAL CUSTOM CONFIRM (Pengganti window.confirm) -->
+  <div id="custom-confirm" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+    <div class="glass-card p-6 rounded-2xl max-w-sm w-full text-center border shadow-xl">
+      <h3 class="text-lg font-bold text-white mb-2">Konfirmasi</h3>
+      <p class="text-sm text-gray-300 mb-6" id="custom-confirm-message"></p>
+      <div class="flex gap-3">
+        <button type="button" onclick="closeCustomConfirm()" class="w-full py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-xl">BATAL</button>
+        <button type="button" id="custom-confirm-ok" class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl">YA, HAPUS</button>
+      </div>
     </div>
   </div>
 
@@ -206,7 +219,8 @@
 
     <div class="mb-8" id="progress-container">
       <div class="text-center mb-6 flex flex-col items-center">
-        <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
+        <!-- Menggunakan placeholder karena URL logo aslinya tidak dilampirkan -->
+        <img src="https://placehold.co/100x100/070a10/39ff14?text=AXA" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]">
         <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Instrumen <span class="text-neon">OHQE</span></h1>
         <p class="text-xs sm:text-sm text-gray-400 mt-1">Penelitian Angkatan 2023 FKG UMI</p>
       </div>
@@ -233,35 +247,35 @@
           <p class="text-xs sm:text-sm text-gray-300 mb-4 font-medium tracking-wide">⚠️ YTH. Pasien, mohon <span class="text-white font-bold underline">bertanya kepada peneliti/dokter</span> untuk mengisi kolom di bawah ini sebelum melanjutkan.</p>
           
           <div class="space-y-4">
-             <div>
-               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
-               <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                 <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
-                 <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
-                 <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
-               </select>
-             </div>
-             
-             <!-- NEW FIELDS: Diagnosis Periapikal, Gigi Dirawat, Jumlah Gigi -->
-             <div class="pt-4 border-t border-red-500/30">
-               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Periapikal <span class="text-gray-400 font-normal">(Opsional)</span></label>
-               <select id="diagPeri" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                 <option value="" selected>Pilih Diagnosis Periapikal...</option>
-                 <option value="Periapikal Normal">1. Periapikal Normal</option>
-                 <option value="Periodontitis Apikalis">2. Periodontitis Apikalis</option>
-                 <option value="Abses Periapikal">3. Abses Periapikal</option>
-               </select>
-             </div>
-             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <div>
-                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Gigi yang dirawat <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                 <input type="text" id="gigiRawat" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: Gigi 46">
-               </div>
-               <div>
-                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Jumlah gigi yang sakit <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                 <input type="number" id="jmlGigi" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 1">
-               </div>
-             </div>
+              <div>
+                <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
+                <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+                  <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
+                  <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
+                  <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
+                </select>
+              </div>
+              
+              <!-- NEW FIELDS: Diagnosis Periapikal, Gigi Dirawat, Jumlah Gigi -->
+              <div class="pt-4 border-t border-red-500/30">
+                <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Periapikal <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                <select id="diagPeri" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+                  <option value="" selected>Pilih Diagnosis Periapikal...</option>
+                  <option value="Periapikal Normal">1. Periapikal Normal</option>
+                  <option value="Periodontitis Apikalis">2. Periodontitis Apikalis</option>
+                  <option value="Abses Periapikal">3. Abses Periapikal</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Gigi yang dirawat <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                  <input type="text" id="gigiRawat" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: Gigi 46">
+                </div>
+                <div>
+                  <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Jumlah gigi yang sakit <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                  <input type="number" id="jmlGigi" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 1">
+                </div>
+              </div>
           </div>
         </div>
 
@@ -423,7 +437,8 @@
   <!-- ADMIN LOGIN & DASHBOARD DIBAWAH INI -->
   <div id="login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
     <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6">
-      <img src="axalogo.png" alt="Logo" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" onerror="this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA'">
+      <!-- Menggunakan placeholder karena URL logo aslinya tidak dilampirkan -->
+      <img src="https://placehold.co/100x100/070a10/39ff14?text=AXA" alt="Logo" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]">
     </div>
     <h2 class="text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
     <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl">
@@ -435,7 +450,7 @@
   <div id="admin-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
       <div class="flex items-center gap-4">
-        <img src="axalogo.png" alt="Logo" class="w-10 h-10 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
+        <img src="https://placehold.co/100x100/070a10/39ff14?text=AXA" alt="Logo" class="w-10 h-10 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]">
         <div>
           <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1>
           <p class="text-xs sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p>
@@ -638,10 +653,12 @@
 
   <!-- FOOTER -->
   <footer class="mt-auto pt-10 pb-4 text-center text-[0.65rem] sm:text-xs text-gray-500 w-full relative z-10 font-medium tracking-wider px-4">
-    &copy; <script>document.write(new Date().getFullYear())</script> All Rights Reserved, Researcher by M. Azhar Arsyad, Fitri Aulia, & Absabrina Aulia Ramadani
+    &copy; <span id="current-year"></span> All Rights Reserved, Researcher by M. Azhar Arsyad, Fitri Aulia, & Absabrina Aulia Ramadani
   </footer>
 
   <script>
+    document.getElementById('current-year').innerText = new Date().getFullYear();
+
     // =========================================================================
     // 1. KONFIGURASI BACKEND SPREADSHEET (WAJIB DIISI)
     // =========================================================================
@@ -759,6 +776,22 @@
     function closeCustomAlert() {
       document.getElementById('custom-alert').classList.add('hidden');
     }
+
+    // Modal Custom Confirm Logic (Bypass untuk Window.confirm)
+    let confirmCallback = null;
+    function showCustomConfirm(message, callback) {
+      document.getElementById('custom-confirm-message').innerText = message;
+      document.getElementById('custom-confirm').classList.remove('hidden');
+      confirmCallback = callback;
+    }
+    function closeCustomConfirm() {
+      document.getElementById('custom-confirm').classList.add('hidden');
+      confirmCallback = null;
+    }
+    document.getElementById('custom-confirm-ok').addEventListener('click', function() {
+      if(confirmCallback) confirmCallback();
+      closeCustomConfirm();
+    });
 
     // Modal Preview Logic
     function showPreview(url) {
@@ -908,6 +941,7 @@
       else if(mdasScore >= 19) mdasInter = "Sangat tinggi / Kemungkinan fobia dental";
 
       const payload = {
+        action: 'saveData', // Added action to properly route in App Script
         diagnosis: document.getElementById('diagnosis').value,
         diagPeri: document.getElementById('diagPeri').value, 
         gigiRawat: document.getElementById('gigiRawat').value, 
@@ -995,13 +1029,15 @@
         .then(r => r.text()).then(text => {
           try {
             const data = JSON.parse(text);
-            // CARI BAGIAN INI DI DALAM index.html ANDA:
             if(data.ohqe) {
-            globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
-            if(data.rontgen) globalAdminRontgen = data.rontgen;
-            renderTables(); 
-            renderRontgenTable();
-            fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; renderSettingsTab(); });
+               globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
+               if(data.rontgen) globalAdminRontgen = data.rontgen;
+               renderTables(); renderRontgenTable();
+               // [ADDED] Menarik data pertanyaan agar tab pengaturan tidak kosong
+               fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; renderSettingsTab(); });
+            }
+          } catch(e) {}
+        }).catch(err => {});
     }
 
     function fetchAdminData() {
@@ -1014,6 +1050,8 @@
                globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
                if(data.rontgen) globalAdminRontgen = data.rontgen;
                renderTables(); renderRontgenTable();
+               // [ADDED] Menarik data pertanyaan agar tab pengaturan tidak kosong
+               fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; renderSettingsTab(); });
             } else { showCustomAlert(data.message || "Error", "Fetch Error"); }
           } catch(e) { showCustomAlert("Gagal parsing data", "Error"); }
         }).catch(err => showCustomAlert("Gagal mengambil data", "Error"));
@@ -1160,19 +1198,21 @@
     }
 
     function deleteRontgen(id) {
-       if(!confirm("Anda yakin ingin menghapus data Rontgen pasien ini? (Tindakan ini tidak dapat dikembalikan)")) return;
-       const btn = document.getElementById('btn_del_' + id);
-       btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
-       btn.disabled = true;
+       // Modification: Menggunakan showCustomConfirm yang dibuat di atas sebagai ganti window.confirm untuk menghindari UI block
+       showCustomConfirm("Anda yakin ingin menghapus data Rontgen pasien ini? (Tindakan ini tidak dapat dikembalikan)", function() {
+           const btn = document.getElementById('btn_del_' + id);
+           btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
+           btn.disabled = true;
 
-       fetch(GAS_URL, {
-         method: 'POST',
-         body: JSON.stringify({ action: 'deleteRontgen', id: id })
-       })
-       .then(r => r.json()).then(res => {
-           if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); }
-           else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; }
-       }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; });
+           fetch(GAS_URL, {
+             method: 'POST',
+             body: JSON.stringify({ action: 'deleteRontgen', id: id })
+           })
+           .then(r => r.json()).then(res => {
+               if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); }
+               else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; }
+           }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; });
+       });
     }
 
     // --- 8. EDITOR PERTANYAAN ADMIN ---

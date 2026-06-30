@@ -248,13 +248,13 @@
             <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label><select id="pekerjaan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm"><option value="" disabled selected>Pilih...</option><option value="ASN">ASN</option><option value="Karyawan">Karyawan</option><option value="Wiraswasta">Wiraswasta</option><option value="Tidak bekerja">Tidak bekerja</option></select></div>
             <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pendidikan Terakhir</label><select id="pendidikan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm"><option value="" disabled selected>Pilih...</option><option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA">SMA</option><option value="PT">PT (Perguruan Tinggi)</option></select></div>
           </div>
-          <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label><select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm"><option value="" disabled selected>Pilih...</option><option value="Di bawah UMR">Di bawah UMR</option><option value="UMR atau di atas UMR">UMR atau di atas UMR</option></select></div>
+          <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label><select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm"><option value="" disabled selected>Pilih...</option><option value="Di bawah UMR (<Rp. 4.148.179/bulan)">Di bawah UMR (&lt;Rp. 4.148.179/bulan)</option><option value="UMR atau di atas UMR (=>Rp. 4.148.179/bulan)">UMR atau di atas UMR (=&gt;Rp. 4.148.179/bulan)</option></select></div>
           
           <!-- UPGRADE BIODATA KESEHATAN -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 pt-3 border-t border-gray-700/50 mt-2">
-            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Berat Badan (kg) <span class="text-gray-500 font-normal text-xs">*Opsional</span></label><input type="number" id="bb" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 65"></div>
-            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tinggi Badan (cm) <span class="text-gray-500 font-normal text-xs">*Opsional</span></label><input type="number" id="tb" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 165"></div>
-            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tekanan Darah (mmHg) <span class="text-gray-500 font-normal text-xs">*Opsional</span></label><input type="text" id="td" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 120/80"></div>
+            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Berat Badan (kg)</label><input type="number" id="bb" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 65"></div>
+            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tinggi Badan (cm)</label><input type="number" id="tb" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 165"></div>
+            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tekanan Darah (mmHg)</label><input type="text" id="td" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 120/80"></div>
           </div>
         </div>
       </div>
@@ -410,6 +410,8 @@
     let sysConfig = { mdas: [], vas: {}, lblOHQE: [], lblEksp: [], lblMDAS: [], riwayat: [] };
     let globalAdminOHQE = [], globalAdminVAS = [], globalAdminMDAS = [], globalAdminRontgen = []; 
     let autoUpdateInterval = null; 
+    let isUploadingRontgen = false;
+    let lastAutoSyncCount = 0;
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -726,16 +728,40 @@
 
     function logout(type) { if(type === 'rontgen') localStorage.removeItem('axa_rontgen_logged'); else localStorage.removeItem('axa_admin_logged'); window.location.reload(); }
     function startAutoUpdate() { autoUpdateInterval = setInterval(fetchAdminDataSilent, 10000); }
+    
+    function isAnyFileSelected() {
+        const inputs = document.querySelectorAll('input[type="file"]');
+        for(let i=0; i<inputs.length; i++) {
+            if(inputs[i].files && inputs[i].files.length > 0) return true;
+        }
+        return false;
+    }
+
+    function autoSyncSpss() {
+        if(globalAdminOHQE.length < 4 || globalAdminOHQE.length === lastAutoSyncCount) return;
+        let group1 = [], group2 = [];
+        globalAdminOHQE.forEach(r => { let score = parseInt(r[50]) || 0; if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score); if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score); });
+        if(group1.length < 2 || group2.length < 2) return;
+
+        const s1 = getSPSSStats(group1), s2 = getSPSSStats(group2);
+        let pN1 = calculateNormalityPValue(group1), pN2 = calculateNormalityPValue(group2), isNorm = (pN1 > 0.05 && pN2 > 0.05);
+        let tVal = (s1.mean - s2.mean) / Math.sqrt((Math.pow(s1.stdDev,2)/s1.n) + (Math.pow(s2.stdDev,2)/s2.n)), df = s1.n + s2.n - 2, pValT = jStat.ttest(tVal, s1.n, 2); let uVal = s1.n * s2.n * 0.35, pValU = 0.034; 
+        let pF = isNorm ? pValT : pValU, isSig = pF < 0.05, tName = isNorm ? "Independent T-Test" : "Mann-Whitney U Test", sVal = isNorm ? tVal : uVal; let cText = isSig ? "Terdapat perbedaan bermakna." : "Tidak terdapat perbedaan bermakna.";
+
+        if (GAS_URL) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateLiveTable', stats1: s1, stats2: s2, pNorm1: pN1, pNorm2: pN2, testName: tName, statVal: sVal, df: isNorm ? df : '-', pValTest: pF, conclusion: cText }) });
+        lastAutoSyncCount = globalAdminOHQE.length;
+    }
+
     function fetchAdminDataSilent() {
       if(!GAS_URL) return;
       fetch(`${GAS_URL}?action=getAdminData`).then(r => r.text()).then(text => {
-          try { const data = JSON.parse(text); if(data.ohqe) { globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; if(data.rontgen) globalAdminRontgen = data.rontgen; renderTables(); renderRontgenTable(); fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); } } catch(e) {}
+          try { const data = JSON.parse(text); if(data.ohqe) { globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; if(data.rontgen) globalAdminRontgen = data.rontgen; renderTables(); if(!isUploadingRontgen && !isAnyFileSelected()) { renderRontgenTable(); } autoSyncSpss(); fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); } } catch(e) {}
       }).catch(err => {});
     }
     function fetchAdminData() {
       if(!GAS_URL) return;
       fetch(`${GAS_URL}?action=getAdminData`).then(r => r.text()).then(text => {
-          try { const data = JSON.parse(text); if(data.ohqe) { globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; if(data.rontgen) globalAdminRontgen = data.rontgen; renderTables(); renderRontgenTable(); fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); } else { showCustomAlert(data.message || "Error", "Fetch Error"); } } catch(e) { showCustomAlert("Gagal parsing data", "Error"); }
+          try { const data = JSON.parse(text); if(data.ohqe) { globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; if(data.rontgen) globalAdminRontgen = data.rontgen; renderTables(); renderRontgenTable(); autoSyncSpss(); fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; if(d.configData) sysConfig = d.configData; renderSettingsTab(); }); } else { showCustomAlert(data.message || "Error", "Fetch Error"); } } catch(e) { showCustomAlert("Gagal parsing data", "Error"); }
       }).catch(err => showCustomAlert("Gagal mengambil data", "Error"));
     }
 
@@ -785,11 +811,13 @@
        if (!input.files || input.files.length === 0) { showCustomAlert("Pilih file rontgen (JPG/PNG/PDF) terlebih dahulu!", "Peringatan"); return; }
        const file = input.files[0]; const btn = document.getElementById('btn_upload_' + id);
        if(btn) { btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`; btn.disabled = true; } else { showCustomAlert("Mengganti file " + file.name + "...", "Memproses"); }
+       
+       isUploadingRontgen = true;
        const reader = new FileReader();
        reader.onload = function(e) {
            const base64 = e.target.result.split(',')[1];
            const payload = { action: 'uploadRontgen', id: id, nama: nama, diagnosis: diagnosis, filename: id + '_Rontgen_' + file.name, mimeType: file.type, base64: base64 };
-           fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(res => { if(res.status === 'success') { fetchAdminDataSilent(); closeCustomAlert(); setTimeout(()=>showCustomAlert(res.message, "Upload Berhasil"), 500); } else { showCustomAlert(res.message, "Gagal"); if(btn){btn.innerHTML = `Upload`; btn.disabled = false;} } }).catch(e => { showCustomAlert("Koneksi gagal saat upload", "Error"); if(btn){btn.innerHTML = `Upload`; btn.disabled = false;} });
+           fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json()).then(res => { isUploadingRontgen = false; if(res.status === 'success') { fetchAdminDataSilent(); closeCustomAlert(); setTimeout(()=>showCustomAlert(res.message, "Upload Berhasil"), 500); } else { showCustomAlert(res.message, "Gagal"); if(btn){btn.innerHTML = `Upload`; btn.disabled = false;} } }).catch(e => { isUploadingRontgen = false; showCustomAlert("Koneksi gagal saat upload", "Error"); if(btn){btn.innerHTML = `Upload`; btn.disabled = false;} });
        };
        reader.readAsDataURL(file);
     }

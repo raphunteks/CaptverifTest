@@ -750,7 +750,7 @@
         action: 'saveData',
         kunjungan: kunjunganType, // Pengirim Routing Backend
         diagnosis: document.getElementById('diagnosis').value, diagPeri: document.getElementById('diagPeri').value, gigiRawat: document.getElementById('gigiRawat').value, jmlGigi: document.getElementById('jmlGigi').value, 
-        nama: document.getElementById('nama').value, noHp: document.getElementById('noHp').value.toString(), usia: document.getElementById('usia').value, jk: document.getElementById('jk').value, pekerjaan: document.getElementById('pekerjaan').value, pendidikan: document.getElementById('pendidikan').value, umr: document.getElementById('umr').value,
+        nama: document.getElementById('nama').value, noHp: "'" + document.getElementById('noHp').value.toString(), usia: document.getElementById('usia').value, jk: document.getElementById('jk').value, pekerjaan: document.getElementById('pekerjaan').value, pendidikan: document.getElementById('pendidikan').value, umr: document.getElementById('umr').value,
         bb: document.getElementById('bb').value, tb: document.getElementById('tb').value, td: document.getElementById('td').value,
         lamaNyeri: document.querySelector('input[name="lamaNyeri"]:checked')?.value || '', nyeriSpontan: document.querySelector('input[name="nyeriSpontan"]:checked')?.value || '', nyeriKunyah: document.querySelector('input[name="nyeriKunyah"]:checked')?.value || '',
         gangguTidur: document.querySelector('input[name="gangguTidur"]:checked')?.value || '', minumObat: document.querySelector('input[name="minumObat"]:checked')?.value || '', jenisObat: document.getElementById('jenisObat')?.value || '',
@@ -1002,6 +1002,15 @@
     }
 
     // --- FULL SPSS ENGINE LOGIC & CORRELATION MATH ---
+    function getStrength(r) {
+      let absR = Math.abs(r);
+      if(absR < 0.2) return "Sangat Lemah";
+      if(absR < 0.4) return "Lemah";
+      if(absR < 0.6) return "Sedang";
+      if(absR < 0.8) return "Kuat";
+      return "Sangat Kuat";
+    }
+
     function getSPSSStats(data) {
       const n = data.length; 
       if(n < 2) return null;
@@ -1224,15 +1233,51 @@
 
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
-          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Kesimpulan Analisis Data OHQE</h3>
-          <p class="text-sm text-justify leading-relaxed mb-3">Berdasarkan hasil uji normalitas, didapatkan data berdistribusi <b>${isNormal?'NORMAL':'TIDAK NORMAL'}</b>. Uji komparatif menggunakan <b>${testName}</b> menunjukkan p-value sebesar <b>${finalPValText}</b>. Karena p-value ${isSignificant ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSignificant ? 'DITOLAK' : 'DITERIMA'}</b>. </p>
-          <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSignificant ? 'border-green-500' : 'border-red-500'}">Kesimpulan: ${conclusionText}</p>
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Interpretasi dan Kesimpulan Analisis Data</h3>
+          <p class="text-sm font-semibold text-center mb-4 text-black uppercase">"Perbedaan Kualitas Hidup Terkait Kesehatan Gigi Dan Mulut Antara Pasien Endodontik Dengan Pulpitis Ireversibel Dan Nekrosis Pulpa Di RSKDGM Provinsi Sulawesi Selatan"</p>
+          
+          <div class="mb-4 text-sm text-black">
+            <p class="font-bold mb-2">Hipotesis Penelitian:</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><b>Hipotesis Nol (H₀):</b> Tidak terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
+              <li><b>Hipotesis Alternatif (H₁):</b> Terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
+            </ul>
+          </div>
+
+          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
+            <p class="text-sm font-bold mb-2 text-blue-700">1. Hasil Uji Asumsi Normalitas</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Sebelum melakukan uji hipotesis, dilakukan uji asumsi normalitas untuk mengetahui apakah data terdistribusi normal atau tidak. Berdasarkan tabel <i>Tests of Normality</i> menggunakan metode <b>Shapiro-Wilk</b>, diperoleh nilai signifikansi (p-value) untuk kelompok Pulpitis Ireversibel sebesar <b>${pNorm1.toFixed(3)}</b> dan kelompok Nekrosis Pulpa sebesar <b>${pNorm2.toFixed(3)}</b>. 
+              Karena nilai signifikansi ${isNormal ? 'kedua kelompok lebih besar dari alpha 0.05 (p > 0.05), maka disimpulkan bahwa data <b>terdistribusi secara NORMAL</b>. Syarat pengujian parametrik terpenuhi sehingga pengujian hipotesis dilanjutkan menggunakan <b>Independent Sample T-Test</b>.' : 'terdapat kelompok yang kurang dari alpha 0.05 (p < 0.05), maka disimpulkan bahwa data <b>TIDAK terdistribusi normal</b>. Syarat pengujian parametrik tidak terpenuhi sehingga pengujian hipotesis menggunakan statistik non-parametrik <b>Mann-Whitney U Test</b>.'}
+            </p>
+
+            <p class="text-sm font-bold mb-2 text-blue-700">2. Hasil Uji Hipotesis Komparatif</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Berdasarkan hasil uji <b>${testName}</b>, diperoleh nilai statistik uji sebesar <b>${statVal.toFixed(3)}</b> dengan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. Karena nilai probabilitas signifikansi ${isSignificant ? '(p-value) < 0.05' : '(p-value) &ge; 0.05'}, maka <b>H₀ ${isSignificant ? 'ditolak' : 'diterima'}</b> dan <b>H₁ ${isSignificant ? 'diterima' : 'ditolak'}</b>. 
+            </p>
+
+            <p class="text-sm font-bold mb-2 text-blue-700">3. Kesimpulan Akhir</p>
+            <p class="text-sm font-bold text-justify leading-relaxed p-4 bg-gray-100 border-l-4 ${isSignificant ? 'border-green-500 text-green-900' : 'border-red-500 text-red-900'}">
+              Kesimpulan: ${conclusionText}
+            </p>
+          </div>
         </div>`;
+
+        // HISTOGRAM CONTAINERS
+        htmlOutput += `
+        <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
+        `;
 
         container.innerHTML = htmlOutput;
         btnExport.classList.remove('hidden');
 
-      }, 1000);
+        // Render Histograms
+        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
+        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
+
+      }, 1500);
     }
 
     // -------------------------------------------------------------
@@ -1322,18 +1367,49 @@
         </div>`;
 
         // Conclusion
-        let conclusionText = isSig && r < 0 
-           ? "Terdapat hubungan negatif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut, dimana semakin tinggi nyeri, maka semakin rendah kualitas hidup pasien."
-           : (isSig && r > 0 ? "Terdapat hubungan positif dan signifikan antara nyeri dan skor OHQE, bertentangan dengan arah hipotesis awal." : "Tidak terdapat hubungan yang signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut pada pasien.");
+        let strength = getStrength(r);
+        let direction = r < 0 ? "negatif (berlawanan arah)" : "positif (searah)";
+
+        let concTextVas = isSig && r < 0 
+           ? "Terdapat hubungan negatif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut, yang berarti semakin tinggi tingkat nyeri endodontik yang dirasakan, maka semakin rendah kualitas hidup pasien tersebut."
+           : (isSig && r > 0 ? "Terdapat hubungan positif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup, yang berarti arah hubungannya tidak sesuai dengan hipotesis alternatif (H₁)." : "Tidak terdapat hubungan yang signifikan secara statistik antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut pada pasien.");
 
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl mx-auto mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
-          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Uji Hipotesis Bivariat</h3>
-          <p class="text-sm font-semibold text-center mb-4 text-black uppercase">"Hubungan Nyeri Endodontik dengan Kualitas Hidup (OHQE)"</p>
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Interpretasi dan Kesimpulan Analisis Data (Univariat & Bivariat)</h3>
+          <p class="text-sm font-semibold text-center mb-6 text-black uppercase">"Hubungan Nyeri Endodontik dengan Kualitas Hidup Terkait Kesehatan Gigi dan Mulut pada Pasien Endodontik di RSKDGM Provinsi Sulawesi Selatan"</p>
+          
+          <div class="mb-4 text-sm text-black">
+            <p class="font-bold mb-2">Hipotesis Penelitian:</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><b>Hipotesis Nol (H₀):</b> Tidak terdapat hubungan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik di RSKDGM Provinsi Sulawesi Selatan.</li>
+              <li><b>Hipotesis Alternatif (H₁):</b> Terdapat hubungan negatif antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik di RSKDGM Provinsi Sulawesi Selatan, dimana semakin tinggi tingkat nyeri endodontik maka semakin rendah kualitas hidup terkait kesehatan gigi dan mulut yang dirasakan pasien.</li>
+            </ul>
+          </div>
+
           <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
-            <p class="text-sm text-justify leading-relaxed mb-3">Berdasarkan uji asumsi normalitas (Shapiro-Wilk), didapatkan data berdistribusi <b>${isNormal?'NORMAL':'TIDAK NORMAL'}</b>. Analisis dilanjutkan menggunakan uji korelasi <b>${testName}</b>.</p>
-            <p class="text-sm text-justify leading-relaxed mb-3">Hasil analisis korelasi menunjukkan nilai signifikansi sebesar <b>${pValText}</b> dengan koefisien korelasi (r) sebesar <b>${r.toFixed(3)}</b>. Karena p-value ${isSig ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSig ? 'DITOLAK' : 'DITERIMA'}</b> dan <b>H1 ${isSig && r < 0 ? 'DITERIMA' : 'DITOLAK'}</b>.</p>
-            <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSig ? 'border-green-500' : 'border-red-500'}">Kesimpulan Akhir: ${conclusionText}</p>
+            <p class="text-sm font-bold mb-2 text-blue-700">A. Analisis Univariat (Karakteristik Responden)</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Berdasarkan tabel distribusi frekuensi di atas, dapat dideskripsikan karakteristik demografi dari total <b>${n} responden</b> yang diteliti. Analisis univariat ini menggambarkan proporsi kategori (Usia, Jenis Kelamin, Pendidikan, dan Pekerjaan) secara deskriptif pada populasi di RSKDGM.
+            </p>
+
+            <p class="text-sm font-bold mb-2 text-blue-700">B. Uji Asumsi Normalitas Data</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Sebelum uji korelasi bivariat dilakukan, asumsi normalitas diuji menggunakan metode <b>Shapiro-Wilk</b>. Nilai probabilitas (Sig.) untuk Skala Nyeri (VAS) adalah <b>${pNormVas.toFixed(3)}</b> dan untuk Total OHQE adalah <b>${pNormOhqe.toFixed(3)}</b>. 
+              Karena nilai signifikansi ${isNormal ? 'kedua variabel > 0.05, maka data berdistribusi <b>NORMAL</b>, sehingga dilanjutkan dengan uji parametrik <b>Korelasi Pearson</b>.' : 'terdapat variabel dengan p-value < 0.05, maka sebaran data <b>TIDAK NORMAL</b>, sehingga dilanjutkan dengan uji non-parametrik <b>Korelasi Rank Spearman (Spearman\'s rho)</b>.'}
+            </p>
+
+            <p class="text-sm font-bold mb-2 text-blue-700">C. Uji Hipotesis Bivariat (Korelasi)</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Berdasarkan tabel <i>Correlations</i> menggunakan uji <b>${testName}</b>, diperoleh nilai koefisien korelasi (r) sebesar <b>${r.toFixed(3)}</b> dengan nilai probabilitas signifikansi sebesar <b>${pValText}</b>.<br><br>
+              1. <b>Arah dan Kekuatan Hubungan:</b> Nilai r = ${r.toFixed(3)} menunjukkan arah korelasi yang <b>${direction}</b> dengan tingkat kekuatan korelasi <b>${strength}</b>.<br>
+              2. <b>Signifikansi Hubungan:</b> Nilai probabilitas (p-value) sebesar ${pValText} adalah ${isSig ? 'lebih kecil (<) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan tersebut <b>signifikan secara statistik</b>.' : 'lebih besar (&ge;) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan tersebut <b>tidak signifikan secara statistik</b>.'}
+            </p>
+
+            <p class="text-sm font-bold mb-2 text-blue-700">D. Kesimpulan Akhir</p>
+            <p class="text-sm font-bold text-justify leading-relaxed p-4 bg-gray-100 border-l-4 ${isSig && r < 0 ? 'border-green-500 text-green-900' : 'border-red-500 text-red-900'}">
+              Berdasarkan hasil analisis, <b>H₀ ${isSig && r < 0 ? 'ditolak' : 'diterima'}</b> dan <b>H₁ ${isSig && r < 0 ? 'diterima' : 'ditolak'}</b>. ${concTextVas}
+            </p>
           </div>
         </div>`;
 
@@ -1431,19 +1507,41 @@
         </div>`;
 
         // Conclusion Narasi per Hipotesis
-        const buildConc = (m, varName) => {
-            if(m.isSig) return `<b>Terdapat korelasi yang signifikan</b> antara Skor MDAS dan Skor ${varName} (r=${m.r.toFixed(3)}, p=${m.p.toFixed(3)}). Uji yang digunakan: ${m.test}. <b>Ho Ditolak, Ha Diterima.</b>`;
-            return `<b>Tidak terdapat korelasi yang signifikan</b> antara Skor MDAS dan Skor ${varName} (r=${m.r.toFixed(3)}, p=${m.p.toFixed(3)}). Uji yang digunakan: ${m.test}. <b>Ho Diterima, Ha Ditolak.</b>`;
+        const buildFullConc = (m, hoNum, varName) => {
+            let kekuatan = getStrength(m.r);
+            let arah = m.r < 0 ? 'negatif' : 'positif';
+            let detail = `
+            <div class="mb-4">
+                <p class="font-bold text-sm text-blue-800">Hipotesis ${hoNum}: Korelasi MDAS dengan ${varName}</p>
+                <p class="text-sm text-justify leading-relaxed mt-1">
+                    Berdasarkan hasil uji <b>${m.test}</b>, diperoleh nilai koefisien korelasi (r) sebesar <b>${m.r.toFixed(3)}</b> (kekuatan korelasi <b>${kekuatan}</b> dan arah korelasi <b>${arah}</b>) dengan nilai signifikansi (p-value) sebesar <b>${m.p.toFixed(3)}</b>. 
+                    Karena p-value ${m.isSig ? '< 0.05, maka <b>H₀ ditolak dan Hₐ diterima</b>' : '&ge; 0.05, maka <b>H₀ diterima dan Hₐ ditolak</b>'}.
+                    <br><b>Kesimpulan:</b> ${m.isSig ? `Terdapat korelasi yang signifikan secara statistik antara kecemasan perawatan gigi (MDAS) dan ${varName}.` : `Tidak terdapat korelasi yang signifikan secara statistik antara kecemasan perawatan gigi (MDAS) dan ${varName}.`}
+                </p>
+            </div>`;
+            return detail;
         };
 
         htmlOutput += `
         <div class="spss-table-container w-full max-w-5xl mx-auto mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
-          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Hasil Uji 4 Hipotesis Bivariat</h3>
-          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black space-y-4">
-            <div class="p-3 bg-gray-50 border-l-4 ${m1.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>1. Hipotesis Kualitas Hidup Total:</b><br>${buildConc(m1, 'Total OHQE')}</p></div>
-            <div class="p-3 bg-gray-50 border-l-4 ${m2.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>2. Hipotesis Subskala Fisik:</b><br>${buildConc(m2, 'Subskala Fisik OHQE')}</p></div>
-            <div class="p-3 bg-gray-50 border-l-4 ${m3.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>3. Hipotesis Subskala Psikologis:</b><br>${buildConc(m3, 'Subskala Psikologis OHQE')}</p></div>
-            <div class="p-3 bg-gray-50 border-l-4 ${m4.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>4. Hipotesis Subskala Ekspektasi:</b><br>${buildConc(m4, 'Subskala Ekspektasi OHQE')}</p></div>
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Interpretasi dan Kesimpulan Analisis Data</h3>
+          <p class="text-sm font-semibold text-center mb-6 text-black uppercase">"Korelasi Antara Kecemasan Perawatan Gigi dan Kualitas Hidup Terkait Kesehatan Gigi dan Mulut pada Pasien Endodontik di RSKDGM Provinsi Sulawesi Selatan"</p>
+
+          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
+            <p class="text-sm font-bold mb-2 text-blue-700">A. Uji Asumsi Normalitas Data</p>
+            <p class="text-sm text-justify leading-relaxed mb-4">
+              Sebelum melakukan pengujian hipotesis bivariat (Korelasi), setiap variabel dan subskala diuji normalitasnya menggunakan metode <b>Shapiro-Wilk</b>. 
+              Diperoleh nilai P-value Normalitas (MDAS: ${pnMDAS.toFixed(3)}, OHQE Total: ${pnTot.toFixed(3)}, Subskala Fisik: ${pnFis.toFixed(3)}, Subskala Psikologis: ${pnPsi.toFixed(3)}, Subskala Ekspektasi: ${pnEks.toFixed(3)}). 
+              Berdasarkan hasil uji ini, algoritma statistik secara otomatis memilih metode uji yang tepat (Pearson untuk pasangan data yang terdistribusi normal dimana p > 0.05, atau Spearman's rho untuk data yang tidak berdistribusi normal dimana p &lt; 0.05).
+            </p>
+
+            <p class="text-sm font-bold mb-4 text-blue-700">B. Hasil Pengujian Hipotesis (Korelasi Matriks)</p>
+            <div class="space-y-4">
+              <div class="p-3 bg-gray-50 border-l-4 ${m1.isSig ? 'border-green-500':'border-red-500'}">${buildFullConc(m1, '1 (OHQE Total)', 'Kualitas Hidup Terkait Kesehatan Gigi (Total OHQE)')}</div>
+              <div class="p-3 bg-gray-50 border-l-4 ${m2.isSig ? 'border-green-500':'border-red-500'}">${buildFullConc(m2, '2 (Subskala Fisik)', 'Skor Subskala Fisik OHQE')}</div>
+              <div class="p-3 bg-gray-50 border-l-4 ${m3.isSig ? 'border-green-500':'border-red-500'}">${buildFullConc(m3, '3 (Subskala Psikologis)', 'Skor Subskala Psikologis OHQE')}</div>
+              <div class="p-3 bg-gray-50 border-l-4 ${m4.isSig ? 'border-green-500':'border-red-500'}">${buildFullConc(m4, '4 (Subskala Ekspektasi)', 'Skor Subskala Ekspektasi OHQE')}</div>
+            </div>
           </div>
         </div>`;
 

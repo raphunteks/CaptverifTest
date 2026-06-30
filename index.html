@@ -995,13 +995,13 @@
         .then(r => r.text()).then(text => {
           try {
             const data = JSON.parse(text);
+            // CARI BAGIAN INI DI DALAM index.html ANDA:
             if(data.ohqe) {
-               globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
-               if(data.rontgen) globalAdminRontgen = data.rontgen;
-               renderTables(); renderRontgenTable();
-            }
-          } catch(e) {}
-        }).catch(err => {});
+            globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
+            if(data.rontgen) globalAdminRontgen = data.rontgen;
+            renderTables(); 
+            renderRontgenTable();
+            fetch(`${GAS_URL}?action=getQuestions`).then(r=>r.json()).then(d=>{ qFisik=d.qFisik; qPsiko=d.qPsiko; qEkspektasi=d.qEkspektasi; renderSettingsTab(); });
     }
 
     function fetchAdminData() {

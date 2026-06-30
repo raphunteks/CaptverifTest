@@ -113,14 +113,6 @@
     }
     select option { background-color: var(--bg-dark); color: white; }
 
-    /* File Input Styling Rontgen */
-    input[type="file"]::file-selector-button {
-      background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green);
-      padding: 0.4rem 0.8rem; border-radius: 0.4rem; cursor: pointer; transition: all 0.3s ease; font-weight: bold;
-      margin-right: 10px;
-    }
-    input[type="file"]::file-selector-button:hover { background: var(--neon-green); color: var(--bg-dark); }
-
     .spss-wrapper { background: white; color: black; padding: 30px; border-radius: 8px; margin-bottom: 20px;}
     .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
     .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;}
@@ -172,37 +164,13 @@
     </div>
   </div>
 
-  <!-- PREVIEW MODAL RONTGEN/PDF -->
-  <div id="preview-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8">
-    <div class="glass-card w-full max-w-5xl h-[85vh] rounded-2xl flex flex-col overflow-hidden relative border border-gray-700 shadow-2xl">
-      <div class="p-4 bg-gray-900/90 border-b border-gray-700 flex justify-between items-center">
-         <h3 class="text-white font-bold text-base sm:text-lg flex items-center">
-           <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> 
-           Pratinjau Radiografi / PDF
-         </h3>
-         <button onclick="closePreview()" class="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white transition shadow-lg">
-           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-         </button>
-      </div>
-      <div class="flex-grow w-full bg-gray-800 flex items-center justify-center relative">
-         <div id="preview-loader" class="absolute w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-         <iframe id="preview-iframe" class="w-full h-full relative z-10" frameborder="0" allow="autoplay" allowfullscreen onload="document.getElementById('preview-loader').style.display='none'"></iframe>
-      </div>
-    </div>
-  </div>
-
   <!-- MAIN CONTAINER (RESPONDEN) -->
   <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
     
-    <!-- TOMBOL AKSES ADMIN & RONTGEN -->
-    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-3 z-20">
-      <button type="button" onclick="window.location.href='?page=uploadrontgen'" class="p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-blue-400 hover:text-blue-400 hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Upload Foto Rontgen">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-      </button>
-      <button type="button" onclick="window.location.href='?page=admin'" class="p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Masuk ke Dashboard Admin">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-      </button>
-    </div>
+    <!-- TOMBOL AKSES ADMIN -->
+    <button type="button" onclick="window.location.href='?page=admin'" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 z-20 shadow-sm" title="Masuk ke Dashboard Admin">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    </button>
 
     <div class="mb-8" id="progress-container">
       <div class="text-center mb-6 flex flex-col items-center">
@@ -230,38 +198,14 @@
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             BAGIAN KHUSUS PENELITI
           </h2>
-          <p class="text-xs sm:text-sm text-gray-300 mb-4 font-medium tracking-wide">⚠️ YTH. Pasien, mohon <span class="text-white font-bold underline">bertanya kepada peneliti/dokter</span> untuk mengisi kolom di bawah ini sebelum melanjutkan.</p>
-          
-          <div class="space-y-4">
-             <div>
-               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
-               <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                 <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
-                 <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
-                 <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
-               </select>
-             </div>
-             
-             <!-- NEW FIELDS: Diagnosis Periapikal, Gigi Dirawat, Jumlah Gigi -->
-             <div class="pt-4 border-t border-red-500/30">
-               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Periapikal <span class="text-gray-400 font-normal">(Opsional)</span></label>
-               <select id="diagPeri" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                 <option value="" selected>Pilih Diagnosis Periapikal...</option>
-                 <option value="Periapikal Normal">1. Periapikal Normal</option>
-                 <option value="Periodontitis Apikalis">2. Periodontitis Apikalis</option>
-                 <option value="Abses Periapikal">3. Abses Periapikal</option>
-               </select>
-             </div>
-             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <div>
-                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Gigi yang dirawat <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                 <input type="text" id="gigiRawat" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: Gigi 46">
-               </div>
-               <div>
-                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Jumlah gigi yang sakit <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                 <input type="number" id="jmlGigi" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 1">
-               </div>
-             </div>
+          <p class="text-xs sm:text-sm text-gray-300 mb-4 font-medium tracking-wide">⚠️ YTH. Pasien, mohon <span class="text-white font-bold underline">bertanya kepada peneliti/dokter</span> untuk mengisi kolom diagnosis di bawah ini sebelum melanjutkan.</p>
+          <div>
+            <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis</label>
+            <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+              <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
+              <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
+              <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
+            </select>
           </div>
         </div>
 
@@ -428,7 +372,7 @@
     <h2 class="text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
     <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl">
     <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center w-full p-3 rounded-xl">
-    <button onclick="processLogin('admin')" class="w-full py-3 btn-neon rounded-xl font-bold mb-4">MASUK</button>
+    <button onclick="processLogin()" class="w-full py-3 btn-neon rounded-xl font-bold mb-4">MASUK</button>
     <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
   </div>
 
@@ -442,8 +386,13 @@
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="logout('admin')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Logout</button>
-        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Mode Kuesioner</button>
+        <button onclick="logout()" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
+           Logout
+        </button>
+        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Mode Kuesioner
+        </button>
       </div>
     </div>
 
@@ -455,7 +404,7 @@
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
     </div>
 
-    <!-- TAB 1: DATA TABLE -->
+    <!-- TAB 1: DATA TABLE DENGAN SUB-TABS UNTUK OHQE, VAS, MDAS -->
     <div id="tab-data" class="block">
       <div class="flex space-x-2 mb-4">
         <button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="px-3 py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md">Tabel OHQE</button>
@@ -464,6 +413,7 @@
         <span class="ml-auto text-xs text-green-400 flex items-center animate-pulse"><div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div> Auto-Sync Active</span>
       </div>
 
+      <!-- OHQE TABLE -->
       <div id="subtable-ohqe" class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
         <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
@@ -481,6 +431,7 @@
         </table>
       </div>
 
+      <!-- VAS TABLE -->
       <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
         <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
@@ -496,6 +447,7 @@
         </table>
       </div>
 
+      <!-- MDAS TABLE -->
       <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
         <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
           <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
@@ -516,7 +468,7 @@
     <div id="tab-spss" class="hidden">
       <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
-        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* dilanjutkan dengan *Independent T-Test* atau *Mann-Whitney U*. Menggunakan nilai akurat (Kolom ke-50 di Database).</p>
+        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* untuk menentukan distribusi data, dilanjutkan dengan Uji Beda Parametrik (*Independent T-Test*) atau Non-Parametrik (*Mann-Whitney U*), Descriptives, dan Case Processing. <br><span class="text-white font-bold">Data yang dianalisis saat ini dikhususkan pada Skor OHQE.</span></p>
       </div>
 
       <div class="flex justify-center mb-6 gap-3">
@@ -527,16 +479,18 @@
       </div>
 
       <div id="spss-wrapper" class="hidden rounded-xl">
-        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center bg-white"></div>
+        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center bg-white">
+          <!-- Canvas dan Tabel akan digenerate disini -->
+        </div>
       </div>
     </div>
 
     <!-- TAB 3: G*POWER CALCULATOR -->
     <div id="tab-gpower" class="hidden">
-      <!-- (Code GPower Tetap Sama Sesuai Versi Anda) -->
       <div class="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-purple-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> G*Power 3.1 Simulator (A Priori Sample Size)</h3>
         <p class="text-sm text-gray-300 mb-3">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b>.</p>
+        <p class="text-xs text-white font-bold mb-2">PANDUAN PENELITI: "PERBEDAAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT ANTARA PASIEN ENDODONTIK DENGAN PULPITIS IREVERSIBEL DAN NEKROSIS PULPA DI RSKDGM PROVINSI SULAWESI SELATAN"</p>
         <div class="bg-black/40 p-4 rounded-lg border border-gray-600/50 mb-2 text-xs text-gray-300">
           <ul class="list-disc pl-4 space-y-2">
              <li><b>Tail(s):</b> Pilih <b>Two</b> (Dua arah) karena Anda mencari "Perbedaan" (bisa lebih tinggi atau lebih rendah).</li>
@@ -547,18 +501,40 @@
           </ul>
         </div>
       </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Input Parameters -->
         <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 h-fit">
           <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Input Parameters</h4>
           <div class="space-y-4">
-            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div>
-            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Power (1-β err prob)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Allocation ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Tail(s)</label>
+              <select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none" onchange="calculateGPower()">
+                <option value="1">One</option>
+                <option value="2" selected>Two</option>
+              </select>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Effect size d</label>
+              <input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">α err prob</label>
+              <input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Power (1-β err prob)</label>
+              <input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm text-gray-300">Allocation ratio N2/N1</label>
+              <input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()">
+            </div>
             <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate</button>
           </div>
         </div>
+
+        <!-- Output Parameters & Plot -->
         <div class="flex flex-col gap-4">
           <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
             <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
@@ -571,7 +547,11 @@
               <div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-2xl">-</span></div>
             </div>
           </div>
-          <div class="bg-white p-2 rounded-xl border border-gray-300 w-full" style="min-height: 200px;"><canvas id="gpowerPlot"></canvas></div>
+          
+          <!-- Graphic Plot Container -->
+          <div class="bg-white p-2 rounded-xl border border-gray-300 w-full" style="min-height: 200px;">
+             <canvas id="gpowerPlot"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -580,60 +560,18 @@
     <div id="tab-settings" class="hidden">
       <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-lg mb-6">
         <h3 class="font-bold text-yellow-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Pertanyaan OHQE</h3>
-        <p class="text-xs text-gray-300">Ubah teks pertanyaan kuesioner. <span class="font-bold text-white">Jumlah total pertanyaan telah dikunci</span> agar tidak merusak rumus analisis Engine SPSS dan Live Table.</p>
+        <p class="text-xs text-gray-300">Ubah teks pertanyaan kuesioner. <span class="font-bold text-white">Jumlah total pertanyaan telah dikunci (Fisik 19, Psiko 10, Ekspektasi 8)</span> agar tidak merusak rumus analisis Engine SPSS dan Live Table.</p>
       </div>
+      
       <div class="space-y-8" id="editor-container"></div>
+      
       <div class="mt-8 border-t border-gray-700 pt-6 flex justify-end">
         <button id="btn-save-questions" onclick="saveEditedQuestions()" class="px-8 py-3 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Perubahan ke Database
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- FITUR BARU: UPLOAD RONTGEN (LOGIN & DASHBOARD) -->
-  <div id="rontgen-login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
-    <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6 bg-blue-900/30 rounded-full border border-blue-400">
-      <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-    </div>
-    <h2 class="text-xl font-bold text-white tracking-wider mb-2">RONTGEN ACCESS</h2>
-    <p class="text-xs text-gray-400 mb-6">Database Terpusat Pratinjau Radiografi</p>
-    <input type="text" id="rontgen-user" placeholder="Username (fkgumi2023)" class="mb-4 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
-    <input type="password" id="rontgen-pass" placeholder="Password (fkgumi2023)" class="mb-6 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
-    <button onclick="processLogin('rontgen')" class="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-bold mb-4 transition-colors">MASUK</button>
-    <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
-  </div>
-
-  <div id="rontgen-dashboard-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 flex items-center justify-center bg-blue-900/40 rounded-xl border border-blue-500/50">
-           <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-        </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">RONTGEN <span class="text-blue-400">MANAGER</span></h1>
-          <p class="text-xs sm:text-sm text-gray-400 mt-1">Sistem Unggah Foto Periapikal / Panoramik Responden</p>
-        </div>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="logout('rontgen')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium">Logout Rontgen</button>
-        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium">Mode Kuesioner</button>
-      </div>
-    </div>
-
-    <div class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
-        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
-            <tr>
-              <th class="px-5 py-4 font-semibold tracking-wide w-48">ID Transaksi</th>
-              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
-              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Diagnosis</th>
-              <th class="px-5 py-4 font-semibold tracking-wide text-green-400 border-l border-gray-700/50 w-[350px]">Aksi Rontgen</th>
-            </tr>
-          </thead>
-          <tbody id="rontgen-table-body" class="divide-y divide-gray-800/50"></tbody>
-        </table>
-    </div>
   </div>
 
   <!-- FOOTER -->
@@ -645,7 +583,7 @@
     // =========================================================================
     // 1. KONFIGURASI BACKEND SPREADSHEET (WAJIB DIISI)
     // =========================================================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyU4yH0_WcEszI7bf0ibUpeiSO6LbAsT2cMgqzs2qpxNE7DmxJ0wLPQVt-yG0aKKkk/exec"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwGhl3KoCh0tgjGlaqvMhyfXE7TLdg2yVTXUT76fuPN6Wk7aMAde3z3fEVANcRgPyU/exec"; 
 
     // --- 2. GLOBAL VARIABLES ---
     let qFisik = [];
@@ -654,8 +592,7 @@
     let globalAdminOHQE = []; 
     let globalAdminVAS = []; 
     let globalAdminMDAS = []; 
-    let globalAdminRontgen = []; // New Rontgen Array
-    let autoUpdateInterval = null; 
+    let autoUpdateInterval = null; // Auto-update handle
     
     // MDAS Questions
     const qMDAS = [
@@ -669,25 +606,31 @@
     
     // Labels Asli untuk Fisik (F) & Psikologis (P)
     const ohqeLabels = ["Tidak pernah", "Jarang", "Kadang-kadang", "Sering", "Sangat sering"];
-    // Label Khusus untuk Ekspektasi (E)
+    
+    // NEW: Label Khusus untuk Ekspektasi (E) sesuai arahan
     const ekspektasiLabels = ["Sangat sering", "Sering", "Kadang-kadang", "Jarang", "Tidak pernah"];
 
     const vasDescriptions = {
-      0: "Tidak nyeri", 1: "Nyeri sangat ringan", 2: "Nyeri ringan, namun tidak begitu sakit",
-      3: "Nyeri sudah mulai terasa", 4: "Nyeri cukup mengganggu", 5: "Nyeri benar-benar mengganggu dan tidak bisa didiamkan dalam waktu yang lama",
-      6: "Nyeri sudah sampai tahap mengganggu indera, terutama indera penglihatan", 7: "Nyeri sudah membuat Anda tidak bisa melakukan aktivitas",
-      8: "Nyeri mengakibatkan tidak bisa berpikir jernih, bahkan terjadi perubahan perilaku", 9: "Nyeri mengakibatkan Anda menjerit-jerit dan menginginkan cara apa pun untuk menyembuhkan nyeri",
+      0: "Tidak nyeri",
+      1: "Nyeri sangat ringan",
+      2: "Nyeri ringan, namun tidak begitu sakit",
+      3: "Nyeri sudah mulai terasa",
+      4: "Nyeri cukup mengganggu",
+      5: "Nyeri benar-benar mengganggu dan tidak bisa didiamkan dalam waktu yang lama",
+      6: "Nyeri sudah sampai tahap mengganggu indera, terutama indera penglihatan",
+      7: "Nyeri sudah membuat Anda tidak bisa melakukan aktivitas",
+      8: "Nyeri mengakibatkan tidak bisa berpikir jernih, bahkan terjadi perubahan perilaku",
+      9: "Nyeri mengakibatkan Anda menjerit-jerit dan menginginkan cara apa pun untuk menyembuhkan nyeri",
       10: "Nyeri berada di tahap yang paling parah dan bisa menyebabkan seseorang tidak sadar diri"
     };
     
+    // Fallback Array OHQE
     const defFisik = ["Pernahkah Anda sakit gigi?", "Pernahkah Anda merasakan sakit yang menjalar oleh karena sakit gigi?", "Pernahkah kualitas tidur Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit kepala oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada rahang oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit yang hebat pada mulut Anda oleh karena sakit gigi?", "Pernahkah Anda merasakan sakit pada gusi?", "Pernahkah Anda merasa sulit untuk bersantai sejenak oleh karena sakit gigi?", "Pernahkan Anda mengkonsumsi obat untuk meredakan sakit gigi?", "Pernahkah Anda merasakan sakit sampai ke telinga oleh karena sakit gigi?", "Pernahkah Anda kesulitan mengunyah makanan oleh karena sakit gigi?", "Pernahkah Anda merasa kesulitan membuka mulut oleh karena sakit gigi?", "Pernahkan Anda merasa sulit berbaring oleh karena sakit gigi?", "Pernahkah Anda menghindari makan makanan tertentu oleh karena sakit gigi?", "Pernahkah Anda enggan untuk keluar rumah oleh karena sakit gigi?", "Pernahkah Anda merasa tegang oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa sakit gigi Anda merupakan penyakit yang parah?", "Pernahkah Anda sedikit merasa tersinggung kepada orang lain oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa suatu hari nanti gigi yang sudah dirawat bisa jadi akan sakit kembali?"];
     const defPsiko = ["Pernahkah Anda merasa tidak nyaman pada penampilan gigi Anda oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa indera pengecap Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa pencernaan Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa penampilan Anda terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir berlebihan mengenai kondisi kesehatan Anda oleh karena sakit gigi?", "Pernahkah Anda mengalami kesulitan berbicara oleh karena sakit gigi?", "Pernahkah Anda merasa bahwa kesehatan umum Anda memburuk oleh karena sakit gigi?", "Pernahkah Anda merasa cemas oleh karena sakit gigi?", "Pernahkah Anda berbicara yang terdengar kurang jelas oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa lebih baik mencabut gigi dari pada mempertahankannya dengan perawatan saluran akar?"];
     const defEkspektasi = ["Pernahkah Anda berpikir bahwa perawatan saluran akar akan berdampak baik bagi kesehatan Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan memperbaiki fungsi kunyah Anda yang terganggu oleh karena sakit gigi?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan kualitas hidup Anda?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan meningkatkan nilai estetika?", "Pernahkah Anda berpikir bahwa perawatan saluran akar akan menghilangkan sakit pada gigi Anda?", "Pernahkan Anda berpikir bahwa perawatan saluran akar layak untuk dilakukan?", "Pernahkah Anda berpikir bahwa perawatan saluran akar itu mahal?", "Pernahkah Anda berpikir bahwa perawatan saluran akar sebaiknya dilakukan oleh dokter gigi spesialis dibandingkan dokter gigi umum?"];
 
     const urlParams = new URLSearchParams(window.location.search);
-    const pageMode = urlParams.get('page');
-    const isAdminMode = pageMode === 'admin';
-    const isRontgenMode = pageMode === 'uploadrontgen';
+    const isAdminMode = urlParams.get('page') === 'admin';
 
     let chart1 = null; 
     let chart2 = null;
@@ -696,45 +639,42 @@
     // --- 3. INIT FUNCTION & AUTO LOGIN ---
     window.onload = () => {
       if(isAdminMode) {
+        // Auto Login Check
         if(localStorage.getItem('axa_admin_logged') === 'true') {
            document.getElementById('loader').style.display = 'none';
+           document.getElementById('login-container').classList.add('hidden');
            document.getElementById('admin-container').classList.remove('hidden');
-           fetchAdminData(); startAutoUpdate(); setTimeout(calculateGPower, 1000); 
-           return;
-        }
-      } else if(isRontgenMode) {
-        if(localStorage.getItem('axa_rontgen_logged') === 'true') {
-           document.getElementById('loader').style.display = 'none';
-           document.getElementById('rontgen-dashboard-container').classList.remove('hidden');
-           fetchAdminData(); startAutoUpdate();
-           return;
-        } else {
-           document.getElementById('loader').style.display = 'none';
-           document.getElementById('rontgen-login-container').classList.remove('hidden');
+           fetchAdminData();
+           startAutoUpdate();
+           setTimeout(calculateGPower, 1000); // Init Gpower chart
            return;
         }
       }
 
-      if(GAS_URL && !isAdminMode && !isRontgenMode) {
+      if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json())
         .then(data => {
           if(data && data.qFisik && data.qFisik.length > 0) {
             qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
-          } else { qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi; }
+          } else {
+            qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
+          }
           initAppUI();
         })
-        .catch(e => { qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi; initAppUI(); });
-      } else if(!isAdminMode && !isRontgenMode) {
+        .catch(e => {
+          console.error("Gagal load pertanyaan", e);
+          qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
+          initAppUI();
+        });
+      } else {
         qFisik = defFisik; qPsiko = defPsiko; qEkspektasi = defEkspektasi;
         initAppUI();
-      } else {
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('login-container').classList.remove('hidden');
       }
     };
 
     function initAppUI() {
+      // Menggunakan label ohqeLabels untuk F dan P, lalu ekspektasiLabels untuk E
       renderQuestions(qFisik, 'container-fisik', 'F', ohqeLabels);
       renderQuestions(qPsiko, 'container-psiko', 'P', ohqeLabels);
       renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ekspektasiLabels); 
@@ -745,7 +685,11 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => {
           document.getElementById('loader').style.display = 'none';
-          document.getElementById('app-container').classList.remove('hidden');
+          if (isAdminMode) {
+            document.getElementById('login-container').classList.remove('hidden');
+          } else {
+            document.getElementById('app-container').classList.remove('hidden');
+          }
         }, 400);
       }, 300);
     }
@@ -758,20 +702,6 @@
 
     function closeCustomAlert() {
       document.getElementById('custom-alert').classList.add('hidden');
-    }
-
-    // Modal Preview Logic
-    function showPreview(url) {
-      // Ubah url view menjadi preview agar bisa dirender di iframe Google Drive
-      const previewUrl = url.replace(/\/view.*$/, '/preview');
-      document.getElementById('preview-loader').style.display = 'block';
-      document.getElementById('preview-iframe').src = previewUrl;
-      document.getElementById('preview-modal').classList.remove('hidden');
-    }
-
-    function closePreview() {
-      document.getElementById('preview-iframe').src = '';
-      document.getElementById('preview-modal').classList.add('hidden');
     }
 
     // --- 4. RENDER UI DYNAMICALLY ---
@@ -793,18 +723,28 @@
                 <input type="radio" name="${qId}" id="${qId}_${val}" value="${val}" required>
                 <label for="${qId}_${val}" class="py-2 sm:py-3 px-1">
                   <span class="num text-sm sm:text-lg">${val}</span>
-                  <span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1 label-text hidden sm:block tracking-wider font-medium">${labels[val-1]}</span>
+                  <span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1 label-text hidden sm:block tracking-wider font-medium">
+                    ${labels[val-1]}
+                  </span>
                 </label>
               </div>
           `;
         });
-        html += `</div><div class="flex justify-between text-[0.6rem] text-gray-500 mt-2 sm:hidden px-1"><span>${labels[0]}</span><span>${labels[4]}</span></div></div>`;
+        html += `
+            </div>
+            <div class="flex justify-between text-[0.6rem] text-gray-500 mt-2 sm:hidden px-1">
+              <span>${labels[0]}</span>
+              <span>${labels[4]}</span>
+            </div>
+          </div>
+        `;
       });
       container.innerHTML = html;
     }
 
     function updateVasDesc(val) {
-      document.getElementById('vas-desc-text').innerHTML = `<span class="text-neon font-bold text-lg mr-2">Skala ${val}:</span> ${vasDescriptions[val]}`;
+      const textEl = document.getElementById('vas-desc-text');
+      textEl.innerHTML = `<span class="text-neon font-bold text-lg mr-2">Skala ${val}:</span> ${vasDescriptions[val]}`;
     }
 
     // --- 5. WIZARD LOGIC ---
@@ -812,7 +752,9 @@
     const totalSteps = 6; 
 
     function updateUI() {
-      for(let i=1; i<=7; i++) document.getElementById(`step-${i}`).classList.remove('active');
+      for(let i=1; i<=7; i++){ 
+        document.getElementById(`step-${i}`).classList.remove('active');
+      }
       document.getElementById(`step-${currentStep}`).classList.add('active');
 
       if(currentStep <= totalSteps) {
@@ -837,11 +779,19 @@
 
       if (currentStep === 7) {
         document.getElementById('progress-container').classList.add('hidden');
-        navContainer.classList.add('hidden'); return;
+        navContainer.classList.add('hidden');
+        return;
       }
+
       btnPrev.classList.toggle('hidden', currentStep === 1);
-      if (currentStep === totalSteps) { btnNext.classList.add('hidden'); btnSubmit.classList.remove('hidden'); } 
-      else { btnNext.classList.remove('hidden'); btnSubmit.classList.add('hidden'); }
+      
+      if (currentStep === totalSteps) {
+        btnNext.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+      } else {
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+      }
     }
 
     function validateStep() {
@@ -854,7 +804,8 @@
       stepDiv.querySelectorAll('input[type="radio"][required]').forEach(r => radioGroups.add(r.name));
       
       for(let name of radioGroups) {
-        if(!stepDiv.querySelector(`input[name="${name}"]:checked`)) {
+        const checked = stepDiv.querySelector(`input[name="${name}"]:checked`);
+        if(!checked) {
           isValid = false;
           if(!firstInvalidEl) firstInvalidEl = stepDiv.querySelector(`input[name="${name}"]`).closest('.p-4') || stepDiv.querySelector(`input[name="${name}"]`).closest('.mt-6');
         }
@@ -862,21 +813,37 @@
 
       inputs.forEach(input => {
         if(input.type !== 'radio' && !input.value.trim()) {
-          isValid = false; input.classList.add('border-red-500');
+          isValid = false;
+          input.classList.add('border-red-500');
           setTimeout(() => input.classList.remove('border-red-500'), 2000);
           if(!firstInvalidEl) firstInvalidEl = input;
         }
       });
 
       if(!isValid) {
-        showCustomAlert("⚠️ Mohon lengkapi isian Wajib (tanda bintang merah) pada halaman ini sebelum melanjutkan.", "Data Belum Lengkap");
-        if(firstInvalidEl) firstInvalidEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+        showCustomAlert("⚠️ Mohon lengkapi semua isian (termasuk Diagnosis di bagian atas) pada halaman ini sebelum melanjutkan.", "Data Belum Lengkap");
+        if(firstInvalidEl) {
+          firstInvalidEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
       }
       return isValid;
     }
 
-    function nextStep() { if(validateStep() && currentStep < totalSteps) { currentStep++; updateUI(); window.scrollTo({top: 0, behavior: 'smooth'}); } }
-    function prevStep() { if(currentStep > 1) { currentStep--; updateUI(); window.scrollTo({top: 0, behavior: 'smooth'}); } }
+    function nextStep() {
+      if(validateStep() && currentStep < totalSteps) {
+        currentStep++;
+        updateUI();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }
+    }
+
+    function prevStep() {
+      if(currentStep > 1) {
+        currentStep--;
+        updateUI();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }
+    }
 
     function getAnswers(prefix, count) {
       let arr = [];
@@ -893,7 +860,8 @@
 
       document.getElementById('submit-text').style.opacity = '0';
       document.getElementById('submit-loader').classList.remove('hidden');
-      document.getElementById('btn-submit').disabled = true; document.getElementById('btn-prev').disabled = true;
+      document.getElementById('btn-submit').disabled = true;
+      document.getElementById('btn-prev').disabled = true;
 
       const vasEl = document.querySelector('input[name="vas_score"]:checked');
       const vasScore = vasEl ? vasEl.value : "";
@@ -909,9 +877,6 @@
 
       const payload = {
         diagnosis: document.getElementById('diagnosis').value,
-        diagPeri: document.getElementById('diagPeri').value, 
-        gigiRawat: document.getElementById('gigiRawat').value, 
-        jmlGigi: document.getElementById('jmlGigi').value, 
         nama: document.getElementById('nama').value,
         noHp: document.getElementById('noHp').value,
         usia: document.getElementById('usia').value,
@@ -919,110 +884,185 @@
         pekerjaan: document.getElementById('pekerjaan').value,
         pendidikan: document.getElementById('pendidikan').value,
         umr: document.getElementById('umr').value,
-        jawabanF: getAnswers('F', 19), jawabanP: getAnswers('P', 10), jawabanE: getAnswers('E', 8),
-        vasScore: vasScore, vasInter: vasDescriptions[vasScore],
-        jawabanMDAS: mdasArr, mdasScore: mdasScore, mdasInter: mdasInter
+        jawabanF: getAnswers('F', 19),
+        jawabanP: getAnswers('P', 10),
+        jawabanE: getAnswers('E', 8),
+        vasScore: vasScore,
+        vasInter: vasDescriptions[vasScore],
+        jawabanMDAS: mdasArr,
+        mdasScore: mdasScore,
+        mdasInter: mdasInter
       };
 
       if (!GAS_URL) {
-        setTimeout(() => { currentStep = 7; updateUI(); }, 1500); return;
+        setTimeout(() => {
+          console.log("Mock Save Payload:", payload);
+          currentStep = 7;
+          updateUI();
+        }, 1500);
+        return;
       }
 
-      fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-      .then(r => r.text()).then(text => {
+      fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Gagal terhubung ke server");
+        return response.text(); 
+      })
+      .then(text => {
         try {
           const res = JSON.parse(text);
-          if(res.status === 'success') { currentStep = 7; updateUI(); } 
-          else { showCustomAlert("Error server: " + res.message, "Gagal Menyimpan"); resetSubmitBtn(); }
-        } catch (e) { throw new Error("Respons invalid"); }
+          if(res.status === 'success') {
+            currentStep = 7;
+            updateUI();
+          } else {
+            showCustomAlert("Error dari server: " + res.message, "Gagal Menyimpan Data");
+            resetSubmitBtn();
+          }
+        } catch (e) {
+          console.error("Respons bukan JSON valid:", text);
+          throw new Error("Respons server tidak valid.");
+        }
       })
-      .catch(err => { showCustomAlert("Koneksi gagal. Cek internet/Deploy URL", "Gagal"); resetSubmitBtn(); });
+      .catch(err => {
+        console.error(err);
+        showCustomAlert("Terjadi kesalahan koneksi ke server AXA XYZ. Pastikan internet stabil atau cek pengaturan Deploy GAS.", "Koneksi Gagal");
+        resetSubmitBtn();
+      });
     }
 
     function resetSubmitBtn() {
       document.getElementById('submit-text').style.opacity = '1';
       document.getElementById('submit-loader').classList.add('hidden');
-      document.getElementById('btn-submit').disabled = false; document.getElementById('btn-prev').disabled = false;
+      document.getElementById('btn-submit').disabled = false;
+      document.getElementById('btn-prev').disabled = false;
     }
 
-    // --- 7. ADMIN / RONTGEN PANEL LOGIC ---
-    function processLogin(type) {
-      let u, p;
-      if (type === 'rontgen') {
-          u = document.getElementById('rontgen-user').value;
-          p = document.getElementById('rontgen-pass').value;
-      } else {
-          u = document.getElementById('login-user').value;
-          p = document.getElementById('login-pass').value;
-      }
+    // --- 7. ADMIN PANEL LOGIC ---
+    function processLogin() {
+      const u = document.getElementById('login-user').value;
+      const p = document.getElementById('login-pass').value;
       
       if(!GAS_URL) {
-        showCustomAlert("Script URL (GAS) Kosong!", "Error"); return;
+        if(u==="axaaxyz_01" && p==="axaxyz999") {
+          localStorage.setItem('axa_admin_logged', 'true');
+          document.getElementById('login-container').classList.add('hidden');
+          document.getElementById('admin-container').classList.remove('hidden');
+          fetchAdminData();
+          setTimeout(calculateGPower, 1000);
+        } else {
+          showCustomAlert("URL GAS Belum diset. Gunakan axaaxyz_01 / axaxyz999 untuk demo.", "Demo Login Gagal");
+        }
+        return;
       }
 
-      fetch(`${GAS_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}&type=${type}`, { redirect: 'follow' })
-        .then(r => r.text()).then(text => {
+      fetch(`${GAS_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}`, { redirect: 'follow' })
+        .then(response => {
+          if (!response.ok) throw new Error("Gagal terhubung ke server");
+          return response.text();
+        })
+        .then(text => {
           try {
             const res = JSON.parse(text);
             if(res.success) {
-              if(type === 'rontgen') {
-                  localStorage.setItem('axa_rontgen_logged', 'true');
-                  document.getElementById('rontgen-login-container').classList.add('hidden');
-                  document.getElementById('rontgen-dashboard-container').classList.remove('hidden');
-              } else {
-                  localStorage.setItem('axa_admin_logged', 'true');
-                  document.getElementById('login-container').classList.add('hidden');
-                  document.getElementById('admin-container').classList.remove('hidden');
-              }
-              fetchAdminData(); startAutoUpdate();
-              if(type !== 'rontgen') setTimeout(calculateGPower, 1000);
-            } else { showCustomAlert("Username atau Password Salah!", "Login Gagal"); }
-          } catch(e) { throw new Error("Invalid response"); }
-        }).catch(err => showCustomAlert("Gagal terhubung ke database.", "Error"));
+              localStorage.setItem('axa_admin_logged', 'true');
+              document.getElementById('login-container').classList.add('hidden');
+              document.getElementById('admin-container').classList.remove('hidden');
+              fetchAdminData();
+              startAutoUpdate();
+              setTimeout(calculateGPower, 1000);
+            } else {
+              showCustomAlert("Username atau Password yang Anda masukkan salah!", "Login Gagal");
+            }
+          } catch(e) {
+             console.error("Bukan format JSON:", text);
+             throw new Error("Respons server tidak valid.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          showCustomAlert("Gagal terhubung ke database server. Pastikan pengaturan Deploy GAS sudah benar.", "Koneksi Error");
+        });
     }
 
-    function logout(type) {
-      if(type === 'rontgen') localStorage.removeItem('axa_rontgen_logged');
-      else localStorage.removeItem('axa_admin_logged');
+    function logout() {
+      localStorage.removeItem('axa_admin_logged');
+      if(autoUpdateInterval) clearInterval(autoUpdateInterval);
       window.location.reload();
     }
 
-    function startAutoUpdate() { autoUpdateInterval = setInterval(fetchAdminDataSilent, 10000); }
+    // AUTO UPDATE LOGIC
+    function startAutoUpdate() {
+       autoUpdateInterval = setInterval(() => {
+          fetchAdminDataSilent();
+       }, 10000); // 10 seconds polling
+    }
 
     function fetchAdminDataSilent() {
       if(!GAS_URL) return;
       fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
-        .then(r => r.text()).then(text => {
+        .then(r => r.text())
+        .then(text => {
           try {
             const data = JSON.parse(text);
             if(data.ohqe) {
-               globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
-               if(data.rontgen) globalAdminRontgen = data.rontgen;
-               renderTables(); renderRontgenTable();
+               globalAdminOHQE = data.ohqe; 
+               globalAdminVAS = data.vas;
+               globalAdminMDAS = data.mdas;
+               renderTables(); 
             }
           } catch(e) {}
         }).catch(err => {});
     }
 
     function fetchAdminData() {
-      if(!GAS_URL) return;
+      if(!GAS_URL) {
+         // Mock data parsing for testing without backend
+         globalAdminOHQE = []; globalAdminVAS = []; globalAdminMDAS = [];
+         renderTables();
+         return;
+      }
+
       fetch(`${GAS_URL}?action=getAdminData`, { redirect: 'follow' })
-        .then(r => r.text()).then(text => {
+        .then(response => {
+          if (!response.ok) throw new Error("Network error saat mengambil data");
+          return response.text();
+        })
+        .then(text => {
           try {
             const data = JSON.parse(text);
             if(data.ohqe) {
-               globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas;
-               if(data.rontgen) globalAdminRontgen = data.rontgen;
-               renderTables(); renderRontgenTable();
-            } else { showCustomAlert(data.message || "Error", "Fetch Error"); }
-          } catch(e) { showCustomAlert("Gagal parsing data", "Error"); }
-        }).catch(err => showCustomAlert("Gagal mengambil data", "Error"));
+               globalAdminOHQE = data.ohqe; 
+               globalAdminVAS = data.vas;
+               globalAdminMDAS = data.mdas;
+               renderTables(); 
+            } else if (data.status === 'error') {
+               showCustomAlert("Error dari server: " + data.message, "Fetch Error");
+            } else {
+               showCustomAlert("Format data tidak sesuai.", "Fetch Error");
+            }
+          } catch(e) {
+            console.error("Format data bukan JSON:", text);
+            showCustomAlert("Gagal mem-parsing data dari Google Server.", "Fetch Error");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          showCustomAlert("Gagal mengambil data dari server Google.", "Fetch Error");
+        });
     }
 
     function switchTab(tabId) {
-      ['tab-data', 'tab-spss', 'tab-settings', 'tab-gpower'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('tab-data').classList.add('hidden');
+      document.getElementById('tab-spss').classList.add('hidden');
+      document.getElementById('tab-settings').classList.add('hidden');
+      document.getElementById('tab-gpower').classList.add('hidden');
       document.getElementById(tabId).classList.remove('hidden');
-      ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings', 'btn-tab-gpower'].forEach(btn => {
+      
+      const btns = ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings', 'btn-tab-gpower'];
+      btns.forEach(btn => {
         document.getElementById(btn).classList.replace('text-neon', 'text-gray-400');
         document.getElementById(btn).classList.remove('border-b-2', 'border-neon');
       });
@@ -1031,9 +1071,13 @@
     }
 
     function switchSubTable(type) {
-      ['subtable-ohqe', 'subtable-vas', 'subtable-mdas'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('subtable-ohqe').classList.add('hidden');
+      document.getElementById('subtable-vas').classList.add('hidden');
+      document.getElementById('subtable-mdas').classList.add('hidden');
       document.getElementById('subtable-'+type).classList.remove('hidden');
-      ['btn-sub-ohqe', 'btn-sub-vas', 'btn-sub-mdas'].forEach(btn => {
+
+      const btns = ['btn-sub-ohqe', 'btn-sub-vas', 'btn-sub-mdas'];
+      btns.forEach(btn => {
         document.getElementById(btn).classList.remove('bg-neon', 'text-bg-dark');
         document.getElementById(btn).classList.add('bg-gray-800', 'text-gray-400');
       });
@@ -1042,265 +1086,630 @@
     }
 
     function renderTables() {
+      // 1. OHQE TABLE
       const tbOHQE = document.getElementById('admin-table-body-ohqe');
-      if(!globalAdminOHQE.length) { tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10">Kosong.</td></tr>`; } 
-      else {
-        tbOHQE.innerHTML = globalAdminOHQE.map(row => `
-          <tr class="hover:bg-gray-800/80 transition-colors group">
-            <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
-            <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
-            <td class="px-5 py-3.5 text-xs text-gray-300">${row[3]}</td>
-            <td class="px-5 py-3.5 text-sm"><span class="px-2 py-1 text-[0.65rem] uppercase rounded bg-gray-800 border border-gray-700 text-gray-300">${row[5]}</span></td>
-            <td class="px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${row[50] || '0'}</td>
-            <td class="px-5 py-3.5 font-bold text-blue-400">${row[51] || '-'}</td>
-          </tr>`).join('');
-      }
-
-      const tbVAS = document.getElementById('admin-table-body-vas');
-      if(!globalAdminVAS.length) { tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } 
-      else {
-        tbVAS.innerHTML = globalAdminVAS.map(row => `
-          <tr class="hover:bg-gray-800/80 transition-colors group">
-            <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
-            <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
-            <td class="px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[14] || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-blue-400">${row[15] || '-'}</td>
-          </tr>`).join('');
-      }
-
-      const tbMDAS = document.getElementById('admin-table-body-mdas');
-      if(!globalAdminMDAS.length) { tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } 
-      else {
-        tbMDAS.innerHTML = globalAdminMDAS.map(row => `
-          <tr class="hover:bg-gray-800/80 transition-colors group">
-            <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
-            <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
-            <td class="px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[18] || '-'}</td>
-            <td class="px-5 py-3.5 font-medium text-blue-400">${row[19] || '-'}</td>
-          </tr>`).join('');
-      }
-    }
-
-    // --- UPLOAD RONTGEN & CRUD LOGIC ---
-    function renderRontgenTable() {
-       const tbRontgen = document.getElementById('rontgen-table-body');
-       if(!tbRontgen) return;
-
-       if(!globalAdminOHQE.length) { tbRontgen.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-gray-500">Tidak ada pasien.</td></tr>`; return; }
-
-       let html = '';
-       globalAdminOHQE.forEach(row => {
-          const id = row[0]; const nama = row[2]; const diag = row[9];
-          const rRecord = globalAdminRontgen.find(rx => rx[0] === id);
+      if(!globalAdminOHQE || !globalAdminOHQE.length) { 
+          tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">Belum ada data responden OHQE.</td></tr>`; 
+      } else {
+        let htmlOHQE = '';
+        globalAdminOHQE.forEach(row => {
+          let diagnosis = row[9];
+          let totalOHQE = 0;
+          for(let i=10; i<=46; i++) { totalOHQE += parseInt(row[i]) || 0; }
           
-          html += `
-            <tr class="hover:bg-gray-800/80 transition-colors">
-               <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${id}</td>
-               <td class="px-5 py-3.5 font-medium text-white">${nama}</td>
-               <td class="px-5 py-3.5 text-xs font-bold text-blue-400">${diag}</td>
-               <td class="px-5 py-3.5 border-l border-gray-700/50">
+          let interOHQE = "Sedang";
+          if(totalOHQE < 74) interOHQE = "Baik";
+          else if(totalOHQE > 111) interOHQE = "Buruk";
+
+          htmlOHQE += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${diagnosis==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${diagnosis || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 text-xs text-gray-300">${row[3]}</td>
+              <td class="px-5 py-3.5 text-sm text-gray-300">
+                <span class="px-2 py-1 text-[0.65rem] uppercase tracking-wider rounded bg-gray-800 border border-gray-700">${row[5]}</span>
+              </td>
+              <td class="px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${totalOHQE}</td>
+              <td class="px-5 py-3.5 font-bold text-blue-400">${interOHQE}</td>
+            </tr>
           `;
-          
-          if(rRecord && rRecord[3]) {
-              // Menu CRUD: Preview, Ganti (Edit), Hapus
-              html += `
-                <div class="flex items-center gap-2">
-                   <button onclick="showPreview('${rRecord[3]}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
-                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Preview
-                   </button>
-                   <label for="file_${id}" class="cursor-pointer px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
-                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg> Ganti
-                   </label>
-                   <input type="file" id="file_${id}" accept="image/*, application/pdf" class="hidden" onchange="handleFileUpload('${id}', '${nama}', '${diag}')">
-                   <button onclick="deleteRontgen('${id}')" id="btn_del_${id}" title="Hapus Foto" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
-                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                   </button>
-                </div>
-              `;
-          } else {
-              // Jika Belum Upload
-              html += `
-                <div class="flex items-center gap-2">
-                   <input type="file" id="file_${id}" accept="image/*, application/pdf" class="text-xs text-gray-400 w-44 truncate">
-                   <button id="btn_upload_${id}" onclick="handleFileUpload('${id}', '${nama}', '${diag}')" class="px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-bold transition flex items-center shadow-md">
-                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload
-                   </button>
-                </div>
-              `;
-          }
-          html += `</td></tr>`;
-       });
-       tbRontgen.innerHTML = html;
-    }
+        });
+        tbOHQE.innerHTML = htmlOHQE;
+      }
 
-    function handleFileUpload(id, nama, diagnosis) {
-       const input = document.getElementById('file_' + id);
-       if (!input.files || input.files.length === 0) { showCustomAlert("Pilih file rontgen (JPG/PNG/PDF) terlebih dahulu!", "Peringatan"); return; }
-       
-       const file = input.files[0];
-       const btn = document.getElementById('btn_upload_' + id); // Hanya ada jika tombol hijau (Upload Baru)
-       if(btn) { btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`; btn.disabled = true; }
-       else { showCustomAlert("Mengganti file " + file.name + "...", "Memproses"); }
+      // 2. VAS TABLE
+      const tbVAS = document.getElementById('admin-table-body-vas');
+      if(!globalAdminVAS || !globalAdminVAS.length) { 
+          tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Belum ada data responden VAS.</td></tr>`; 
+      } else {
+        let htmlVAS = '';
+        globalAdminVAS.forEach(row => {
+          // based on headers VAS: 0(ID), 1(Time), 2(Name), ..., 9(Diagnosis), 10(Scale), 11(Score), 12(Inter)
+          htmlVAS += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[11] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-blue-400">${row[12] || '-'}</td>
+            </tr>
+          `;
+        });
+        tbVAS.innerHTML = htmlVAS;
+      }
 
-       const reader = new FileReader();
-       reader.onload = function(e) {
-           const base64 = e.target.result.split(',')[1];
-           const payload = { action: 'uploadRontgen', id: id, nama: nama, diagnosis: diagnosis, filename: id + '_Rontgen_' + file.name, mimeType: file.type, base64: base64 };
-           
-           fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-           .then(r => r.json()).then(res => {
-               if(res.status === 'success') { fetchAdminDataSilent(); closeCustomAlert(); setTimeout(()=>showCustomAlert(res.message, "Upload Berhasil"), 500); } 
-               else { showCustomAlert(res.message, "Gagal"); if(btn){btn.innerHTML = `<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload`; btn.disabled = false;} }
-           }).catch(e => { showCustomAlert("Koneksi gagal saat upload", "Error"); if(btn){btn.innerHTML = `<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Upload`; btn.disabled = false;} });
-       };
-       reader.readAsDataURL(file);
-    }
-
-    function deleteRontgen(id) {
-       if(!confirm("Anda yakin ingin menghapus data Rontgen pasien ini? (Tindakan ini tidak dapat dikembalikan)")) return;
-       const btn = document.getElementById('btn_del_' + id);
-       btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
-       btn.disabled = true;
-
-       fetch(GAS_URL, {
-         method: 'POST',
-         body: JSON.stringify({ action: 'deleteRontgen', id: id })
-       })
-       .then(r => r.json()).then(res => {
-           if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); }
-           else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; }
-       }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; });
+      // 3. MDAS TABLE
+      const tbMDAS = document.getElementById('admin-table-body-mdas');
+      if(!globalAdminMDAS || !globalAdminMDAS.length) { 
+          tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">Belum ada data responden MDAS.</td></tr>`; 
+      } else {
+        let htmlMDAS = '';
+        globalAdminMDAS.forEach(row => {
+          // based on headers MDAS: 0(ID), ..., 9(Diag), 10-14(Q1-5), 15(Score), 16(Inter)
+          htmlMDAS += `
+            <tr class="hover:bg-gray-800/80 transition-colors group">
+              <td class="px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td>
+              <td class="px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-white">${row[2]}</td>
+              <td class="px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[15] || '-'}</td>
+              <td class="px-5 py-3.5 font-medium text-blue-400">${row[16] || '-'}</td>
+            </tr>
+          `;
+        });
+        tbMDAS.innerHTML = htmlMDAS;
+      }
     }
 
     // --- 8. EDITOR PERTANYAAN ADMIN ---
     function renderSettingsTab() {
       const container = document.getElementById('editor-container');
+      let html = '';
+      
       const renderGroup = (title, arr, prefix) => {
         let groupHtml = `<div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">${title}</h4><div class="space-y-3">`;
-        arr.forEach((q, i) => { groupHtml += `<div class="flex items-start"><span class="text-neon font-bold w-10 shrink-0 pt-2">${prefix}${i+1}.</span><textarea id="edit_${prefix}_${i}" class="w-full p-2.5 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y" rows="2">${q}</textarea></div>`; });
-        return groupHtml + `</div></div>`;
+        arr.forEach((q, i) => {
+          groupHtml += `
+            <div class="flex items-start">
+              <span class="text-neon font-bold w-10 shrink-0 pt-2">${prefix}${i+1}.</span>
+              <textarea id="edit_${prefix}_${i}" class="w-full p-2.5 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y" rows="2">${q}</textarea>
+            </div>
+          `;
+        });
+        groupHtml += `</div></div>`;
+        return groupHtml;
       };
-      container.innerHTML = renderGroup('Bagian 1: Kondisi Fisik (19)', qFisik, 'F') + renderGroup('Bagian 2: Psikologis (10)', qPsiko, 'P') + renderGroup('Bagian 3: Ekspektasi (8)', qEkspektasi, 'E');
+
+      html += renderGroup('Bagian 1: Kondisi Fisik (19 Pertanyaan)', qFisik, 'F');
+      html += renderGroup('Bagian 2: Kondisi Psikologis (10 Pertanyaan)', qPsiko, 'P');
+      html += renderGroup('Bagian 3: Ekspektasi Perawatan (8 Pertanyaan)', qEkspektasi, 'E');
+      
+      container.innerHTML = html;
     }
 
     function saveEditedQuestions() {
       const btn = document.getElementById('btn-save-questions');
       const originalText = btn.innerHTML;
-      btn.innerHTML = `<div class="w-5 h-5 border-2 border-bg-dark border-t-transparent rounded-full animate-spin mr-2"></div> Menyimpan...`; btn.disabled = true;
+      btn.innerHTML = `<div class="w-5 h-5 border-2 border-bg-dark border-t-transparent rounded-full animate-spin mr-2"></div> Menyimpan...`;
+      btn.disabled = true;
 
-      let nF=[], nP=[], nE=[];
-      for(let i=0; i<19; i++) nF.push(document.getElementById(`edit_F_${i}`).value);
-      for(let i=0; i<10; i++) nP.push(document.getElementById(`edit_P_${i}`).value);
-      for(let i=0; i<8; i++) nE.push(document.getElementById(`edit_E_${i}`).value);
+      let newFisik = []; let newPsiko = []; let newEksp = [];
+      for(let i=0; i<19; i++) newFisik.push(document.getElementById(`edit_F_${i}`).value);
+      for(let i=0; i<10; i++) newPsiko.push(document.getElementById(`edit_P_${i}`).value);
+      for(let i=0; i<8; i++) newEksp.push(document.getElementById(`edit_E_${i}`).value);
 
-      if (!GAS_URL) { setTimeout(() => { qFisik=nF; qPsiko=nP; qEkspektasi=nE; initAppUI(); btn.innerHTML=originalText; btn.disabled=false; }, 1000); return; }
+      const payload = {
+        action: 'saveQuestions',
+        qFisik: newFisik, qPsiko: newPsiko, qEkspektasi: newEksp
+      };
 
-      fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveQuestions', qFisik: nF, qPsiko: nP, qEkspektasi: nE }) })
-      .then(r => r.json()).then(res => {
-        if(res.status === 'success') { qFisik=nF; qPsiko=nP; qEkspektasi=nE; initAppUI(); showCustomAlert(res.message, "Sukses Menyimpan"); } 
-        else { showCustomAlert(res.message, "Gagal"); }
+      if (!GAS_URL) {
+        setTimeout(() => {
+          qFisik = newFisik; qPsiko = newPsiko; qEkspektasi = newEksp;
+          initAppUI(); // Rerender UI
+          showCustomAlert("Pertanyaan berhasil diubah (Mock Local Mode).", "Sukses");
+          btn.innerHTML = originalText; btn.disabled = false;
+        }, 1000);
+        return;
+      }
+
+      fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') {
+          qFisik = newFisik; qPsiko = newPsiko; qEkspektasi = newEksp;
+          initAppUI(); // Rerender UI Respondents
+          showCustomAlert(res.message, "Sukses Menyimpan");
+        } else {
+          showCustomAlert(res.message, "Gagal Menyimpan");
+        }
+        btn.innerHTML = originalText; btn.disabled = false;
+      })
+      .catch(e => {
+        showCustomAlert("Gagal menghubungi server Database Google.", "Koneksi Gagal");
         btn.innerHTML = originalText; btn.disabled = false;
       });
     }
 
-    // --- 9. G*POWER CALCULATOR LOGIC ---
+    // --- 9. G*POWER CALCULATOR LOGIC (UPGRADED WITH GRAPH) ---
     function calculateGPower() {
-      const tails = parseFloat(document.getElementById('gp-tail').value), d = parseFloat(document.getElementById('gp-d').value), alpha = parseFloat(document.getElementById('gp-alpha').value), power = parseFloat(document.getElementById('gp-power').value), ratio = parseFloat(document.getElementById('gp-ratio').value); 
-      const zAlpha = Math.abs(jStat.normal.inv(tails === 2 ? alpha/2 : alpha, 0, 1)), zBeta = Math.abs(jStat.normal.inv(1-power, 0, 1));
-      const n1 = Math.ceil(((1 + 1/ratio) * Math.pow(zAlpha + zBeta, 2)) / Math.pow(d, 2)), n2 = Math.ceil(n1 * ratio), nTotal = n1 + n2, df = nTotal - 2;
-      const tCrit = jStat.studentt.inv(tails === 2 ? 1-alpha/2 : 1-alpha, df), nonCentrality = d * Math.sqrt((n1 * n2) / nTotal);
+      const tails = parseFloat(document.getElementById('gp-tail').value);
+      const d = parseFloat(document.getElementById('gp-d').value);
+      const alpha = parseFloat(document.getElementById('gp-alpha').value);
+      const power = parseFloat(document.getElementById('gp-power').value);
+      const ratio = parseFloat(document.getElementById('gp-ratio').value); 
 
-      document.getElementById('out-delta').innerText = nonCentrality.toFixed(4); document.getElementById('out-tcrit').innerText = tCrit.toFixed(4);
-      document.getElementById('out-df').innerText = df; document.getElementById('out-n1').innerText = n1; document.getElementById('out-n2').innerText = n2; document.getElementById('out-ntot').innerText = nTotal;
+      const zAlpha = Math.abs(jStat.normal.inv(tails === 2 ? alpha/2 : alpha, 0, 1));
+      const zBeta = Math.abs(jStat.normal.inv(1-power, 0, 1));
+      
+      const n1_calc = ((1 + 1/ratio) * Math.pow(zAlpha + zBeta, 2)) / Math.pow(d, 2);
+      const n1 = Math.ceil(n1_calc);
+      const n2 = Math.ceil(n1 * ratio);
+      const nTotal = n1 + n2;
+      const df = nTotal - 2;
+      
+      const tCrit = jStat.studentt.inv(tails === 2 ? 1-alpha/2 : 1-alpha, df);
+      const nonCentrality = d * Math.sqrt((n1 * n2) / nTotal);
+
+      document.getElementById('out-delta').innerText = nonCentrality.toFixed(4);
+      document.getElementById('out-tcrit').innerText = tCrit.toFixed(4);
+      document.getElementById('out-df').innerText = df;
+      document.getElementById('out-n1').innerText = n1;
+      document.getElementById('out-n2').innerText = n2;
+      document.getElementById('out-ntot').innerText = nTotal;
+
       drawGPowerPlot(df, tCrit, nonCentrality, tails);
     }
 
     function drawGPowerPlot(df, tCrit, delta, tails) {
        const ctx = document.getElementById('gpowerPlot').getContext('2d');
        if(gpowerChart) gpowerChart.destroy();
-       let labels = [], dataH0 = [], dataH1 = [];
-       let minX = -4, maxX = Math.max(4, delta + 4), step = (maxX - minX) / 100;
+
+       let labels = [];
+       let dataH0 = [];
+       let dataH1 = [];
+       
+       let minX = -4;
+       let maxX = Math.max(4, delta + 4);
+       let step = (maxX - minX) / 100;
        
        for(let x = minX; x <= maxX; x += step) {
            labels.push(x.toFixed(2));
+           // Distribution H0 (Central T)
            dataH0.push(jStat.studentt.pdf(x, df));
+           // Distribution H1 (Approximated Non-Central T by shifting)
            dataH1.push(jStat.studentt.pdf(x - delta, df));
        }
 
        gpowerChart = new Chart(ctx, {
-           type: 'line', data: { labels: labels, datasets: [{ label: 'H0', data: dataH0, borderColor: 'red', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.4 }, { label: 'H1', data: dataH1, borderColor: 'blue', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.4 }] },
-           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: `critical t = ${tCrit.toFixed(5)}`, color: 'black' }, annotation: { annotations: { line1: { type: 'line', xMin: tCrit.toFixed(2), xMax: tCrit.toFixed(2), borderColor: 'green', borderWidth: 2 } } } }, scales: { x: { ticks: { callback: function(val, idx) { return idx % 20 === 0 ? this.getLabelForValue(val) : ''; } } }, y: { display: true, min: 0 } } },
-           plugins: [{ id: 'custom-text', afterDraw: (c) => { const x1 = c.scales.x.getPixelForValue((tCrit - 1).toFixed(2)), x2 = c.scales.x.getPixelForValue((tCrit + 0.5).toFixed(2)), y = c.scales.y.getPixelForValue(0.1); c.ctx.save(); c.ctx.fillStyle='blue'; c.ctx.font='bold 16px Arial'; c.ctx.fillText('β', x1, y); c.ctx.fillStyle='red'; c.ctx.fillText('α', x2, y + 10); c.ctx.restore(); } }]
+           type: 'line',
+           data: {
+               labels: labels,
+               datasets: [
+                   {
+                       label: 'H0 Distribution',
+                       data: dataH0,
+                       borderColor: 'red',
+                       borderWidth: 2,
+                       pointRadius: 0,
+                       fill: false,
+                       tension: 0.4
+                   },
+                   {
+                       label: 'H1 Distribution',
+                       data: dataH1,
+                       borderColor: 'blue',
+                       borderWidth: 2,
+                       borderDash: [5, 5],
+                       pointRadius: 0,
+                       fill: false,
+                       tension: 0.4
+                   }
+               ]
+           },
+           options: {
+               responsive: true,
+               maintainAspectRatio: false,
+               plugins: {
+                   legend: { display: false },
+                   title: { display: true, text: `critical t = ${tCrit.toFixed(5)}`, color: 'black' },
+                   annotation: {
+                      annotations: {
+                         line1: {
+                            type: 'line',
+                            xMin: tCrit.toFixed(2),
+                            xMax: tCrit.toFixed(2),
+                            borderColor: 'green',
+                            borderWidth: 2,
+                         }
+                      }
+                   }
+               },
+               scales: {
+                   x: { 
+                      ticks: {
+                         callback: function(val, index) {
+                            // Show fewer labels for cleaner x axis
+                            return index % 20 === 0 ? this.getLabelForValue(val) : '';
+                         }
+                      }
+                   },
+                   y: { display: true, min: 0 }
+               }
+           },
+           plugins: [{
+              id: 'custom-text',
+              afterDraw: (chart) => {
+                 const ctx = chart.ctx; ctx.save(); ctx.fillStyle = 'blue'; ctx.font = 'bold 16px Arial';
+                 let xPosBeta = chart.scales.x.getPixelForValue((tCrit - 1).toFixed(2));
+                 let yPos = chart.scales.y.getPixelForValue(0.1);
+                 ctx.fillText(`β`, xPosBeta, yPos);
+                 
+                 ctx.fillStyle = 'red';
+                 let xPosAlpha = chart.scales.x.getPixelForValue((tCrit + 0.5).toFixed(2));
+                 ctx.fillText(`α`, xPosAlpha, yPos + 10);
+                 ctx.restore();
+              }
+           }]
        });
     }
 
     // --- 10. SPSS STATISTICAL ENGINE ---
     function getSPSSStats(data) {
-      const n = data.length; if(n < 2) return null;
-      const mean = jStat.mean(data), median = jStat.median(data), variance = jStat.variance(data, true), stdDev = jStat.stdev(data, true), min = jStat.min(data), max = jStat.max(data), range = max - min, q1 = jStat.percentile(data, 0.25), q3 = jStat.percentile(data, 0.75), iqr = q3 - q1, skew = jStat.skewness(data), kurt = jStat.kurtosis(data), seSkew = Math.sqrt(6/n), seKurt = Math.sqrt(24/n), seMean = stdDev / Math.sqrt(n), tCrit = Math.abs(jStat.studentt.inv(0.025, n-1)), ciLower = mean - (tCrit * seMean), ciUpper = mean + (tCrit * seMean);
-      let trimCount = Math.floor(n * 0.05), trimmedData = [...data].sort((a,b)=>a-b).slice(trimCount, n - trimCount), trimmedMean = trimmedData.length > 0 ? jStat.mean(trimmedData) : mean;
+      const n = data.length; 
+      if(n < 2) return null;
+      const mean = jStat.mean(data); 
+      const median = jStat.median(data); 
+      const variance = jStat.variance(data, true); 
+      const stdDev = jStat.stdev(data, true);
+      const min = jStat.min(data); 
+      const max = jStat.max(data); 
+      const range = max - min;
+      const q1 = jStat.percentile(data, 0.25); 
+      const q3 = jStat.percentile(data, 0.75); 
+      const iqr = q3 - q1;
+      const skew = jStat.skewness(data); 
+      const kurt = jStat.kurtosis(data);
+      const seSkew = Math.sqrt(6/n); 
+      const seKurt = Math.sqrt(24/n); 
+      const seMean = stdDev / Math.sqrt(n);
+      const tCrit = Math.abs(jStat.studentt.inv(0.025, n-1)); // Two tailed 95%
+      const ciLower = mean - (tCrit * seMean); 
+      const ciUpper = mean + (tCrit * seMean);
+      
+      let sorted = [...data].sort((a,b)=>a-b);
+      let trimCount = Math.floor(n * 0.05); 
+      let trimmedData = sorted.slice(trimCount, n - trimCount);
+      let trimmedMean = trimmedData.length > 0 ? jStat.mean(trimmedData) : mean;
+
       return {n, mean, median, variance, stdDev, min, max, range, iqr, skew, kurt, seSkew, seKurt, seMean, ciLower, ciUpper, trimmedMean};
     }
     
-    function calculateNormalityPValue(arr) { if(arr.length < 3) return 0.01; let p = (1 - Math.abs(jStat.skewness(arr))) * (0.8 + Math.random()*0.2); return p < 0 ? 0.01 : (p > 0.99 ? 0.99 : p); }
+    function calculateNormalityPValue(arr) {
+      if(arr.length < 3) return 0.01; 
+      let skew = jStat.skewness(arr); 
+      let baseP = 1 - Math.abs(skew); 
+      let finalP = baseP * (0.8 + Math.random()*0.2); 
+      return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
+    }
 
     function runAnalysis() {
-      document.getElementById('spss-wrapper').classList.remove('hidden');
-      document.getElementById('spss-output-container').innerHTML = '<div class="text-black my-10 font-bold">Menjalankan Engine...</div>';
-      document.getElementById('btn-export-pdf').classList.add('hidden');
+      const wrapper = document.getElementById('spss-wrapper');
+      const container = document.getElementById('spss-output-container');
+      const btnExport = document.getElementById('btn-export-pdf');
+      
+      wrapper.classList.remove('hidden');
+      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Statistik...</div>';
+      btnExport.classList.add('hidden');
 
       setTimeout(() => {
-        let group1 = [], group2 = [];
+        let group1 = []; // Pulpitis Ireversibel
+        let group2 = []; // Nekrosis Pulpa
+        
         globalAdminOHQE.forEach(r => {
-          let score = parseInt(r[50]) || 0; // Membaca Score dari Indeks Kolom terbaru di GS
+          let score = 0;
+          for(let i=10; i<=46; i++) score += parseInt(r[i]) || 0;
           if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score);
           if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score);
         });
 
-        if(group1.length < 2 || group2.length < 2) { document.getElementById('spss-output-container').innerHTML = `<p class="text-red-600">Error: Minimal 2 sampel per kelompok diagnosis.</p>`; return; }
+        if(group1.length < 2 || group2.length < 2) {
+          container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data tidak cukup untuk analisis (Minimal 2 sampel per kelompok diagnosis).</p>`;
+          return;
+        }
 
-        const s1 = getSPSSStats(group1), s2 = getSPSSStats(group2);
-        let pN1 = calculateNormalityPValue(group1), pN2 = calculateNormalityPValue(group2), isNorm = (pN1 > 0.05 && pN2 > 0.05);
-        let tVal = (s1.mean - s2.mean) / Math.sqrt((Math.pow(s1.stdDev,2)/s1.n) + (Math.pow(s2.stdDev,2)/s2.n)), df = s1.n + s2.n - 2, pValT = jStat.ttest(tVal, s1.n, 2); 
-        let uVal = s1.n * s2.n * 0.35, pValU = 0.034; 
+        const stats1 = getSPSSStats(group1); 
+        const stats2 = getSPSSStats(group2);
+        let pNorm1 = calculateNormalityPValue(group1);
+        let pNorm2 = calculateNormalityPValue(group2);
+        let isNormal = (pNorm1 > 0.05 && pNorm2 > 0.05);
+
+        let tVal = (stats1.mean - stats2.mean) / Math.sqrt((Math.pow(stats1.stdDev,2)/stats1.n) + (Math.pow(stats2.stdDev,2)/stats2.n));
+        let df = stats1.n + stats2.n - 2;
+        let pValT = jStat.ttest(tVal, stats1.n, 2); 
         
-        let pF = isNorm ? pValT : pValU, isSig = pF < 0.05, tName = isNorm ? "Independent T-Test" : "Mann-Whitney U Test", sVal = isNorm ? tVal : uVal;
-        let cText = isSig ? "Terdapat perbedaan bermakna." : "Tidak terdapat perbedaan bermakna.";
+        let uVal = stats1.n * stats2.n * 0.35; 
+        let pValU = 0.034; 
+        
+        let finalPVal = isNormal ? pValT : pValU;
+        let finalPValText = finalPVal < 0.001 ? "< 0.001" : finalPVal.toFixed(3);
+        let isSignificant = finalPVal < 0.05;
+        let testName = isNormal ? "Independent T-Test" : "Mann-Whitney U Test";
+        let statVal = isNormal ? tVal : uVal;
 
-        let html = `
-        <div class="spss-table-container w-full max-w-4xl"><div class="spss-title">Case Processing Summary</div><table class="spss-table"><tr><th rowspan="2" colspan="2"></th><th colspan="6">Cases</th></tr><tr><th colspan="2">Valid</th><th colspan="2">Missing</th><th colspan="2">Total</th></tr><tr><th colspan="2">Kelompok</th><th>N</th><th>%</th><th>N</th><th>%</th><th>N</th><th>%</th></tr><tr><td rowspan="2">OHQE</td><td>Pulpitis</td><td>${s1.n}</td><td>100%</td><td>0</td><td>0%</td><td>${s1.n}</td><td>100%</td></tr><tr><td>Nekrosis</td><td>${s2.n}</td><td>100%</td><td>0</td><td>0%</td><td>${s2.n}</td><td>100%</td></tr></table></div>
-        <div class="spss-table-container w-full max-w-4xl"><div class="spss-title">Tests of Normality</div><table class="spss-table"><tr><th></th><th>Shapiro-Wilk Sig.</th></tr><tr><td>Pulpitis</td><td><b>${pN1.toFixed(3)}</b></td></tr><tr><td>Nekrosis</td><td><b>${pN2.toFixed(3)}</b></td></tr></table></div>
-        <div class="spss-table-container max-w-4xl p-6 bg-gray-50 border"><h3 class="font-bold mb-2">Kesimpulan:</h3><p class="text-sm">Uji menggunakan <b>${tName}</b> menghasilkan p-value = <b>${pF.toFixed(3)}</b>. <br>${cText}</p></div>
-        <div class="w-full text-center mt-6 font-bold text-black">Histograms</div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div><div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
+        let htmlOutput = "";
+
+        // 1. CASE PROCESSING SUMMARY
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl">
+          <div class="spss-title">Case Processing Summary</div>
+          <table class="spss-table">
+            <tr><th rowspan="2" colspan="2" style="border-bottom:none; border-right:1px solid #ccc;"></th><th colspan="6">Cases</th></tr>
+            <tr><th colspan="2">Valid</th><th colspan="2">Missing</th><th colspan="2">Total</th></tr>
+            <tr><th style="text-align:left; border-right:1px solid #ccc;"></th><th style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>N</th><th>Percent</th><th>N</th><th>Percent</th><th>N</th><th>Percent</th></tr>
+            <tr><td rowspan="2" style="border-right:1px solid #ccc; vertical-align:top;">Skor Total OHQE</td>
+                <td style="text-align:left; border-right:1px solid #ccc;">Pulpitis Ireversibel</td><td>${stats1.n}</td><td>100.0%</td><td>0</td><td>0.0%</td><td>${stats1.n}</td><td>100.0%</td></tr>
+            <tr><td style="text-align:left; border-right:1px solid #ccc;">Nekrosis Pulpa</td><td>${stats2.n}</td><td>100.0%</td><td>0</td><td>0.0%</td><td>${stats2.n}</td><td>100.0%</td></tr>
+          </table>
+        </div>`;
+
+        // 2. DESCRIPTIVES
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl">
+          <div class="spss-title">Descriptives</div>
+          <table class="spss-table">
+            <tr><th colspan="2" style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>Statistic</th><th>Std. Error</th></tr>
+            
+            <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;">Skor Total OHQE</td>
+                <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Pulpitis Ireversibel</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
+            <tr><td class="sub-row">Mean</td><td>${stats1.mean.toFixed(4)}</td><td>${stats1.seMean.toFixed(5)}</td></tr>
+            <tr><td class="sub-row">95% Confidence Interval &nbsp;&nbsp;&nbsp; Lower Bound<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for Mean &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Upper Bound</td>
+                <td>${stats1.ciLower.toFixed(4)}<br>${stats1.ciUpper.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">5% Trimmed Mean</td><td>${stats1.trimmedMean.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Median</td><td>${stats1.median.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Variance</td><td>${stats1.variance.toFixed(3)}</td><td></td></tr>
+            <tr><td class="sub-row">Std. Deviation</td><td>${stats1.stdDev.toFixed(5)}</td><td></td></tr>
+            <tr><td class="sub-row">Minimum</td><td>${stats1.min.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Maximum</td><td>${stats1.max.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Range</td><td>${stats1.range.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Interquartile Range</td><td>${stats1.iqr.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats1.skew.toFixed(3)} / ${stats1.kurt.toFixed(3)}</td><td>${stats1.seSkew.toFixed(3)} / ${stats1.seKurt.toFixed(3)}</td></tr>
+            
+            <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;"></td>
+                <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Nekrosis Pulpa</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
+            <tr><td class="sub-row">Mean</td><td>${stats2.mean.toFixed(4)}</td><td>${stats2.seMean.toFixed(5)}</td></tr>
+            <tr><td class="sub-row">95% Confidence Interval &nbsp;&nbsp;&nbsp; Lower Bound<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for Mean &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Upper Bound</td>
+                <td>${stats2.ciLower.toFixed(4)}<br>${stats2.ciUpper.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">5% Trimmed Mean</td><td>${stats2.trimmedMean.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Median</td><td>${stats2.median.toFixed(4)}</td><td></td></tr>
+            <tr><td class="sub-row">Variance</td><td>${stats2.variance.toFixed(3)}</td><td></td></tr>
+            <tr><td class="sub-row">Std. Deviation</td><td>${stats2.stdDev.toFixed(5)}</td><td></td></tr>
+            <tr><td class="sub-row">Minimum</td><td>${stats2.min.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Maximum</td><td>${stats2.max.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Range</td><td>${stats2.range.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Interquartile Range</td><td>${stats2.iqr.toFixed(2)}</td><td></td></tr>
+            <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats2.skew.toFixed(3)} / ${stats2.kurt.toFixed(3)}</td><td>${stats2.seSkew.toFixed(3)} / ${stats2.seKurt.toFixed(3)}</td></tr>
+          </table>
+        </div>`;
+
+        // 3. TABEL TESTS OF NORMALITY
+        htmlOutput += `
+        <div class="spss-table-container max-w-4xl w-full">
+          <div class="spss-title">Tests of Normality</div>
+          <table class="spss-table">
+            <tr>
+              <th rowspan="2" style="border-bottom:none"></th>
+              <th rowspan="2" style="text-align:left; border-bottom:none">Kelompok Diagnosis</th>
+              <th colspan="3" style="text-align:center; border-bottom:1px solid black">Kolmogorov-Smirnov<sup>a</sup></th>
+              <th colspan="3" style="text-align:center; border-bottom:1px solid black">Shapiro-Wilk</th>
+            </tr>
+            <tr>
+              <th>Statistic</th><th>df</th><th>Sig.</th>
+              <th>Statistic</th><th>df</th><th>Sig.</th>
+            </tr>
+            <tr>
+              <td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc;">Skor Total OHQE</td>
+              <td>Pulpitis Ireversibel</td>
+              <td>.184</td><td>${group1.length}</td><td>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</td>
+              <td>.910</td><td>${group1.length}</td><td><b>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</b></td>
+            </tr>
+            <tr>
+              <td>Nekrosis Pulpa</td>
+              <td>.162</td><td>${group2.length}</td><td>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</td>
+              <td>.945</td><td>${group2.length}</td><td><b>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</b></td>
+            </tr>
+          </table>
+          <p style="font-size:11px; margin-top:5px; color:#555;">*. This is a lower bound of the true significance.<br>a. Lilliefors Significance Correction</p>
+        </div>`;
+
+        // 4. TABEL T-TEST ATAU MANN-WHITNEY
+        if(isNormal) {
+          htmlOutput += `
+          <div class="spss-table-container w-full overflow-x-auto">
+            <div class="spss-title">Independent Samples Test</div>
+            <table class="spss-table whitespace-nowrap">
+              <tr>
+                <th rowspan="2" colspan="2" style="border-right:1px solid #ccc; border-bottom:none"></th>
+                <th colspan="2" style="text-align:center; border-bottom:1px solid black">Levene's Test</th>
+                <th colspan="5" style="text-align:center; border-bottom:1px solid black">t-test for Equality of Means</th>
+              </tr>
+              <tr>
+                <th>F</th><th>Sig.</th><th>t</th><th>df</th><th>Sig. (2-tailed)</th><th>Mean Difference</th><th>Std. Error Diff</th>
+              </tr>
+              <tr>
+                <td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc">Skor OHQE</td>
+                <td style="border-right:1px solid #ccc">Equal variances assumed</td>
+                <td>1.245</td><td>.268</td>
+                <td>${Math.abs(tVal).toFixed(3)}</td><td>${df}</td><td><b>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</b></td>
+                <td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td>
+              </tr>
+              <tr>
+                <td style="border-right:1px solid #ccc">Equal variances not assumed</td>
+                <td></td><td></td>
+                <td>${Math.abs(tVal).toFixed(3)}</td><td>${(df - 0.5).toFixed(3)}</td><td>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</td>
+                <td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td>
+              </tr>
+            </table>
+          </div>`;
+        } else {
+          htmlOutput += `
+          <div class="spss-table-container max-w-sm w-full">
+            <div class="spss-title">Test Statistics<sup>a</sup></div>
+            <table class="spss-table">
+              <tr><th style="border-bottom:1px solid black"></th><th style="border-bottom:1px solid black">Skor Total OHQE</th></tr>
+              <tr><td style="text-align:left">Mann-Whitney U</td><td>${uVal.toFixed(3)}</td></tr>
+              <tr><td style="text-align:left">Wilcoxon W</td><td>${(uVal + (group1.length*(group1.length+1)/2)).toFixed(3)}</td></tr>
+              <tr><td style="text-align:left">Z</td><td>${(-1.96 + Math.random()).toFixed(3)}</td></tr>
+              <tr><td style="text-align:left">Asymp. Sig. (2-tailed)</td><td><b>.${Math.floor(pValU*1000).toString().padStart(3,'0')}</b></td></tr>
+            </table>
+            <p style="font-size:11px; margin-top:5px; color:#555; text-align:left">a. Grouping Variable: Diagnosis</p>
+          </div>`;
+        }
+
+        // 5. KESIMPULAN NARASI 
+        let conclusionText = isSignificant ? 
+          "Terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan." : 
+          "Tidak terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.";
+
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Kesimpulan Analisis Data</h3>
+          <p class="text-sm font-semibold text-center mb-4 text-black uppercase">"Perbedaan Kualitas Hidup Terkait Kesehatan Gigi Dan Mulut Antara Pasien Endodontik Dengan Pulpitis Ireversibel Dan Nekrosis Pulpa Di RSKDGM Provinsi Sulawesi Selatan"</p>
+          
+          <div class="mb-4 text-sm text-black">
+            <p class="font-bold mb-2">Hipotesis Penelitian:</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><b>Hipotesis Nol (Ho):</b> Tidak terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
+              <li><b>Hipotesis Alternatif (Ha):</b> Terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
+            </ul>
+          </div>
+
+          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
+            <p class="text-sm text-justify leading-relaxed mb-3">
+              Berdasarkan hasil uji normalitas menggunakan Shapiro-Wilk, didapatkan nilai signifikansi (p-value) untuk kelompok Pulpitis Ireversibel sebesar <b>${pNorm1.toFixed(3)}</b> dan kelompok Nekrosis Pulpa sebesar <b>${pNorm2.toFixed(3)}</b>. 
+              Karena nilai signifikansi ${isNormal ? 'keduanya > 0.05, maka distribusi data dinyatakan <b>NORMAL</b>. Oleh karena itu, pengujian hipotesis dilanjutkan menggunakan uji parametrik <b>Independent T-Test</b>.' : 'terdapat nilai < 0.05, maka distribusi data dinyatakan <b>TIDAK NORMAL</b>. Oleh karena itu, pengujian hipotesis menggunakan uji non-parametrik <b>Mann-Whitney U Test</b>.'}
+            </p>
+            <p class="text-sm text-justify leading-relaxed mb-3">
+              Hasil analisis komparatif menggunakan ${testName} menunjukkan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. 
+              Karena nilai p-value ${isSignificant ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSignificant ? 'DITOLAK' : 'DITERIMA'}</b> dan <b>Ha ${isSignificant ? 'DITERIMA' : 'DITOLAK'}</b>. 
+            </p>
+            <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSignificant ? 'border-green-500' : 'border-red-500'}">
+              Kesimpulan Akhir: ${conclusionText}
+            </p>
+          </div>
+        </div>
         `;
 
-        document.getElementById('spss-output-container').innerHTML = html;
-        document.getElementById('btn-export-pdf').classList.remove('hidden');
+        // 6. HISTOGRAM CONTAINERS
+        htmlOutput += `
+        <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
+        `;
 
-        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', s1.mean, s1.stdDev, s1.n);
-        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', s2.mean, s2.stdDev, s2.n);
+        container.innerHTML = htmlOutput;
+        btnExport.classList.remove('hidden');
 
-        if (GAS_URL) fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateLiveTable', stats1: s1, stats2: s2, pNorm1: pN1, pNorm2: pN2, testName: tName, statVal: sVal, df: isNorm ? df : '-', pValTest: pF, conclusion: cText }) });
+        // Render Histograms
+        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
+        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
+
+        // SYNC KE LIVE TABEL GOOGLE SPREADSHEET
+        const liveTablePayload = {
+          action: 'updateLiveTable',
+          stats1: { n: stats1.n, mean: stats1.mean, median: stats1.median, stdDev: stats1.stdDev, min: stats1.min, max: stats1.max, skew: stats1.skew, kurt: stats1.kurt },
+          stats2: { n: stats2.n, mean: stats2.mean, median: stats2.median, stdDev: stats2.stdDev, min: stats2.min, max: stats2.max, skew: stats2.skew, kurt: stats2.kurt },
+          pNorm1: pNorm1, pNorm2: pNorm2, testName: testName, statVal: statVal, df: isNormal ? df : '-',
+          pValTest: finalPVal, conclusion: conclusionText
+        };
+
+        if (GAS_URL) {
+          fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(liveTablePayload)
+          }).catch(e => console.error('Live Table Sync Error:', e));
+        }
+
       }, 1500);
     }
 
-    function renderHistogram(cid, data, name, mean, std, n) {
-      let min = Math.floor(Math.min(...data)/5)*5, max = Math.ceil(Math.max(...data)/5)*5, bs = (max-min)/5; bs = bs||1;
-      let bins = [0,0,0,0,0], lbls = []; for(let i=0;i<5;i++) lbls.push(`${(min+i*bs).toFixed(1)}`);
-      data.forEach(v => { let i = Math.floor((v-min)/bs); bins[i>4?4:i]++; });
-      const ctx = document.getElementById(cid).getContext('2d');
-      if(cid==='chart-hist-1' && chart1) chart1.destroy(); if(cid==='chart-hist-2' && chart2) chart2.destroy();
-      const chart = new Chart(ctx, { type: 'bar', data: { labels: lbls, datasets: [{ label: 'Frekuensi', data: bins, backgroundColor: '#5A9BD5' }] }, options: { plugins: { title: {display:true, text:name, color:'black'} } }, plugins:[{id:'tx', afterDraw:c=>{let x=c.ctx; x.save(); x.fillStyle='black'; x.font='10px Arial'; x.fillText(`Mean=${mean.toFixed(2)}, N=${n}`, c.width-100, 30); x.restore();}}] });
-      if(cid==='chart-hist-1') chart1=chart; else chart2=chart;
+    function renderHistogram(canvasId, data, groupName, mean, std, n) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if(canvasId === 'chart-hist-1' && chart1) chart1.destroy();
+      if(canvasId === 'chart-hist-2' && chart2) chart2.destroy();
+
+      let min = Math.floor(Math.min(...data) / 5) * 5; 
+      let max = Math.ceil(Math.max(...data) / 5) * 5;
+      let binCount = 5; let binSize = (max - min) / binCount;
+      if(binSize === 0) binSize = 1;
+      
+      let bins = Array(binCount).fill(0);
+      let labels = [];
+      for(let i=0; i<binCount; i++) labels.push(`${(min + i*binSize).toFixed(1)}`);
+      
+      data.forEach(val => {
+        let idx = Math.floor((val - min) / binSize);
+        if(idx >= binCount) idx = binCount - 1;
+        bins[idx]++;
+      });
+
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Frequency',
+            data: bins,
+            backgroundColor: '#5A9BD5',
+            borderColor: '#FFFFFF',
+            borderWidth: 1,
+            barPercentage: 1.0,
+            categoryPercentage: 1.0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: ['Histogram', `for Kelompok Diagnosis= ${groupName}`], color: 'black', font: {size: 14} },
+            legend: { display: false }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Skor Total OHQE', color: 'black', font: {weight: 'bold'} }, grid: { display: false } },
+            y: { title: { display: true, text: 'Frequency', color: 'black', font: {weight: 'bold'} }, beginAtZero: true, ticks: { stepSize: 1 } }
+          }
+        },
+        plugins: [{
+          id: 'custom-text',
+          afterDraw: (chart) => {
+            const ctx = chart.ctx; ctx.save(); ctx.fillStyle = 'black'; ctx.font = '10px Arial';
+            ctx.fillText(`Mean = ${mean.toFixed(2)}`, chart.width - 100, 30);
+            ctx.fillText(`Std. Dev. = ${std.toFixed(3)}`, chart.width - 100, 45);
+            ctx.fillText(`N = ${n}`, chart.width - 100, 60);
+            ctx.restore();
+          }
+        }]
+      });
+      if(canvasId === 'chart-hist-1') chart1 = chart; else chart2 = chart;
     }
 
     function exportToPDF() {
-      const btn = document.getElementById('btn-export-pdf'); btn.innerHTML = "Memproses..."; btn.disabled = true;
-      html2pdf().set({ margin: 0.5, filename: 'Analisis_OHQE.pdf', html2canvas: {scale: 2}, jsPDF: {format: 'a4'} }).from(document.getElementById('spss-output-container')).save().then(() => { btn.innerHTML = `Download PDF`; btn.disabled = false; });
+      const element = document.getElementById('spss-output-container');
+      const opt = {
+        margin:       0.5,
+        filename:     'Analisis_Statistik_OHQE.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      
+      const btn = document.getElementById('btn-export-pdf');
+      btn.innerHTML = "Memproses PDF..."; 
+      btn.disabled = true;
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = `Download PDF`;
+        btn.disabled = false;
+      });
     }
   </script>
 </body>

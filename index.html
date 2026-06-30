@@ -117,7 +117,7 @@
     /* Tabel SPSS Styling Terbaru */
     .spss-wrapper { background: white; color: black; padding: 20px; border-radius: 8px; margin-bottom: 20px;}
     .spss-table-container { background: white; color: black; border-radius: 4px; padding: 15px; overflow-x: auto; font-family: 'Arial', sans-serif; margin-bottom: 20px;}
-    .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; min-width: 600px;}
+    .spss-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; min-width: 600px;}
     .spss-table th, .spss-table td { border: 1px solid #d1d5db; padding: 6px 10px; text-align: right; }
     .spss-table th { font-weight: bold; text-align: center; vertical-align: bottom; background-color: #f9fafb;}
     .spss-table tr:first-child th { border-top: 2px solid black; }
@@ -1081,21 +1081,35 @@
       return 2 * (1 - jStat.studentt.cdf(Math.abs(t), n - 2));
     }
 
-    // HTML Generator for Univariate (Frequencies) Table
-    function generateFrequencyTable(data, colIndex, title) {
+    // HTML Generator for Univariate (Frequencies) Table WITH UPGRADED NARRATIVE
+    function generateFrequencyTable(data, colIndex, title, varName) {
         let counts = {};
         let total = data.length;
         data.forEach(r => { let val = r[colIndex] || 'Unknown'; counts[val] = (counts[val] || 0) + 1; });
+        
+        let sortedKeys = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+        let highestKey = sortedKeys[0];
+        let highestCount = counts[highestKey];
+        let highestPct = ((highestCount/total)*100).toFixed(1);
+
         let html = `
-        <div class="spss-table-container w-full max-w-2xl mt-4">
+        <div class="spss-table-container w-full mt-4">
           <div class="spss-title">${title}</div>
-          <table class="spss-table">
-            <tr><th>Kategori</th><th>Frequency</th><th>Percent</th><th>Valid Percent</th></tr>`;
+          <table class="spss-table mb-2">
+            <tr><th>Kategori</th><th>Frekuensi</th><th>Persen</th></tr>`;
+        
+        let narasiItems = [];
         for (let key in counts) {
             let pct = ((counts[key]/total)*100).toFixed(1);
-            html += `<tr><td style="text-align:left">${key}</td><td>${counts[key]}</td><td>${pct}%</td><td>${pct}%</td></tr>`;
+            html += `<tr><td style="text-align:left">${key}</td><td>${counts[key]}</td><td>${pct}%</td></tr>`;
+            narasiItems.push(`${counts[key]} responden (${pct}%) memiliki ${varName} kategori ${key}`);
         }
-        html += `<tr><th style="text-align:left">Total</th><th>${total}</th><th>100.0%</th><th>100.0%</th></tr></table></div>`;
+        html += `<tr><th style="text-align:left">Total</th><th>${total}</th><th>100.00%</th></tr></table>`;
+        
+        // Narasi ala Skripsi
+        let narasiText = `Berdasarkan tabel di atas menunjukkan sebaran distribusi frekuensi berdasarkan ${varName} responden. Hasil analisis menunjukkan bahwa ${narasiItems.join(', ')}. Hasil menunjukkan bahwa sebagian besar responden memiliki ${varName} dalam kategori ${highestKey} karena memiliki frekuensi tertinggi yaitu sebesar ${highestPct}%.`;
+        
+        html += `<p class="text-sm text-justify leading-relaxed indent-8 mt-2 text-black">${narasiText}</p></div>`;
         return html;
     }
 
@@ -1253,7 +1267,7 @@
 
             <p class="text-sm font-bold mb-2 text-blue-700">2. Hasil Uji Hipotesis Komparatif</p>
             <p class="text-sm text-justify leading-relaxed mb-4">
-              Berdasarkan hasil uji <b>${testName}</b>, diperoleh nilai statistik uji sebesar <b>${statVal.toFixed(3)}</b> dengan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. Karena nilai probabilitas signifikansi ${isSignificant ? '(p-value) < 0.05' : '(p-value) &ge; 0.05'}, maka <b>H₀ ${isSignificant ? 'ditolak' : 'diterima'}</b> dan <b>H₁ ${isSignificant ? 'diterima' : 'ditolak'}</b>. 
+              Berdasarkan tabel uji asumsi parameter <b>${testName}</b>, diperoleh nilai statistik uji sebesar <b>${statVal.toFixed(3)}</b> dengan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. ${isNormal ? `Nilai <i>degree of freedom (df)</i> sebesar <b>${df}</b> didapatkan dari total N dikurangi dua ($N_1 + N_2 - 2$). ` : ''}Karena nilai probabilitas signifikansi ${isSignificant ? '(p-value) < 0.05' : '(p-value) &ge; 0.05'}, maka hipotesis nol <b>H₀ ${isSignificant ? 'ditolak' : 'diterima'}</b> dan hipotesis alternatif <b>H₁ ${isSignificant ? 'diterima' : 'ditolak'}</b>. 
             </p>
 
             <p class="text-sm font-bold mb-2 text-blue-700">3. Kesimpulan Akhir</p>
@@ -1266,16 +1280,18 @@
         // HISTOGRAM CONTAINERS
         htmlOutput += `
         <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1" style="height:300px; width:100%;"></canvas></div></div>
+        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2" style="height:300px; width:100%;"></canvas></div></div>
         `;
 
         container.innerHTML = htmlOutput;
         btnExport.classList.remove('hidden');
 
-        // Render Histograms
-        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
-        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
+        // Render Histograms setelah DOM diinjeksi
+        setTimeout(() => {
+            renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
+            renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
+        }, 100);
 
       }, 1500);
     }
@@ -1319,12 +1335,12 @@
         // 1. Univariate (Frequency)
         let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">HUBUNGAN NYERI ENDODONTIK DENGAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
         
-        htmlOutput += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-        htmlOutput += generateFrequencyTable(matchedData, 4, 'Frekuensi Usia');
-        htmlOutput += generateFrequencyTable(matchedData, 5, 'Frekuensi Jenis Kelamin');
-        htmlOutput += generateFrequencyTable(matchedData, 7, 'Frekuensi Pendidikan');
-        htmlOutput += generateFrequencyTable(matchedData, 6, 'Frekuensi Pekerjaan');
-        htmlOutput += `</div><hr class="my-8 border-gray-400">`;
+        htmlOutput += `<div class="grid grid-cols-1 gap-6">`;
+        htmlOutput += generateFrequencyTable(matchedData, 4, 'Distribusi Frekuensi Berdasarkan Usia', 'usia');
+        htmlOutput += generateFrequencyTable(matchedData, 5, 'Distribusi Frekuensi Berdasarkan Jenis Kelamin', 'jenis kelamin');
+        htmlOutput += generateFrequencyTable(matchedData, 7, 'Distribusi Frekuensi Berdasarkan Pendidikan', 'pendidikan');
+        htmlOutput += generateFrequencyTable(matchedData, 6, 'Distribusi Frekuensi Berdasarkan Pekerjaan', 'pekerjaan');
+        htmlOutput += `</div><hr class="my-8 border-gray-400 border-2">`;
 
         // 2. Normality & Bivariate Math
         const n = vasScores.length;
@@ -1376,7 +1392,7 @@
 
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl mx-auto mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
-          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Interpretasi dan Kesimpulan Analisis Data (Univariat & Bivariat)</h3>
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Interpretasi dan Kesimpulan Analisis Uji Bivariat</h3>
           <p class="text-sm font-semibold text-center mb-6 text-black uppercase">"Hubungan Nyeri Endodontik dengan Kualitas Hidup Terkait Kesehatan Gigi dan Mulut pada Pasien Endodontik di RSKDGM Provinsi Sulawesi Selatan"</p>
           
           <div class="mb-4 text-sm text-black">
@@ -1388,27 +1404,22 @@
           </div>
 
           <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
-            <p class="text-sm font-bold mb-2 text-blue-700">A. Analisis Univariat (Karakteristik Responden)</p>
+            <p class="text-sm font-bold mb-2 text-blue-700">A. Uji Asumsi Normalitas Data</p>
             <p class="text-sm text-justify leading-relaxed mb-4">
-              Berdasarkan tabel distribusi frekuensi di atas, dapat dideskripsikan karakteristik demografi dari total <b>${n} responden</b> yang diteliti. Analisis univariat ini menggambarkan proporsi kategori (Usia, Jenis Kelamin, Pendidikan, dan Pekerjaan) secara deskriptif pada populasi di RSKDGM.
+              Sebelum melakukan uji korelasi bivariat, asumsi normalitas diuji menggunakan metode <b>Shapiro-Wilk</b>. Berdasarkan tabel <i>Tests of Normality</i>, nilai probabilitas (Sig.) untuk Skala Nyeri (VAS) adalah <b>${pNormVas.toFixed(3)}</b> dan untuk Total OHQE adalah <b>${pNormOhqe.toFixed(3)}</b>. 
+              Karena nilai signifikansi ${isNormal ? 'kedua variabel lebih besar dari nilai alpha 0.05, maka disimpulkan bahwa data <b>berdistribusi NORMAL</b>, sehingga dilanjutkan dengan uji parametrik <b>Korelasi Pearson</b>.' : 'terdapat variabel dengan p-value < 0.05, maka disimpulkan bahwa sebaran data <b>TIDAK NORMAL</b>, sehingga dilanjutkan dengan uji non-parametrik <b>Korelasi Rank Spearman (Spearman\'s rho)</b>.'}
             </p>
 
-            <p class="text-sm font-bold mb-2 text-blue-700">B. Uji Asumsi Normalitas Data</p>
-            <p class="text-sm text-justify leading-relaxed mb-4">
-              Sebelum uji korelasi bivariat dilakukan, asumsi normalitas diuji menggunakan metode <b>Shapiro-Wilk</b>. Nilai probabilitas (Sig.) untuk Skala Nyeri (VAS) adalah <b>${pNormVas.toFixed(3)}</b> dan untuk Total OHQE adalah <b>${pNormOhqe.toFixed(3)}</b>. 
-              Karena nilai signifikansi ${isNormal ? 'kedua variabel > 0.05, maka data berdistribusi <b>NORMAL</b>, sehingga dilanjutkan dengan uji parametrik <b>Korelasi Pearson</b>.' : 'terdapat variabel dengan p-value < 0.05, maka sebaran data <b>TIDAK NORMAL</b>, sehingga dilanjutkan dengan uji non-parametrik <b>Korelasi Rank Spearman (Spearman\'s rho)</b>.'}
-            </p>
-
-            <p class="text-sm font-bold mb-2 text-blue-700">C. Uji Hipotesis Bivariat (Korelasi)</p>
+            <p class="text-sm font-bold mb-2 text-blue-700">B. Uji Hipotesis Bivariat (Korelasi)</p>
             <p class="text-sm text-justify leading-relaxed mb-4">
               Berdasarkan tabel <i>Correlations</i> menggunakan uji <b>${testName}</b>, diperoleh nilai koefisien korelasi (r) sebesar <b>${r.toFixed(3)}</b> dengan nilai probabilitas signifikansi sebesar <b>${pValText}</b>.<br><br>
-              1. <b>Arah dan Kekuatan Hubungan:</b> Nilai r = ${r.toFixed(3)} menunjukkan arah korelasi yang <b>${direction}</b> dengan tingkat kekuatan korelasi <b>${strength}</b>.<br>
-              2. <b>Signifikansi Hubungan:</b> Nilai probabilitas (p-value) sebesar ${pValText} adalah ${isSig ? 'lebih kecil (<) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan tersebut <b>signifikan secara statistik</b>.' : 'lebih besar (&ge;) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan tersebut <b>tidak signifikan secara statistik</b>.'}
+              1. <b>Arah dan Kekuatan Hubungan:</b> Nilai r = ${r.toFixed(3)} menunjukkan arah korelasi yang <b>${direction}</b> dengan tingkat kekuatan korelasi dalam kategori <b>${strength}</b>.<br>
+              2. <b>Signifikansi Hubungan:</b> Nilai probabilitas (p-value) sebesar ${pValText} adalah ${isSig ? 'lebih kecil (<) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan antar variabel tersebut <b>signifikan secara statistik</b>.' : 'lebih besar (&ge;) dari alpha 0.05. Hal ini menunjukkan bahwa hubungan antar variabel tersebut <b>tidak signifikan secara statistik</b>.'}
             </p>
 
-            <p class="text-sm font-bold mb-2 text-blue-700">D. Kesimpulan Akhir</p>
+            <p class="text-sm font-bold mb-2 text-blue-700">C. Kesimpulan Akhir</p>
             <p class="text-sm font-bold text-justify leading-relaxed p-4 bg-gray-100 border-l-4 ${isSig && r < 0 ? 'border-green-500 text-green-900' : 'border-red-500 text-red-900'}">
-              Berdasarkan hasil analisis, <b>H₀ ${isSig && r < 0 ? 'ditolak' : 'diterima'}</b> dan <b>H₁ ${isSig && r < 0 ? 'diterima' : 'ditolak'}</b>. ${concTextVas}
+              Berdasarkan hasil analisis, <b>H₀ ${isSig && r < 0 ? 'ditolak' : 'diterima'}</b> dan <b>H₁ ${isSig && r < 0 ? 'diterima' : 'ditolak'}</b>. <br><br>Kesimpulan: ${concTextVas}
             </p>
           </div>
         </div>`;

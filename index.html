@@ -153,7 +153,7 @@
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
-<body class="p-3 sm:p-6 md:p-8 flex flex-col min-h-screen">
+<body class="p-3 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
 
   <div id="loader">
     <div class="spinner mb-5"></div>
@@ -191,455 +191,453 @@
     </div>
   </div>
 
-  <!-- WRAPPER UTAMA -->
-  <main class="flex-grow w-full">
+  <!-- MAIN CONTAINER (RESPONDEN) -->
+  <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
+    
+    <!-- TOMBOL AKSES ADMIN & RONTGEN -->
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-3 z-20">
+      <button type="button" onclick="window.location.href='?page=uploadrontgen'" class="p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-blue-400 hover:text-blue-400 hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Upload Foto Rontgen">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+      </button>
+      <button type="button" onclick="window.location.href='?page=admin'" class="p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Masuk ke Dashboard Admin">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      </button>
+    </div>
 
-    <!-- MAIN CONTAINER (RESPONDEN) -->
-    <div id="app-container" class="glass-card rounded-2xl w-full max-w-4xl mx-auto p-5 sm:p-8 md:p-10 hidden mt-2 sm:mt-4 relative">
+    <div class="mb-8" id="progress-container">
+      <div class="text-center mb-6 flex flex-col items-center">
+        <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Instrumen <span class="text-neon">OHQE</span></h1>
+        <p class="text-xs sm:text-sm text-gray-400 mt-1">Penelitian Angkatan 2023 FKG UMI</p>
+      </div>
+
+      <div class="flex justify-between items-end mb-2">
+        <span class="text-xs sm:text-sm font-semibold text-gray-300" id="step-indicator">Step 1: Biodata</span>
+        <span class="text-xs sm:text-sm font-bold text-neon bg-[rgba(57,255,20,0.1)] px-2 py-0.5 rounded-md" id="progress-percentage">16%</span>
+      </div>
+      <div class="w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden border border-gray-700/50">
+        <div class="bg-[#39ff14] h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_#39ff14]" id="progress-bar" style="width: 16%"></div>
+      </div>
+    </div>
+
+    <form id="ohqeForm" onsubmit="event.preventDefault(); submitData();">
       
-      <!-- TOMBOL AKSES ADMIN (DI-HIDE) & RONTGEN (TETAP MUNCUL) -->
-      <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-3 z-20">
-        <button type="button" onclick="window.location.href='?page=uploadrontgen'" class="p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-blue-400 hover:text-blue-400 hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Upload Foto Rontgen">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-        </button>
-        <!-- Tombol Admin Hide Sesuai Permintaan Privasi -->
-        <button type="button" onclick="window.location.href='?page=admin'" class="hidden p-2.5 rounded-full bg-gray-800/50 border border-gray-700 hover:border-neon hover:text-neon hover:bg-gray-800 text-gray-400 transition-all duration-300 shadow-sm" title="Masuk ke Dashboard Admin">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        </button>
-      </div>
-
-      <div class="mb-8" id="progress-container">
-        <div class="text-center mb-6 flex flex-col items-center">
-          <img src="axalogo.png" alt="AXA XYZ Logo" class="w-12 h-12 mb-3 rounded-xl object-contain drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
-          <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wide">Instrumen <span class="text-neon">OHQE</span></h1>
-          <p class="text-xs sm:text-sm text-gray-400 mt-1">Penelitian Angkatan 2023 FKG UMI</p>
-        </div>
-
-        <div class="flex justify-between items-end mb-2">
-          <span class="text-xs sm:text-sm font-semibold text-gray-300" id="step-indicator">Step 1: Biodata</span>
-          <span class="text-xs sm:text-sm font-bold text-neon bg-[rgba(57,255,20,0.1)] px-2 py-0.5 rounded-md" id="progress-percentage">16%</span>
-        </div>
-        <div class="w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden border border-gray-700/50">
-          <div class="bg-[#39ff14] h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_#39ff14]" id="progress-bar" style="width: 16%"></div>
-        </div>
-      </div>
-
-      <form id="ohqeForm" onsubmit="event.preventDefault(); submitData();">
-        
-        <!-- STEP 1: BIODATA -->
-        <div id="step-1" class="step-content active">
-          <div class="mb-8 p-5 bg-red-900/20 border border-red-500/50 rounded-xl relative overflow-hidden shadow-sm">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
-            <h2 class="text-base font-bold text-red-400 mb-2 flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              BAGIAN KHUSUS PENELITI
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-300 mb-4 font-medium tracking-wide">⚠️ YTH. Pasien, mohon <span class="text-white font-bold underline">bertanya kepada peneliti/dokter</span> untuk mengisi kolom di bawah ini sebelum melanjutkan.</p>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
-                <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                  <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
-                  <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
-                  <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
-                </select>
-              </div>
-              
-              <!-- NEW FIELDS: Diagnosis Periapikal (Toggle Hidden), Gigi Dirawat & Jumlah Gigi (Wajib Isi) -->
-              <div class="space-y-4 pt-4 border-t border-red-500/30">
-                <div id="optional-diagnosis-fields" class="hidden">
-                  <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Periapikal</label>
-                  <select id="diagPeri" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
-                    <option value="" selected>Pilih Diagnosis Periapikal...</option>
-                    <option value="Periapikal Normal">1. Periapikal Normal</option>
-                    <option value="Periodontitis Apikalis">2. Periodontitis Apikalis</option>
-                    <option value="Abses Periapikal">3. Abses Periapikal</option>
-                  </select>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Gigi yang dirawat <span class="text-red-400">*</span></label>
-                    <input type="text" id="gigiRawat" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 0 atau Gigi 46">
-                  </div>
-                  <div>
-                    <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Jumlah gigi yang sakit <span class="text-red-400">*</span></label>
-                    <input type="number" id="jmlGigi" required min="0" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 0 atau 1">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <h2 class="text-lg sm:text-xl font-bold mb-5 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            Biodata & Informasi Responden
+      <!-- STEP 1: BIODATA -->
+      <div id="step-1" class="step-content active">
+        <div class="mb-8 p-5 bg-red-900/20 border border-red-500/50 rounded-xl relative overflow-hidden shadow-sm">
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
+          <h2 class="text-base font-bold text-red-400 mb-2 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            BAGIAN KHUSUS PENELITI
           </h2>
+          <p class="text-xs sm:text-sm text-gray-300 mb-4 font-medium tracking-wide">⚠️ YTH. Pasien, mohon <span class="text-white font-bold underline">bertanya kepada peneliti/dokter</span> untuk mengisi kolom di bawah ini sebelum melanjutkan.</p>
           
-          <div class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
-                <input type="text" id="nama" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Nama sesuai KTP...">
-              </div>
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nomor Handphone (Aktif/WA)</label>
-                <input type="tel" id="noHp" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Contoh: 08123456789">
-              </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
-                <input type="number" id="usia" required min="10" max="100" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Contoh: 25">
-              </div>
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Jenis Kelamin</label>
-                <select id="jk" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
-                  <option value="" disabled selected>Pilih jenis kelamin...</option>
-                  <option value="Laki-laki">Laki-laki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
-                <select id="pekerjaan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
-                  <option value="" disabled selected>Pilih pekerjaan...</option>
-                  <option value="ASN">ASN</option>
-                  <option value="Karyawan">Karyawan</option>
-                  <option value="Wiraswasta">Wiraswasta</option>
-                  <option value="Tidak bekerja">Tidak bekerja</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pendidikan Terakhir</label>
-                <select id="pendidikan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
-                  <option value="" disabled selected>Pilih pendidikan terakhir...</option>
-                  <option value="SD">SD</option>
-                  <option value="SMP">SMP</option>
-                  <option value="SMA">SMA</option>
-                  <option value="PT">PT (Perguruan Tinggi)</option>
-                </select>
-              </div>
+          <div class="space-y-4">
+             <div>
+               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Medis <span class="text-red-400">*</span></label>
+               <select id="diagnosis" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+                 <option value="" disabled selected>Pilih Diagnosis (Bantuan Peneliti)...</option>
+                 <option value="Pulpitis Ireversibel">1. Pulpitis Ireversibel</option>
+                 <option value="Nekrosis Pulpa">2. Nekrosis Pulpa</option>
+               </select>
+             </div>
+             
+             <!-- NEW FIELDS: Diagnosis Periapikal, Gigi Dirawat, Jumlah Gigi -->
+             <div class="pt-4 border-t border-red-500/30">
+               <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Diagnosis Periapikal <span class="text-gray-400 font-normal">(Opsional)</span></label>
+               <select id="diagPeri" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400 cursor-pointer">
+                 <option value="" selected>Pilih Diagnosis Periapikal...</option>
+                 <option value="Periapikal Normal">1. Periapikal Normal</option>
+                 <option value="Periodontitis Apikalis">2. Periodontitis Apikalis</option>
+                 <option value="Abses Periapikal">3. Abses Periapikal</option>
+               </select>
+             </div>
+             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div>
+                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Gigi yang dirawat <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                 <input type="text" id="gigiRawat" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: Gigi 46">
+               </div>
+               <div>
+                 <label class="block text-xs sm:text-sm font-bold mb-1.5 text-white">Jumlah gigi yang sakit <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                 <input type="number" id="jmlGigi" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base border-red-500/50 focus:border-red-400" placeholder="Misal: 1">
+               </div>
+             </div>
+          </div>
+        </div>
+
+        <h2 class="text-lg sm:text-xl font-bold mb-5 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Biodata & Informasi Responden
+        </h2>
+        
+        <div class="space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
+              <input type="text" id="nama" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Nama sesuai KTP...">
             </div>
             <div>
-              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
-              <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
-                <option value="" disabled selected>Pilih kesesuaian dengan UMR...</option>
-                <option value="Di bawah UMR">Di bawah UMR</option>
-                <option value="UMR atau di atas UMR">UMR atau di atas UMR</option>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nomor Handphone (Aktif/WA)</label>
+              <input type="tel" id="noHp" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Contoh: 08123456789">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label>
+              <input type="number" id="usia" required min="10" max="100" class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base" placeholder="Contoh: 25">
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Jenis Kelamin</label>
+              <select id="jk" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
+                <option value="" disabled selected>Pilih jenis kelamin...</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
               </select>
             </div>
           </div>
-        </div>
-
-        <!-- STEP 2: OHQE FISIK -->
-        <div id="step-2" class="step-content">
-          <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 1</span> Kondisi Fisik
-          </h2>
-          <div class="p-4 bg-[rgba(57,255,20,0.03)] rounded-xl border border-[rgba(57,255,20,0.15)] text-xs sm:text-sm text-gray-300 mb-6 mt-4">
-            <p class="font-semibold text-white mb-2"><span class="text-neon">Instruksi:</span> Jawablah berdasarkan pengalaman Anda terkait sakit gigi akhir-akhir ini.</p>
-          </div>
-          <div id="container-fisik" class="space-y-4 sm:space-y-6"></div>
-        </div>
-
-        <!-- STEP 3: OHQE PSIKOLOGIS -->
-        <div id="step-3" class="step-content">
-          <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 2</span> Kondisi Psikologis
-          </h2>
-          <p class="text-xs sm:text-sm text-gray-400 mb-6 mt-3">Bagaimana sakit gigi memengaruhi emosi dan pikiran Anda.</p>
-          <div id="container-psiko" class="space-y-4 sm:space-y-6"></div>
-        </div>
-
-        <!-- STEP 4: OHQE EKSPEKTASI -->
-        <div id="step-4" class="step-content">
-          <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 3</span> Ekspektasi Perawatan
-          </h2>
-          <p class="text-xs sm:text-sm text-gray-400 mb-6 mt-3">Harapan Anda terhadap perawatan saluran akar.</p>
-          <div id="container-ekspektasi" class="space-y-4 sm:space-y-6"></div>
-        </div>
-
-        <!-- STEP 5: VAS -->
-        <div id="step-5" class="step-content">
-          <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 4</span> Visual Analogue Scale (VAS)
-          </h2>
-          <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
-            <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium">Pilih 1 angka yang paling menggambarkan tingkat intensitas nyeri gigi Anda saat ini.</p>
-            <div class="grid grid-cols-6 sm:grid-cols-11 gap-2 radio-group vas-group mb-6">
-              <input type="radio" name="vas_score" id="vas_0" value="0" required onchange="updateVasDesc(0)"><label for="vas_0"><span class="num text-lg">0</span></label>
-              <input type="radio" name="vas_score" id="vas_1" value="1" required onchange="updateVasDesc(1)"><label for="vas_1"><span class="num text-lg">1</span></label>
-              <input type="radio" name="vas_score" id="vas_2" value="2" required onchange="updateVasDesc(2)"><label for="vas_2"><span class="num text-lg">2</span></label>
-              <input type="radio" name="vas_score" id="vas_3" value="3" required onchange="updateVasDesc(3)"><label for="vas_3"><span class="num text-lg">3</span></label>
-              <input type="radio" name="vas_score" id="vas_4" value="4" required onchange="updateVasDesc(4)"><label for="vas_4"><span class="num text-lg">4</span></label>
-              <input type="radio" name="vas_score" id="vas_5" value="5" required onchange="updateVasDesc(5)"><label for="vas_5"><span class="num text-lg">5</span></label>
-              <input type="radio" name="vas_score" id="vas_6" value="6" required onchange="updateVasDesc(6)"><label for="vas_6"><span class="num text-lg">6</span></label>
-              <input type="radio" name="vas_score" id="vas_7" value="7" required onchange="updateVasDesc(7)"><label for="vas_7"><span class="num text-lg">7</span></label>
-              <input type="radio" name="vas_score" id="vas_8" value="8" required onchange="updateVasDesc(8)"><label for="vas_8"><span class="num text-lg">8</span></label>
-              <input type="radio" name="vas_score" id="vas_9" value="9" required onchange="updateVasDesc(9)"><label for="vas_9"><span class="num text-lg">9</span></label>
-              <input type="radio" name="vas_score" id="vas_10" value="10" required onchange="updateVasDesc(10)"><label for="vas_10"><span class="num text-lg">10</span></label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pekerjaan</label>
+              <select id="pekerjaan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
+                <option value="" disabled selected>Pilih pekerjaan...</option>
+                <option value="ASN">ASN</option>
+                <option value="Karyawan">Karyawan</option>
+                <option value="Wiraswasta">Wiraswasta</option>
+                <option value="Tidak bekerja">Tidak bekerja</option>
+              </select>
             </div>
-            <div class="p-4 bg-gray-900 border border-neon rounded-lg text-center min-h-[80px] flex items-center justify-center">
-              <p id="vas-desc-text" class="text-white font-medium text-sm md:text-base">Silakan pilih angka di atas.</p>
+            <div>
+              <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Pendidikan Terakhir</label>
+              <select id="pendidikan" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
+                <option value="" disabled selected>Pilih pendidikan terakhir...</option>
+                <option value="SD">SD</option>
+                <option value="SMP">SMP</option>
+                <option value="SMA">SMA</option>
+                <option value="PT">PT (Perguruan Tinggi)</option>
+              </select>
             </div>
-          </div>
-        </div>
-
-        <!-- STEP 6: MDAS -->
-        <div id="step-6" class="step-content">
-          <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
-            <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 5</span> Modified Dental Anxiety Scale (MDAS)
-          </h2>
-          <p class="text-sm text-gray-300 mb-6 mt-3">Silakan pilih satu jawaban yang paling menggambarkan tingkat kecemasan dental Anda.</p>
-          <div id="container-mdas" class="space-y-4 sm:space-y-6"></div>
-        </div>
-
-        <!-- STEP 7: SUCCESS -->
-        <div id="step-7" class="step-content text-center py-10 sm:py-16">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-[rgba(57,255,20,0.1)] flex items-center justify-center border-2 border-neon mb-6 shadow-[0_0_40px_rgba(57,255,20,0.2)]">
-            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-          </div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Terima Kasih!</h2>
-          <p class="text-sm sm:text-base text-gray-400 max-w-md mx-auto">Data kuesioner Anda telah berhasil disimpan di sistem Database secara aman.</p>
-          <button type="button" onclick="window.location.reload()" class="mt-8 px-6 py-3 sm:px-8 sm:py-3.5 btn-neon rounded-xl font-bold tracking-wider text-xs sm:text-sm w-full sm:w-auto">ISI DATA BARU</button>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="mt-8 sm:mt-10 flex flex-col-reverse sm:flex-row justify-between border-t border-gray-800/80 pt-6 gap-3 sm:gap-0" id="nav-buttons">
-          <button type="button" id="btn-prev" onclick="prevStep()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gray-800/80 border border-gray-700 hover:bg-gray-700 text-white font-medium transition-colors hidden text-sm sm:text-base">Kembali</button>
-          <div class="hidden sm:block flex-grow"></div>
-          <button type="button" id="btn-next" onclick="nextStep()" class="w-full sm:w-auto px-6 py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base flex justify-center items-center">
-            SELANJUTNYA 
-            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-          </button>
-          <button type="submit" id="btn-submit" class="w-full sm:w-auto px-6 py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base hidden relative overflow-hidden">
-            <span id="submit-text">KIRIM DATA</span>
-            <div id="submit-loader" class="hidden absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[rgba(57,255,20,0.1)] backdrop-blur-sm rounded-xl">
-              <div class="w-5 h-5 border-2 border-neon border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- ADMIN LOGIN & DASHBOARD DIBAWAH INI -->
-    <div id="login-container" class="glass-card rounded-2xl w-full max-w-sm mx-auto p-8 hidden mt-10 text-center relative z-20">
-      <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6 bg-gray-800/50 rounded-full border border-gray-700">
-        <svg class="w-10 h-10 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-      </div>
-      <h2 class="text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
-      <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl">
-      <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center w-full p-3 rounded-xl">
-      <button onclick="processLogin('admin')" class="w-full py-3 btn-neon rounded-xl font-bold mb-4">MASUK</button>
-      <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
-    </div>
-
-    <div id="admin-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl mx-auto p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4 relative z-20">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
-        <div class="flex items-center gap-4">
-          <img src="axalogo.png" alt="Logo" class="w-10 h-10 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
-          <div>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1>
-            <p class="text-xs sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p>
-          </div>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="logout('admin')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Logout</button>
-          <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Mode Kuesioner</button>
-        </div>
-      </div>
-
-      <!-- TAB NAVIGATION -->
-      <div class="flex flex-wrap space-x-2 border-b border-gray-700 mb-6">
-        <button onclick="switchTab('tab-data')" id="btn-tab-data" class="px-4 py-2 text-sm font-bold text-neon border-b-2 border-neon">Tabel Data</button>
-        <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Analisis SPSS</button>
-        <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">G*Power (Sample)</button>
-        <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
-      </div>
-
-      <!-- TAB 1: DATA TABLE -->
-      <div id="tab-data" class="block">
-        <div class="flex space-x-2 mb-4">
-          <button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="px-3 py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md">Tabel OHQE</button>
-          <button onclick="switchSubTable('vas')" id="btn-sub-vas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel VAS</button>
-          <button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel MDAS</button>
-          <span class="ml-auto text-xs text-green-400 flex items-center animate-pulse"><div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div> Auto-Sync Active</span>
-        </div>
-
-        <div id="subtable-ohqe" class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
-          <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-            <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
-              <tr>
-                <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Nomor HP</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Gender</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-neon border-l border-gray-700/50">Total OHQE</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body-ohqe" class="divide-y divide-gray-800/50"></tbody>
-          </table>
-        </div>
-
-        <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
-          <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-            <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
-              <tr>
-                <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-red-400 border-l border-gray-700/50">Skor VAS</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi VAS</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body-vas" class="divide-y divide-gray-800/50"></tbody>
-          </table>
-        </div>
-
-        <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
-          <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-            <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
-              <tr>
-                <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-yellow-400 border-l border-gray-700/50">Skor MDAS</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi MDAS</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body-mdas" class="divide-y divide-gray-800/50"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- TAB 2: SPSS ANALYSIS ENGINE -->
-      <div id="tab-spss" class="hidden">
-        <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
-          <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
-          <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* dilanjutkan dengan *Independent T-Test* atau *Mann-Whitney U*. Menggunakan nilai akurat (Kolom ke-50 di Database).</p>
-        </div>
-
-        <div class="flex justify-center mb-6 gap-3">
-          <button onclick="runAnalysis()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow-lg transition">Generate Output SPSS</button>
-          <button id="btn-export-pdf" onclick="exportToPDF()" class="hidden px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF
-          </button>
-        </div>
-
-        <div id="spss-wrapper" class="hidden rounded-xl">
-          <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center bg-white"></div>
-        </div>
-      </div>
-
-      <!-- TAB 3: G*POWER CALCULATOR -->
-      <div id="tab-gpower" class="hidden">
-        <div class="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg mb-6">
-          <h3 class="font-bold text-purple-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> G*Power 3.1 Simulator (A Priori Sample Size)</h3>
-          <p class="text-sm text-gray-300 mb-3">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b>.</p>
-          <div class="bg-black/40 p-4 rounded-lg border border-gray-600/50 mb-2 text-xs text-gray-300">
-            <ul class="list-disc pl-4 space-y-2">
-               <li><b>Tail(s):</b> Pilih <b>Two</b> (Dua arah) karena Anda mencari "Perbedaan" (bisa lebih tinggi atau lebih rendah).</li>
-               <li><b>Effect size d:</b> Ukuran kekuatan perbedaan secara klinis (Cohen's d). Default standar menengah adalah <b>0.5</b>.</li>
-               <li><b>α err prob (Alpha):</b> Tingkat batas kemaknaan (Signifikansi). Untuk riset kedokteran gigi umumnya <b>0.05</b> (Tingkat kepercayaan 95%).</li>
-               <li><b>Power (1-β err prob):</b> Probabilitas menolak H0 yang salah. Standar minimal penelitian klinis adalah <b>0.80</b> (80%).</li>
-               <li><b>Allocation ratio:</b> Rasio perbandingan jumlah sampel Grup 1 (Pulpitis) dan Grup 2 (Nekrosis). Isi <b>1</b> jika diasumsikan seimbang.</li>
-            </ul>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 h-fit">
-            <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Input Parameters</h4>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div>
-              <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-              <div class="flex justify-between items-center"><label class="text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-              <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Power (1-β err prob)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-              <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Allocation ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
-              <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate</button>
-            </div>
-          </div>
-          <div class="flex flex-col gap-4">
-            <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
-              <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
-              <div class="space-y-2" id="gp-output">
-                <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Noncentrality parameter δ</span><span id="out-delta" class="font-bold text-white">-</span></div>
-                <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white">-</span></div>
-                <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white">-</span></div>
-                <div class="flex justify-between items-center mt-2"><span class="text-sm text-gray-400">Sample size group 1</span><span id="out-n1" class="font-bold text-neon text-lg">-</span></div>
-                <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Sample size group 2</span><span id="out-n2" class="font-bold text-neon text-lg">-</span></div>
-                <div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-2xl">-</span></div>
-              </div>
-            </div>
-            <div class="bg-white p-2 rounded-xl border border-gray-300 w-full" style="min-height: 200px;"><canvas id="gpowerPlot"></canvas></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 4: DYNAMIC QUESTION EDITOR -->
-      <div id="tab-settings" class="hidden">
-        <div id="editor-container"></div>
-        <div class="mt-8 border-t border-gray-700 pt-6 flex justify-end">
-          <button id="btn-save-questions" onclick="saveEditedQuestions()" class="px-8 py-3 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Perubahan ke Database
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- FITUR BARU: UPLOAD RONTGEN (LOGIN & DASHBOARD) -->
-    <div id="rontgen-login-container" class="glass-card rounded-2xl w-full max-w-sm mx-auto p-8 hidden mt-10 text-center relative z-20">
-      <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6 bg-blue-900/30 rounded-full border border-blue-400">
-        <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-      </div>
-      <h2 class="text-xl font-bold text-white tracking-wider mb-2">RONTGEN ACCESS</h2>
-      <p class="text-xs text-gray-400 mb-6">Database Terpusat Pratinjau Radiografi</p>
-      <input type="text" id="rontgen-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
-      <input type="password" id="rontgen-pass" placeholder="Password" class="mb-6 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
-      <button onclick="processLogin('rontgen')" class="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-bold mb-4 transition-colors">MASUK</button>
-      <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
-    </div>
-
-    <div id="rontgen-dashboard-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl mx-auto p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4 relative z-20">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 flex items-center justify-center bg-blue-900/40 rounded-xl border border-blue-500/50">
-             <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
           </div>
           <div>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">RONTGEN <span class="text-blue-400">MANAGER</span></h1>
-            <p class="text-xs sm:text-sm text-gray-400 mt-1">Sistem Unggah Foto Periapikal / Panoramik Responden</p>
+            <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Tingkat Penghasilan / Upah</label>
+            <select id="umr" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm sm:text-base cursor-pointer">
+              <option value="" disabled selected>Pilih kesesuaian dengan UMR...</option>
+              <option value="Di bawah UMR">Di bawah UMR</option>
+              <option value="UMR atau di atas UMR">UMR atau di atas UMR</option>
+            </select>
           </div>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="logout('rontgen')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium">Logout Rontgen</button>
-          <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium">Mode Kuesioner</button>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
-          <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
-            <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
-              <tr>
-                <th class="px-5 py-4 font-semibold tracking-wide w-48">ID Transaksi</th>
-                <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Diagnosis</th>
-                <th class="px-5 py-4 font-semibold tracking-wide text-green-400 border-l border-gray-700/50 w-[350px]">Aksi Rontgen</th>
-              </tr>
-            </thead>
-            <tbody id="rontgen-table-body" class="divide-y divide-gray-800/50"></tbody>
-          </table>
+      <!-- STEP 2: OHQE FISIK -->
+      <div id="step-2" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 1</span> Kondisi Fisik
+        </h2>
+        <div class="p-4 bg-[rgba(57,255,20,0.03)] rounded-xl border border-[rgba(57,255,20,0.15)] text-xs sm:text-sm text-gray-300 mb-6 mt-4">
+          <p class="font-semibold text-white mb-2"><span class="text-neon">Instruksi:</span> Jawablah berdasarkan pengalaman Anda terkait sakit gigi akhir-akhir ini.</p>
+        </div>
+        <div id="container-fisik" class="space-y-4 sm:space-y-6"></div>
+      </div>
+
+      <!-- STEP 3: OHQE PSIKOLOGIS -->
+      <div id="step-3" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 2</span> Kondisi Psikologis
+        </h2>
+        <p class="text-xs sm:text-sm text-gray-400 mb-6 mt-3">Bagaimana sakit gigi memengaruhi emosi dan pikiran Anda.</p>
+        <div id="container-psiko" class="space-y-4 sm:space-y-6"></div>
+      </div>
+
+      <!-- STEP 4: OHQE EKSPEKTASI -->
+      <div id="step-4" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 3</span> Ekspektasi Perawatan
+        </h2>
+        <p class="text-xs sm:text-sm text-gray-400 mb-6 mt-3">Harapan Anda terhadap perawatan saluran akar.</p>
+        <div id="container-ekspektasi" class="space-y-4 sm:space-y-6"></div>
+      </div>
+
+      <!-- STEP 5: VAS -->
+      <div id="step-5" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 4</span> Visual Analogue Scale (VAS)
+        </h2>
+        <div class="mt-6 p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
+          <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium">Pilih 1 angka yang paling menggambarkan tingkat intensitas nyeri gigi Anda saat ini.</p>
+          <div class="grid grid-cols-6 sm:grid-cols-11 gap-2 radio-group vas-group mb-6">
+            <input type="radio" name="vas_score" id="vas_0" value="0" required onchange="updateVasDesc(0)"><label for="vas_0"><span class="num text-lg">0</span></label>
+            <input type="radio" name="vas_score" id="vas_1" value="1" required onchange="updateVasDesc(1)"><label for="vas_1"><span class="num text-lg">1</span></label>
+            <input type="radio" name="vas_score" id="vas_2" value="2" required onchange="updateVasDesc(2)"><label for="vas_2"><span class="num text-lg">2</span></label>
+            <input type="radio" name="vas_score" id="vas_3" value="3" required onchange="updateVasDesc(3)"><label for="vas_3"><span class="num text-lg">3</span></label>
+            <input type="radio" name="vas_score" id="vas_4" value="4" required onchange="updateVasDesc(4)"><label for="vas_4"><span class="num text-lg">4</span></label>
+            <input type="radio" name="vas_score" id="vas_5" value="5" required onchange="updateVasDesc(5)"><label for="vas_5"><span class="num text-lg">5</span></label>
+            <input type="radio" name="vas_score" id="vas_6" value="6" required onchange="updateVasDesc(6)"><label for="vas_6"><span class="num text-lg">6</span></label>
+            <input type="radio" name="vas_score" id="vas_7" value="7" required onchange="updateVasDesc(7)"><label for="vas_7"><span class="num text-lg">7</span></label>
+            <input type="radio" name="vas_score" id="vas_8" value="8" required onchange="updateVasDesc(8)"><label for="vas_8"><span class="num text-lg">8</span></label>
+            <input type="radio" name="vas_score" id="vas_9" value="9" required onchange="updateVasDesc(9)"><label for="vas_9"><span class="num text-lg">9</span></label>
+            <input type="radio" name="vas_score" id="vas_10" value="10" required onchange="updateVasDesc(10)"><label for="vas_10"><span class="num text-lg">10</span></label>
+          </div>
+          <div class="p-4 bg-gray-900 border border-neon rounded-lg text-center min-h-[80px] flex items-center justify-center">
+            <p id="vas-desc-text" class="text-white font-medium text-sm md:text-base">Silakan pilih angka di atas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6: MDAS -->
+      <div id="step-6" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center">
+          <span class="bg-gray-800 text-neon p-1.5 rounded-lg mr-3 text-sm">Bagian 5</span> Modified Dental Anxiety Scale (MDAS)
+        </h2>
+        <p class="text-sm text-gray-300 mb-6 mt-3">Silakan pilih satu jawaban yang paling menggambarkan tingkat kecemasan dental Anda.</p>
+        <div id="container-mdas" class="space-y-4 sm:space-y-6"></div>
+      </div>
+
+      <!-- STEP 7: SUCCESS -->
+      <div id="step-7" class="step-content text-center py-10 sm:py-16">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-[rgba(57,255,20,0.1)] flex items-center justify-center border-2 border-neon mb-6 shadow-[0_0_40px_rgba(57,255,20,0.2)]">
+          <svg class="w-10 h-10 sm:w-12 sm:h-12 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Terima Kasih!</h2>
+        <p class="text-sm sm:text-base text-gray-400 max-w-md mx-auto">Data kuesioner Anda telah berhasil disimpan di sistem Database secara aman.</p>
+        <button type="button" onclick="window.location.reload()" class="mt-8 px-6 py-3 sm:px-8 sm:py-3.5 btn-neon rounded-xl font-bold tracking-wider text-xs sm:text-sm w-full sm:w-auto">ISI DATA BARU</button>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="mt-8 sm:mt-10 flex flex-col-reverse sm:flex-row justify-between border-t border-gray-800/80 pt-6 gap-3 sm:gap-0" id="nav-buttons">
+        <button type="button" id="btn-prev" onclick="prevStep()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gray-800/80 border border-gray-700 hover:bg-gray-700 text-white font-medium transition-colors hidden text-sm sm:text-base">Kembali</button>
+        <div class="hidden sm:block flex-grow"></div>
+        <button type="button" id="btn-next" onclick="nextStep()" class="w-full sm:w-auto px-6 py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base flex justify-center items-center">
+          SELANJUTNYA 
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+        <button type="submit" id="btn-submit" class="w-full sm:w-auto px-6 py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base hidden relative overflow-hidden">
+          <span id="submit-text">KIRIM DATA</span>
+          <div id="submit-loader" class="hidden absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[rgba(57,255,20,0.1)] backdrop-blur-sm rounded-xl">
+            <div class="w-5 h-5 border-2 border-neon border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ADMIN LOGIN & DASHBOARD DIBAWAH INI -->
+  <div id="login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
+    <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6">
+      <img src="axalogo.png" alt="Logo" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" onerror="this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA'">
+    </div>
+    <h2 class="text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
+    <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3 rounded-xl">
+    <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center w-full p-3 rounded-xl">
+    <button onclick="processLogin('admin')" class="w-full py-3 btn-neon rounded-xl font-bold mb-4">MASUK</button>
+    <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
+  </div>
+
+  <div id="admin-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
+      <div class="flex items-center gap-4">
+        <img src="axalogo.png" alt="Logo" class="w-10 h-10 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" onerror="this.style.display='none'">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1>
+          <p class="text-xs sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="logout('admin')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Logout</button>
+        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium flex justify-center items-center">Mode Kuesioner</button>
       </div>
     </div>
-  </main>
+
+    <!-- TAB NAVIGATION -->
+    <div class="flex flex-wrap space-x-2 border-b border-gray-700 mb-6">
+      <button onclick="switchTab('tab-data')" id="btn-tab-data" class="px-4 py-2 text-sm font-bold text-neon border-b-2 border-neon">Tabel Data</button>
+      <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Analisis SPSS</button>
+      <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">G*Power (Sample)</button>
+      <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white transition">Pengaturan Pertanyaan</button>
+    </div>
+
+    <!-- TAB 1: DATA TABLE -->
+    <div id="tab-data" class="block">
+      <div class="flex space-x-2 mb-4">
+        <button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="px-3 py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md">Tabel OHQE</button>
+        <button onclick="switchSubTable('vas')" id="btn-sub-vas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel VAS</button>
+        <button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="px-3 py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md">Tabel MDAS</button>
+        <span class="ml-auto text-xs text-green-400 flex items-center animate-pulse"><div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div> Auto-Sync Active</span>
+      </div>
+
+      <div id="subtable-ohqe" class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nomor HP</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Gender</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-neon border-l border-gray-700/50">Total OHQE</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body-ohqe" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+      </div>
+
+      <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-red-400 border-l border-gray-700/50">Skor VAS</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi VAS</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body-vas" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+      </div>
+
+      <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-yellow-400 border-l border-gray-700/50">Skor MDAS</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi MDAS</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body-mdas" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: SPSS ANALYSIS ENGINE -->
+    <div id="tab-spss" class="hidden">
+      <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
+        <p class="text-xs text-gray-300">Mesin ini secara otomatis menjalankan *Tests of Normality* dilanjutkan dengan *Independent T-Test* atau *Mann-Whitney U*. Menggunakan nilai akurat (Kolom ke-50 di Database).</p>
+      </div>
+
+      <div class="flex justify-center mb-6 gap-3">
+        <button onclick="runAnalysis()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow-lg transition">Generate Output SPSS</button>
+        <button id="btn-export-pdf" onclick="exportToPDF()" class="hidden px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF
+        </button>
+      </div>
+
+      <div id="spss-wrapper" class="hidden rounded-xl">
+        <div id="spss-output-container" class="w-full px-4 py-6 text-black flex flex-col items-center bg-white"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: G*POWER CALCULATOR -->
+    <div id="tab-gpower" class="hidden">
+      <!-- (Code GPower Tetap Sama Sesuai Versi Anda) -->
+      <div class="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg mb-6">
+        <h3 class="font-bold text-purple-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> G*Power 3.1 Simulator (A Priori Sample Size)</h3>
+        <p class="text-sm text-gray-300 mb-3">Estimasi perkiraan besar sampel menggunakan simulasi algoritma G*Power untuk uji statistik <b>T-tests: Means: Difference between two independent means</b>.</p>
+        <div class="bg-black/40 p-4 rounded-lg border border-gray-600/50 mb-2 text-xs text-gray-300">
+          <ul class="list-disc pl-4 space-y-2">
+             <li><b>Tail(s):</b> Pilih <b>Two</b> (Dua arah) karena Anda mencari "Perbedaan" (bisa lebih tinggi atau lebih rendah).</li>
+             <li><b>Effect size d:</b> Ukuran kekuatan perbedaan secara klinis (Cohen's d). Default standar menengah adalah <b>0.5</b>.</li>
+             <li><b>α err prob (Alpha):</b> Tingkat batas kemaknaan (Signifikansi). Untuk riset kedokteran gigi umumnya <b>0.05</b> (Tingkat kepercayaan 95%).</li>
+             <li><b>Power (1-β err prob):</b> Probabilitas menolak H0 yang salah. Standar minimal penelitian klinis adalah <b>0.80</b> (80%).</li>
+             <li><b>Allocation ratio:</b> Rasio perbandingan jumlah sampel Grup 1 (Pulpitis) dan Grup 2 (Nekrosis). Isi <b>1</b> jika diasumsikan seimbang.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 h-fit">
+          <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Input Parameters</h4>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div>
+            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
+            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
+            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Power (1-β err prob)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
+            <div class="flex justify-between items-center"><label class="text-sm text-gray-300">Allocation ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div>
+            <button onclick="calculateGPower()" class="w-full mt-4 py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors">Calculate</button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 relative">
+            <h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">Output Parameters</h4>
+            <div class="space-y-2" id="gp-output">
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Noncentrality parameter δ</span><span id="out-delta" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white">-</span></div>
+              <div class="flex justify-between items-center mt-2"><span class="text-sm text-gray-400">Sample size group 1</span><span id="out-n1" class="font-bold text-neon text-lg">-</span></div>
+              <div class="flex justify-between items-center"><span class="text-sm text-gray-400">Sample size group 2</span><span id="out-n2" class="font-bold text-neon text-lg">-</span></div>
+              <div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-2xl">-</span></div>
+            </div>
+          </div>
+          <div class="bg-white p-2 rounded-xl border border-gray-300 w-full" style="min-height: 200px;"><canvas id="gpowerPlot"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: DYNAMIC QUESTION EDITOR -->
+    <div id="tab-settings" class="hidden">
+      <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 rounded-lg mb-6">
+        <h3 class="font-bold text-yellow-400 mb-1 flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Pertanyaan OHQE</h3>
+        <p class="text-xs text-gray-300">Ubah teks pertanyaan kuesioner. <span class="font-bold text-white">Jumlah total pertanyaan telah dikunci</span> agar tidak merusak rumus analisis Engine SPSS dan Live Table.</p>
+      </div>
+      <div class="space-y-8" id="editor-container"></div>
+      <div class="mt-8 border-t border-gray-700 pt-6 flex justify-end">
+        <button id="btn-save-questions" onclick="saveEditedQuestions()" class="px-8 py-3 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Perubahan ke Database
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FITUR BARU: UPLOAD RONTGEN (LOGIN & DASHBOARD) -->
+  <div id="rontgen-login-container" class="glass-card rounded-2xl w-full max-w-sm p-8 hidden my-auto text-center mx-4">
+    <div class="w-20 h-20 mx-auto flex items-center justify-center mb-6 bg-blue-900/30 rounded-full border border-blue-400">
+      <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+    </div>
+    <h2 class="text-xl font-bold text-white tracking-wider mb-2">RONTGEN ACCESS</h2>
+    <p class="text-xs text-gray-400 mb-6">Database Terpusat Pratinjau Radiografi</p>
+    <input type="text" id="rontgen-user" placeholder="Username (fkgumi2023)" class="mb-4 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
+    <input type="password" id="rontgen-pass" placeholder="Password (fkgumi2023)" class="mb-6 text-center w-full p-3 rounded-xl border-blue-500/50 focus:border-blue-400">
+    <button onclick="processLogin('rontgen')" class="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-bold mb-4 transition-colors">MASUK</button>
+    <button onclick="window.location.href='?'" class="w-full py-2 text-sm text-gray-400 hover:text-white transition">Kembali ke Form</button>
+  </div>
+
+  <div id="rontgen-dashboard-container" class="glass-card rounded-2xl w-full max-w-[95%] xl:max-w-7xl p-4 sm:p-6 md:p-8 hidden mt-2 sm:mt-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 flex items-center justify-center bg-blue-900/40 rounded-xl border border-blue-500/50">
+           <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">RONTGEN <span class="text-blue-400">MANAGER</span></h1>
+          <p class="text-xs sm:text-sm text-gray-400 mt-1">Sistem Unggah Foto Periapikal / Panoramik Responden</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="logout('rontgen')" class="px-4 py-2 sm:py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm transition-colors text-white font-medium">Logout Rontgen</button>
+        <button onclick="window.location.href='?'" class="w-full md:w-auto px-4 py-2 sm:py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm transition-colors text-white font-medium">Mode Kuesioner</button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]">
+          <thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700">
+            <tr>
+              <th class="px-5 py-4 font-semibold tracking-wide w-48">ID Transaksi</th>
+              <th class="px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-blue-400">Diagnosis</th>
+              <th class="px-5 py-4 font-semibold tracking-wide text-green-400 border-l border-gray-700/50 w-[350px]">Aksi Rontgen</th>
+            </tr>
+          </thead>
+          <tbody id="rontgen-table-body" class="divide-y divide-gray-800/50"></tbody>
+        </table>
+    </div>
+  </div>
 
   <!-- FOOTER -->
-  <footer class="py-4 text-center text-[0.65rem] sm:text-xs text-gray-500 w-full relative z-10 font-medium tracking-wider px-4 mt-auto">
+  <footer class="mt-auto pt-10 pb-4 text-center text-[0.65rem] sm:text-xs text-gray-500 w-full relative z-10 font-medium tracking-wider px-4">
     &copy; <script>document.write(new Date().getFullYear())</script> All Rights Reserved, Researcher by M. Azhar Arsyad, Fitri Aulia, & Absabrina Aulia Ramadani
   </footer>
 
@@ -656,7 +654,7 @@
     let globalAdminOHQE = []; 
     let globalAdminVAS = []; 
     let globalAdminMDAS = []; 
-    let globalAdminRontgen = []; 
+    let globalAdminRontgen = []; // New Rontgen Array
     let autoUpdateInterval = null; 
     
     // MDAS Questions
@@ -737,15 +735,6 @@
     };
 
     function initAppUI() {
-      // Toggle logic untuk form tambahan peneliti (Default Hide)
-      if(localStorage.getItem('show_extra_diagnosis') === 'true') {
-         const diagField = document.getElementById('optional-diagnosis-fields');
-         if(diagField) diagField.classList.remove('hidden');
-      } else {
-         const diagField = document.getElementById('optional-diagnosis-fields');
-         if(diagField) diagField.classList.add('hidden');
-      }
-
       renderQuestions(qFisik, 'container-fisik', 'F', ohqeLabels);
       renderQuestions(qPsiko, 'container-psiko', 'P', ohqeLabels);
       renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', ekspektasiLabels); 
@@ -759,20 +748,6 @@
           document.getElementById('app-container').classList.remove('hidden');
         }, 400);
       }, 300);
-    }
-
-    // Toggle Extra Diagnosis Function (Global)
-    window.toggleExtraDiagnosis = function(checkbox) {
-        localStorage.setItem('show_extra_diagnosis', checkbox.checked ? 'true' : 'false');
-        const diagField = document.getElementById('optional-diagnosis-fields');
-        if(diagField) {
-            if(checkbox.checked) {
-                diagField.classList.remove('hidden');
-            } else {
-                diagField.classList.add('hidden');
-            }
-        }
-        showCustomAlert(checkbox.checked ? "Kolom Diagnosis Periapikal telah DIAKTIFKAN pada perangkat ini." : "Kolom Diagnosis Periapikal DINONAKTIFKAN.", "Pengaturan Form");
     }
 
     function showCustomAlert(message, title = "Perhatian") {
@@ -932,12 +907,9 @@
       else if(mdasScore >= 15 && mdasScore <= 18) mdasInter = "Tinggi";
       else if(mdasScore >= 19) mdasInter = "Sangat tinggi / Kemungkinan fobia dental";
 
-      const diagPeriEl = document.getElementById('diagPeri');
-
       const payload = {
-        action: 'saveData', // PENTING: Pengaman routing dari Bug "Data Kosong"
         diagnosis: document.getElementById('diagnosis').value,
-        diagPeri: diagPeriEl ? diagPeriEl.value : "", 
+        diagPeri: document.getElementById('diagPeri').value, 
         gigiRawat: document.getElementById('gigiRawat').value, 
         jmlGigi: document.getElementById('jmlGigi').value, 
         nama: document.getElementById('nama').value,
@@ -1206,27 +1178,12 @@
     // --- 8. EDITOR PERTANYAAN ADMIN ---
     function renderSettingsTab() {
       const container = document.getElementById('editor-container');
-      
-      let toggleHtml = `
-      <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50 mb-8 flex justify-between items-center">
-          <div>
-              <h4 class="font-bold text-white mb-1">Pengaturan Dx Periapikal</h4>
-              <p class="text-xs text-gray-400">Tampilkan field Diagnosis Periapikal di halaman Biodata Kuesioner (Tersimpan di perangkat ini).</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer" onchange="toggleExtraDiagnosis(this)" ${localStorage.getItem('show_extra_diagnosis') === 'true' ? 'checked' : ''}>
-            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#39ff14]"></div>
-          </label>
-      </div>
-      `;
-
       const renderGroup = (title, arr, prefix) => {
         let groupHtml = `<div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700/50"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2">${title}</h4><div class="space-y-3">`;
         arr.forEach((q, i) => { groupHtml += `<div class="flex items-start"><span class="text-neon font-bold w-10 shrink-0 pt-2">${prefix}${i+1}.</span><textarea id="edit_${prefix}_${i}" class="w-full p-2.5 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y" rows="2">${q}</textarea></div>`; });
         return groupHtml + `</div></div>`;
       };
-      
-      container.innerHTML = toggleHtml + '<div class="space-y-6">' + renderGroup('Bagian 1: Kondisi Fisik (19)', qFisik, 'F') + renderGroup('Bagian 2: Psikologis (10)', qPsiko, 'P') + renderGroup('Bagian 3: Ekspektasi (8)', qEkspektasi, 'E') + '</div>';
+      container.innerHTML = renderGroup('Bagian 1: Kondisi Fisik (19)', qFisik, 'F') + renderGroup('Bagian 2: Psikologis (10)', qPsiko, 'P') + renderGroup('Bagian 3: Ekspektasi (8)', qEkspektasi, 'E');
     }
 
     function saveEditedQuestions() {

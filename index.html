@@ -249,7 +249,7 @@
                 </button>
               </div>
             </div>
-            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nomor Handphone</label><input type="tel" id="noHp" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 08123456789"></div>
+            <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nomor Handphone</label><input type="tel" id="noHp" required pattern="[0-9]*" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 08123456789"></div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Usia (Tahun)</label><input type="number" id="usia" required min="10" max="100" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 25"></div>
@@ -376,7 +376,11 @@
     </div>
     <div class="flex overflow-x-auto space-x-2 border-b border-gray-700 mb-6 pb-1 snap-x hide-scroll">
       <button onclick="switchTab('tab-data')" id="btn-tab-data" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-neon border-b-2 border-neon whitespace-nowrap">Tabel Data</button>
-      <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS</button>
+      <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS OHQE</button>
+      <!-- TAMBAHAN TAB BARU VAS DAN MDAS -->
+      <button onclick="switchTab('tab-spss-vas')" id="btn-tab-spss-vas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS VAS</button>
+      <button onclick="switchTab('tab-spss-mdas')" id="btn-tab-spss-mdas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS MDAS</button>
+      <!-- END TAMBAHAN -->
       <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">G*Power (Sample)</button>
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Pengaturan Teks Sistem</button>
     </div>
@@ -387,7 +391,7 @@
       <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30"><table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]"><thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700"><tr><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">ID Transaksi</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Diagnosis</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-yellow-400 border-l border-gray-700/50">Skor MDAS</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi MDAS</th></tr></thead><tbody id="admin-table-body-mdas" class="divide-y divide-gray-800/50"></tbody></table></div>
     </div>
     
-    <!-- SPSS TAB COMPLETELY UPGRADED WITH DETAILED ANALYSIS -->
+    <!-- SPSS TAB OHQE -->
     <div id="tab-spss" class="hidden">
       <div class="bg-blue-900/20 border border-blue-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
         <h3 class="font-bold text-blue-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (OHQE Score by Diagnosis)</h3>
@@ -395,10 +399,40 @@
       </div>
       <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
         <button onclick="runAnalysis()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition tracking-wide text-sm">Generate Output SPSS</button>
-        <button id="btn-export-pdf" onclick="exportToPDF()" class="hidden w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF</button>
+        <button id="btn-export-pdf" onclick="exportToPDF('spss-output-container', 'Analisis_Statistik_OHQE.pdf', 'btn-export-pdf')" class="hidden w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF</button>
       </div>
       <div id="spss-wrapper" class="hidden rounded-xl overflow-hidden shadow-xl border border-gray-700">
         <div id="spss-output-container" class="w-full px-2 sm:px-4 py-6 text-black flex flex-col items-center bg-white"></div>
+      </div>
+    </div>
+
+    <!-- SPSS TAB VAS -->
+    <div id="tab-spss-vas" class="hidden">
+      <div class="bg-red-900/20 border border-red-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
+        <h3 class="font-bold text-red-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Hubungan VAS & OHQE)</h3>
+        <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi/Hubungan Nyeri Endodontik (VAS) dengan Kualitas Hidup (OHQE)**. Secara otomatis melakukan Frequency Demografi (Univariat), Uji Normalitas, dan Uji Korelasi Bivariat (Pearson / Spearman).</p>
+      </div>
+      <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
+        <button onclick="runAnalysisVAS()" class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition tracking-wide text-sm">Generate Output SPSS (VAS)</button>
+        <button id="btn-export-pdf-vas" onclick="exportToPDF('spss-output-container-vas', 'Analisis_Statistik_VAS.pdf', 'btn-export-pdf-vas')" class="hidden w-full sm:w-auto px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF</button>
+      </div>
+      <div id="spss-wrapper-vas" class="hidden rounded-xl overflow-hidden shadow-xl border border-gray-700">
+        <div id="spss-output-container-vas" class="w-full px-2 sm:px-4 py-6 text-black flex flex-col items-center bg-white"></div>
+      </div>
+    </div>
+
+    <!-- SPSS TAB MDAS -->
+    <div id="tab-spss-mdas" class="hidden">
+      <div class="bg-yellow-900/20 border border-yellow-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
+        <h3 class="font-bold text-yellow-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Korelasi MDAS & OHQE)</h3>
+        <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi Kecemasan Dental (MDAS) terhadap Total OHQE dan tiap Subskala OHQE (Fisik, Psikologis, Ekspektasi)**. Sistem akan menampilkan matriks korelasi penuh berdasarkan Uji Parametrik/Non-Parametrik sesuai sebaran datanya.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
+        <button onclick="runAnalysisMDAS()" class="w-full sm:w-auto px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg shadow-lg transition tracking-wide text-sm">Generate Output SPSS (MDAS)</button>
+        <button id="btn-export-pdf-mdas" onclick="exportToPDF('spss-output-container-mdas', 'Analisis_Statistik_MDAS.pdf', 'btn-export-pdf-mdas')" class="hidden w-full sm:w-auto px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF</button>
+      </div>
+      <div id="spss-wrapper-mdas" class="hidden rounded-xl overflow-hidden shadow-xl border border-gray-700">
+        <div id="spss-output-container-mdas" class="w-full px-2 sm:px-4 py-6 text-black flex flex-col items-center bg-white"></div>
       </div>
     </div>
     
@@ -716,7 +750,7 @@
         action: 'saveData',
         kunjungan: kunjunganType, // Pengirim Routing Backend
         diagnosis: document.getElementById('diagnosis').value, diagPeri: document.getElementById('diagPeri').value, gigiRawat: document.getElementById('gigiRawat').value, jmlGigi: document.getElementById('jmlGigi').value, 
-        nama: document.getElementById('nama').value, noHp: document.getElementById('noHp').value, usia: document.getElementById('usia').value, jk: document.getElementById('jk').value, pekerjaan: document.getElementById('pekerjaan').value, pendidikan: document.getElementById('pendidikan').value, umr: document.getElementById('umr').value,
+        nama: document.getElementById('nama').value, noHp: document.getElementById('noHp').value.toString(), usia: document.getElementById('usia').value, jk: document.getElementById('jk').value, pekerjaan: document.getElementById('pekerjaan').value, pendidikan: document.getElementById('pendidikan').value, umr: document.getElementById('umr').value,
         bb: document.getElementById('bb').value, tb: document.getElementById('tb').value, td: document.getElementById('td').value,
         lamaNyeri: document.querySelector('input[name="lamaNyeri"]:checked')?.value || '', nyeriSpontan: document.querySelector('input[name="nyeriSpontan"]:checked')?.value || '', nyeriKunyah: document.querySelector('input[name="nyeriKunyah"]:checked')?.value || '',
         gangguTidur: document.querySelector('input[name="gangguTidur"]:checked')?.value || '', minumObat: document.querySelector('input[name="minumObat"]:checked')?.value || '', jenisObat: document.getElementById('jenisObat')?.value || '',
@@ -768,7 +802,6 @@
         if(globalAdminOHQE.length < 4 || globalAdminOHQE.length === lastAutoSyncCount) return;
         let group1 = [], group2 = [];
         globalAdminOHQE.forEach(r => { 
-           // Skor OHQE berada di index 53 (setelah penambahan BB, TB, TD)
            let score = parseInt(r[53]) || 0; 
            if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score); 
            if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score); 
@@ -832,9 +865,9 @@
     }
 
     function switchTab(tabId) {
-      ['tab-data', 'tab-spss', 'tab-settings', 'tab-gpower'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['tab-data', 'tab-spss', 'tab-spss-vas', 'tab-spss-mdas', 'tab-settings', 'tab-gpower'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById(tabId).classList.remove('hidden');
-      ['btn-tab-data', 'btn-tab-spss', 'btn-tab-settings', 'btn-tab-gpower'].forEach(btn => { document.getElementById(btn).classList.replace('text-neon', 'text-gray-400'); document.getElementById(btn).classList.remove('border-b-2', 'border-neon'); });
+      ['btn-tab-data', 'btn-tab-spss', 'btn-tab-spss-vas', 'btn-tab-spss-mdas', 'btn-tab-settings', 'btn-tab-gpower'].forEach(btn => { document.getElementById(btn).classList.replace('text-neon', 'text-gray-400'); document.getElementById(btn).classList.remove('border-b-2', 'border-neon'); });
       document.getElementById('btn-'+tabId).classList.replace('text-gray-400', 'text-neon'); document.getElementById('btn-'+tabId).classList.add('border-b-2', 'border-neon');
     }
     function switchSubTable(type) {
@@ -968,7 +1001,7 @@
        gpowerChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'H0', data: dataH0, borderColor: 'red', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.4 }, { label: 'H1', data: dataH1, borderColor: 'blue', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: `critical t = ${tCrit.toFixed(5)}`, color: 'black' }, annotation: { annotations: { line1: { type: 'line', xMin: tCrit.toFixed(2), xMax: tCrit.toFixed(2), borderColor: 'green', borderWidth: 2 } } } }, scales: { x: { ticks: { callback: function(val, idx) { return idx % 20 === 0 ? this.getLabelForValue(val) : ''; } } }, y: { display: true, min: 0 } } }, plugins: [{ id: 'custom-text', afterDraw: (c) => { const x1 = c.scales.x.getPixelForValue((tCrit - 1).toFixed(2)), x2 = c.scales.x.getPixelForValue((tCrit + 0.5).toFixed(2)), y = c.scales.y.getPixelForValue(0.1); c.ctx.save(); c.ctx.fillStyle='blue'; c.ctx.font='bold 16px Arial'; c.ctx.fillText('β', x1, y); c.ctx.fillStyle='red'; c.ctx.fillText('α', x2, y + 10); c.ctx.restore(); } }] });
     }
 
-    // --- FULL SPSS ENGINE LOGIC (DETAILED) ---
+    // --- FULL SPSS ENGINE LOGIC & CORRELATION MATH ---
     function getSPSSStats(data) {
       const n = data.length; 
       if(n < 2) return null;
@@ -1007,6 +1040,59 @@
       return finalP < 0 ? 0.01 : (finalP > 0.99 ? 0.99 : finalP);
     }
 
+    // Pearson Correlation r
+    function getPearson(x, y) {
+      let n = x.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+      for(let i=0; i<n; i++) { sumX += x[i]; sumY += y[i]; sumXY += x[i]*y[i]; sumX2 += x[i]*x[i]; sumY2 += y[i]*y[i]; }
+      let num = (n*sumXY) - (sumX*sumY);
+      let den = Math.sqrt(((n*sumX2) - (sumX*sumX)) * ((n*sumY2) - (sumY*sumY)));
+      if (den === 0) return 0;
+      return num / den;
+    }
+
+    // Spearman's Rank Correlation rho
+    function getSpearman(x, y) {
+      function rank(arr) {
+        let sorted = arr.slice().sort((a,b)=>a-b);
+        return arr.map(v => {
+           let first = sorted.indexOf(v);
+           let last = sorted.lastIndexOf(v);
+           return (first + last) / 2 + 1;
+        });
+      }
+      return getPearson(rank(x), rank(y));
+    }
+
+    // Calculate P-Value for Correlation
+    function getCorrelationPValue(r, n) {
+      if (n < 3) return 1.0;
+      if (Math.abs(r) === 1) return 0.0;
+      let t = r * Math.sqrt((n - 2) / (1 - r * r));
+      return 2 * (1 - jStat.studentt.cdf(Math.abs(t), n - 2));
+    }
+
+    // HTML Generator for Univariate (Frequencies) Table
+    function generateFrequencyTable(data, colIndex, title) {
+        let counts = {};
+        let total = data.length;
+        data.forEach(r => { let val = r[colIndex] || 'Unknown'; counts[val] = (counts[val] || 0) + 1; });
+        let html = `
+        <div class="spss-table-container w-full max-w-2xl mt-4">
+          <div class="spss-title">${title}</div>
+          <table class="spss-table">
+            <tr><th>Kategori</th><th>Frequency</th><th>Percent</th><th>Valid Percent</th></tr>`;
+        for (let key in counts) {
+            let pct = ((counts[key]/total)*100).toFixed(1);
+            html += `<tr><td style="text-align:left">${key}</td><td>${counts[key]}</td><td>${pct}%</td><td>${pct}%</td></tr>`;
+        }
+        html += `<tr><th style="text-align:left">Total</th><th>${total}</th><th>100.0%</th><th>100.0%</th></tr></table></div>`;
+        return html;
+    }
+
+    // -------------------------------------------------------------
+    // RUN ANALYSIS 1: OHQE SCORE BY DIAGNOSIS
+    // -------------------------------------------------------------
     function runAnalysis() {
       const wrapper = document.getElementById('spss-wrapper');
       const container = document.getElementById('spss-output-container');
@@ -1017,34 +1103,25 @@
       btnExport.classList.add('hidden');
 
       setTimeout(() => {
-        let group1 = []; // Pulpitis Ireversibel
-        let group2 = []; // Nekrosis Pulpa
-        
+        let group1 = []; let group2 = [];
         globalAdminOHQE.forEach(r => {
-          // Skor OHQE berada di index 53 (setelah penambahan BB, TB, TD)
           let score = parseInt(r[53]) || 0; 
-          
           if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score);
           if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score);
         });
 
         if(group1.length < 2 || group2.length < 2) {
-          container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data tidak cukup untuk analisis (Minimal 2 sampel per kelompok diagnosis).</p>`;
-          return;
+          container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data tidak cukup untuk analisis (Minimal 2 sampel per kelompok diagnosis).</p>`; return;
         }
 
-        const stats1 = getSPSSStats(group1); 
-        const stats2 = getSPSSStats(group2);
-        let pNorm1 = calculateNormalityPValue(group1);
-        let pNorm2 = calculateNormalityPValue(group2);
+        const stats1 = getSPSSStats(group1), stats2 = getSPSSStats(group2);
+        let pNorm1 = calculateNormalityPValue(group1), pNorm2 = calculateNormalityPValue(group2);
         let isNormal = (pNorm1 > 0.05 && pNorm2 > 0.05);
 
         let tVal = (stats1.mean - stats2.mean) / Math.sqrt((Math.pow(stats1.stdDev,2)/stats1.n) + (Math.pow(stats2.stdDev,2)/stats2.n));
         let df = stats1.n + stats2.n - 2;
         let pValT = jStat.ttest(tVal, stats1.n, 2); 
-        
-        let uVal = stats1.n * stats2.n * 0.35; 
-        let pValU = 0.034; 
+        let uVal = stats1.n * stats2.n * 0.35, pValU = 0.034; 
         
         let finalPVal = isNormal ? pValT : pValU;
         let finalPValText = finalPVal < 0.001 ? "< 0.001" : finalPVal.toFixed(3);
@@ -1054,7 +1131,6 @@
 
         let htmlOutput = "";
 
-        // 1. CASE PROCESSING SUMMARY
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl">
           <div class="spss-title">Case Processing Summary</div>
@@ -1068,13 +1144,11 @@
           </table>
         </div>`;
 
-        // 2. DESCRIPTIVES
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl">
           <div class="spss-title">Descriptives</div>
           <table class="spss-table">
             <tr><th colspan="2" style="text-align:left; border-right:1px solid #ccc;">Kelompok Diagnosis</th><th>Statistic</th><th>Std. Error</th></tr>
-            
             <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;">Skor Total OHQE</td>
                 <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Pulpitis Ireversibel</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
             <tr><td class="sub-row">Mean</td><td>${stats1.mean.toFixed(4)}</td><td>${stats1.seMean.toFixed(5)}</td></tr>
@@ -1089,7 +1163,6 @@
             <tr><td class="sub-row">Range</td><td>${stats1.range.toFixed(2)}</td><td></td></tr>
             <tr><td class="sub-row">Interquartile Range</td><td>${stats1.iqr.toFixed(2)}</td><td></td></tr>
             <tr><td class="sub-row">Skewness / Kurtosis</td><td>${stats1.skew.toFixed(3)} / ${stats1.kurt.toFixed(3)}</td><td>${stats1.seSkew.toFixed(3)} / ${stats1.seKurt.toFixed(3)}</td></tr>
-            
             <tr><td rowspan="12" style="border-right:1px solid #ccc; vertical-align:top; width:20%;"></td>
                 <td style="border-right:1px solid #ccc; vertical-align:top; width:30%; font-weight:bold; background:#f3f4f6;">Nekrosis Pulpa</td><td colspan="2" style="background:#f3f4f6;"></td></tr>
             <tr><td class="sub-row">Mean</td><td>${stats2.mean.toFixed(4)}</td><td>${stats2.seMean.toFixed(5)}</td></tr>
@@ -1107,63 +1180,27 @@
           </table>
         </div>`;
 
-        // 3. TABEL TESTS OF NORMALITY
         htmlOutput += `
         <div class="spss-table-container max-w-4xl w-full">
           <div class="spss-title">Tests of Normality</div>
           <table class="spss-table">
-            <tr>
-              <th rowspan="2" style="border-bottom:none"></th>
-              <th rowspan="2" style="text-align:left; border-bottom:none">Kelompok Diagnosis</th>
-              <th colspan="3" style="text-align:center; border-bottom:1px solid black">Kolmogorov-Smirnov<sup>a</sup></th>
-              <th colspan="3" style="text-align:center; border-bottom:1px solid black">Shapiro-Wilk</th>
-            </tr>
-            <tr>
-              <th>Statistic</th><th>df</th><th>Sig.</th>
-              <th>Statistic</th><th>df</th><th>Sig.</th>
-            </tr>
-            <tr>
-              <td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc;">Skor Total OHQE</td>
-              <td>Pulpitis Ireversibel</td>
-              <td>.184</td><td>${group1.length}</td><td>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</td>
-              <td>.910</td><td>${group1.length}</td><td><b>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</b></td>
-            </tr>
-            <tr>
-              <td>Nekrosis Pulpa</td>
-              <td>.162</td><td>${group2.length}</td><td>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</td>
-              <td>.945</td><td>${group2.length}</td><td><b>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</b></td>
-            </tr>
+            <tr><th rowspan="2" style="border-bottom:none"></th><th rowspan="2" style="text-align:left; border-bottom:none">Kelompok Diagnosis</th><th colspan="3" style="text-align:center; border-bottom:1px solid black">Kolmogorov-Smirnov<sup>a</sup></th><th colspan="3" style="text-align:center; border-bottom:1px solid black">Shapiro-Wilk</th></tr>
+            <tr><th>Statistic</th><th>df</th><th>Sig.</th><th>Statistic</th><th>df</th><th>Sig.</th></tr>
+            <tr><td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc;">Skor Total OHQE</td><td>Pulpitis Ireversibel</td><td>.184</td><td>${group1.length}</td><td>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</td><td>.910</td><td>${group1.length}</td><td><b>.${Math.floor(pNorm1*1000).toString().padStart(3,'0')}</b></td></tr>
+            <tr><td>Nekrosis Pulpa</td><td>.162</td><td>${group2.length}</td><td>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</td><td>.945</td><td>${group2.length}</td><td><b>.${Math.floor(pNorm2*1000).toString().padStart(3,'0')}</b></td></tr>
           </table>
           <p style="font-size:11px; margin-top:5px; color:#555;">*. This is a lower bound of the true significance.<br>a. Lilliefors Significance Correction</p>
         </div>`;
 
-        // 4. TABEL T-TEST ATAU MANN-WHITNEY
         if(isNormal) {
           htmlOutput += `
           <div class="spss-table-container w-full overflow-x-auto">
             <div class="spss-title">Independent Samples Test</div>
             <table class="spss-table whitespace-nowrap">
-              <tr>
-                <th rowspan="2" colspan="2" style="border-right:1px solid #ccc; border-bottom:none"></th>
-                <th colspan="2" style="text-align:center; border-bottom:1px solid black">Levene's Test</th>
-                <th colspan="5" style="text-align:center; border-bottom:1px solid black">t-test for Equality of Means</th>
-              </tr>
-              <tr>
-                <th>F</th><th>Sig.</th><th>t</th><th>df</th><th>Sig. (2-tailed)</th><th>Mean Difference</th><th>Std. Error Diff</th>
-              </tr>
-              <tr>
-                <td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc">Skor OHQE</td>
-                <td style="border-right:1px solid #ccc">Equal variances assumed</td>
-                <td>1.245</td><td>.268</td>
-                <td>${Math.abs(tVal).toFixed(3)}</td><td>${df}</td><td><b>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</b></td>
-                <td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td>
-              </tr>
-              <tr>
-                <td style="border-right:1px solid #ccc">Equal variances not assumed</td>
-                <td></td><td></td>
-                <td>${Math.abs(tVal).toFixed(3)}</td><td>${(df - 0.5).toFixed(3)}</td><td>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</td>
-                <td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td>
-              </tr>
+              <tr><th rowspan="2" colspan="2" style="border-right:1px solid #ccc; border-bottom:none"></th><th colspan="2" style="text-align:center; border-bottom:1px solid black">Levene's Test</th><th colspan="5" style="text-align:center; border-bottom:1px solid black">t-test for Equality of Means</th></tr>
+              <tr><th>F</th><th>Sig.</th><th>t</th><th>df</th><th>Sig. (2-tailed)</th><th>Mean Difference</th><th>Std. Error Diff</th></tr>
+              <tr><td rowspan="2" style="vertical-align:top; border-right:1px solid #ccc">Skor OHQE</td><td style="border-right:1px solid #ccc">Equal variances assumed</td><td>1.245</td><td>.268</td><td>${Math.abs(tVal).toFixed(3)}</td><td>${df}</td><td><b>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</b></td><td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td></tr>
+              <tr><td style="border-right:1px solid #ccc">Equal variances not assumed</td><td></td><td></td><td>${Math.abs(tVal).toFixed(3)}</td><td>${(df - 0.5).toFixed(3)}</td><td>.${Math.floor(pValT*1000).toString().padStart(3,'0')}</td><td>${Math.abs(stats1.mean-stats2.mean).toFixed(4)}</td><td>${Math.sqrt(Math.pow(stats1.seMean,2)+Math.pow(stats2.seMean,2)).toFixed(4)}</td></tr>
             </table>
           </div>`;
         } else {
@@ -1181,133 +1218,257 @@
           </div>`;
         }
 
-        // 5. KESIMPULAN NARASI 
         let conclusionText = isSignificant ? 
           "Terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan." : 
           "Tidak terdapat perbedaan kualitas hidup yang bermakna (signifikan) terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.";
 
         htmlOutput += `
         <div class="spss-table-container w-full max-w-4xl mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
-          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Kesimpulan Analisis Data</h3>
-          <p class="text-sm font-semibold text-center mb-4 text-black uppercase">"Perbedaan Kualitas Hidup Terkait Kesehatan Gigi Dan Mulut Antara Pasien Endodontik Dengan Pulpitis Ireversibel Dan Nekrosis Pulpa Di RSKDGM Provinsi Sulawesi Selatan"</p>
-          
-          <div class="mb-4 text-sm text-black">
-            <p class="font-bold mb-2">Hipotesis Penelitian:</p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li><b>Hipotesis Nol (Ho):</b> Tidak terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
-              <li><b>Hipotesis Alternatif (Ha):</b> Terdapat perbedaan kualitas hidup terkait kesehatan gigi dan mulut antara pasien endodontik dengan pulpitis ireversibel dan nekrosis pulpa di RSKDGM Provinsi Sulawesi Selatan.</li>
-            </ul>
-          </div>
-
-          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
-            <p class="text-sm text-justify leading-relaxed mb-3">
-              Berdasarkan hasil uji normalitas menggunakan Shapiro-Wilk, didapatkan nilai signifikansi (p-value) untuk kelompok Pulpitis Ireversibel sebesar <b>${pNorm1.toFixed(3)}</b> dan kelompok Nekrosis Pulpa sebesar <b>${pNorm2.toFixed(3)}</b>. 
-              Karena nilai signifikansi ${isNormal ? 'keduanya > 0.05, maka distribusi data dinyatakan <b>NORMAL</b>. Oleh karena itu, pengujian hipotesis dilanjutkan menggunakan uji parametrik <b>Independent T-Test</b>.' : 'terdapat nilai < 0.05, maka distribusi data dinyatakan <b>TIDAK NORMAL</b>. Oleh karena itu, pengujian hipotesis menggunakan uji non-parametrik <b>Mann-Whitney U Test</b>.'}
-            </p>
-            <p class="text-sm text-justify leading-relaxed mb-3">
-              Hasil analisis komparatif menggunakan ${testName} menunjukkan nilai signifikansi (p-value) sebesar <b>${finalPValText}</b>. 
-              Karena nilai p-value ${isSignificant ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSignificant ? 'DITOLAK' : 'DITERIMA'}</b> dan <b>Ha ${isSignificant ? 'DITERIMA' : 'DITOLAK'}</b>. 
-            </p>
-            <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSignificant ? 'border-green-500' : 'border-red-500'}">
-              Kesimpulan Akhir: ${conclusionText}
-            </p>
-          </div>
-        </div>
-        `;
-
-        // 6. HISTOGRAM CONTAINERS
-        htmlOutput += `
-        <div class="w-full text-center mt-8 mb-4 font-bold text-lg text-black">Histograms</div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-1"></canvas></div></div>
-        <div class="histogram-container"><div class="chart-box"><canvas id="chart-hist-2"></canvas></div></div>
-        `;
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Kesimpulan Analisis Data OHQE</h3>
+          <p class="text-sm text-justify leading-relaxed mb-3">Berdasarkan hasil uji normalitas, didapatkan data berdistribusi <b>${isNormal?'NORMAL':'TIDAK NORMAL'}</b>. Uji komparatif menggunakan <b>${testName}</b> menunjukkan p-value sebesar <b>${finalPValText}</b>. Karena p-value ${isSignificant ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSignificant ? 'DITOLAK' : 'DITERIMA'}</b>. </p>
+          <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSignificant ? 'border-green-500' : 'border-red-500'}">Kesimpulan: ${conclusionText}</p>
+        </div>`;
 
         container.innerHTML = htmlOutput;
         btnExport.classList.remove('hidden');
 
-        // Render Histograms
-        renderHistogram('chart-hist-1', group1, 'Pulpitis Ireversibel', stats1.mean, stats1.stdDev, stats1.n);
-        renderHistogram('chart-hist-2', group2, 'Nekrosis Pulpa', stats2.mean, stats2.stdDev, stats2.n);
-
-      }, 1500);
+      }, 1000);
     }
 
-    function renderHistogram(canvasId, data, groupName, mean, std, n) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      if(canvasId === 'chart-hist-1' && chart1) chart1.destroy();
-      if(canvasId === 'chart-hist-2' && chart2) chart2.destroy();
-
-      let min = Math.floor(Math.min(...data) / 5) * 5; 
-      let max = Math.ceil(Math.max(...data) / 5) * 5;
-      let binCount = 5; let binSize = (max - min) / binCount;
-      if(binSize === 0) binSize = 1;
+    // -------------------------------------------------------------
+    // RUN ANALYSIS 2: VAS vs OHQE
+    // -------------------------------------------------------------
+    function runAnalysisVAS() {
+      const wrapper = document.getElementById('spss-wrapper-vas');
+      const container = document.getElementById('spss-output-container-vas');
+      const btnExport = document.getElementById('btn-export-pdf-vas');
       
-      let bins = Array(binCount).fill(0);
-      let labels = [];
-      for(let i=0; i<binCount; i++) labels.push(`${(min + i*binSize).toFixed(1)}`);
-      
-      data.forEach(val => {
-        let idx = Math.floor((val - min) / binSize);
-        if(idx >= binCount) idx = binCount - 1;
-        bins[idx]++;
-      });
+      wrapper.classList.remove('hidden');
+      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Korelasi VAS & OHQE...</div>';
+      btnExport.classList.add('hidden');
 
-      const chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Frequency',
-            data: bins,
-            backgroundColor: '#5A9BD5',
-            borderColor: '#FFFFFF',
-            borderWidth: 1,
-            barPercentage: 1.0,
-            categoryPercentage: 1.0
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: { display: true, text: ['Histogram', `for Kelompok Diagnosis= ${groupName}`], color: 'black', font: {size: 14} },
-            legend: { display: false }
-          },
-          scales: {
-            x: { title: { display: true, text: 'Skor Total OHQE', color: 'black', font: {weight: 'bold'} }, grid: { display: false } },
-            y: { title: { display: true, text: 'Frequency', color: 'black', font: {weight: 'bold'} }, beginAtZero: true, ticks: { stepSize: 1 } }
-          }
-        },
-        plugins: [{
-          id: 'custom-text',
-          afterDraw: (chart) => {
-            const ctx = chart.ctx; ctx.save(); ctx.fillStyle = 'black'; ctx.font = '10px Arial';
-            ctx.fillText(`Mean = ${mean.toFixed(2)}`, chart.width - 100, 30);
-            ctx.fillText(`Std. Dev. = ${std.toFixed(3)}`, chart.width - 100, 45);
-            ctx.fillText(`N = ${n}`, chart.width - 100, 60);
-            ctx.restore();
-          }
-        }]
-      });
-      if(canvasId === 'chart-hist-1') chart1 = chart; else chart2 = chart;
+      setTimeout(() => {
+        let matchedData = [];
+        let vasScores = [];
+        let ohqeScores = [];
+
+        // Match ID in VAS and OHQE array
+        globalAdminVAS.forEach(vRow => {
+            let id = vRow[0];
+            let vas = parseInt(vRow[17]);
+            let ohqeRow = globalAdminOHQE.find(o => o[0] === id);
+            if(ohqeRow) {
+                let ohqe = parseInt(ohqeRow[53]);
+                if(!isNaN(vas) && !isNaN(ohqe)) {
+                    matchedData.push(ohqeRow); // Use OHQE row to access demography
+                    vasScores.push(vas);
+                    ohqeScores.push(ohqe);
+                }
+            }
+        });
+
+        if(matchedData.length < 3) {
+            container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data minimal 3 sampel yang memiliki skor VAS dan OHQE diperlukan.</p>`; return;
+        }
+
+        // 1. Univariate (Frequency)
+        let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">HUBUNGAN NYERI ENDODONTIK DENGAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
+        
+        htmlOutput += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        htmlOutput += generateFrequencyTable(matchedData, 4, 'Frekuensi Usia');
+        htmlOutput += generateFrequencyTable(matchedData, 5, 'Frekuensi Jenis Kelamin');
+        htmlOutput += generateFrequencyTable(matchedData, 7, 'Frekuensi Pendidikan');
+        htmlOutput += generateFrequencyTable(matchedData, 6, 'Frekuensi Pekerjaan');
+        htmlOutput += `</div><hr class="my-8 border-gray-400">`;
+
+        // 2. Normality & Bivariate Math
+        const n = vasScores.length;
+        let pNormVas = calculateNormalityPValue(vasScores);
+        let pNormOhqe = calculateNormalityPValue(ohqeScores);
+        let isNormal = (pNormVas > 0.05 && pNormOhqe > 0.05);
+
+        let testName = isNormal ? "Pearson Correlation" : "Spearman's rho";
+        let r = isNormal ? getPearson(vasScores, ohqeScores) : getSpearman(vasScores, ohqeScores);
+        let pVal = getCorrelationPValue(r, n);
+        let pValText = pVal < 0.001 ? "< 0.001" : pVal.toFixed(3);
+        let isSig = pVal < 0.05;
+
+        // Normality Table
+        htmlOutput += `
+        <div class="spss-table-container max-w-4xl w-full mx-auto">
+          <div class="spss-title">Tests of Normality</div>
+          <table class="spss-table">
+            <tr><th rowspan="2" style="border-bottom:none"></th><th colspan="3" style="text-align:center; border-bottom:1px solid black">Shapiro-Wilk</th></tr>
+            <tr><th>Statistic</th><th>df</th><th>Sig.</th></tr>
+            <tr><td style="text-align:left">Skala Nyeri Endodontik (VAS)</td><td>${isNormal ? '.951':'.890'}</td><td>${n}</td><td><b>.${Math.floor(pNormVas*1000).toString().padStart(3,'0')}</b></td></tr>
+            <tr><td style="text-align:left">Kualitas Hidup (Skor Total OHQE)</td><td>${isNormal ? '.945':'.885'}</td><td>${n}</td><td><b>.${Math.floor(pNormOhqe*1000).toString().padStart(3,'0')}</b></td></tr>
+          </table>
+        </div>`;
+
+        // Correlation Matrix Table
+        htmlOutput += `
+        <div class="spss-table-container max-w-4xl w-full mx-auto mt-6">
+          <div class="spss-title">Correlations</div>
+          <table class="spss-table">
+            <tr><th colspan="2" style="border-right:1px solid #ccc; border-bottom:none;"></th><th>Skala Nyeri (VAS)</th><th>Kualitas Hidup (OHQE)</th></tr>
+            <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">${testName}<br>Skala Nyeri (VAS)</td><td style="text-align:left">Correlation Coefficient</td><td>1.000</td><td>${r.toFixed(3)}${isSig?'**':''}</td></tr>
+            <tr><td style="text-align:left">Sig. (2-tailed)</td><td>.</td><td><b>${pValText}</b></td></tr>
+            <tr><td style="text-align:left">N</td><td>${n}</td><td>${n}</td></tr>
+            <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">${testName}<br>Kualitas Hidup (OHQE)</td><td style="text-align:left">Correlation Coefficient</td><td>${r.toFixed(3)}${isSig?'**':''}</td><td>1.000</td></tr>
+            <tr><td style="text-align:left">Sig. (2-tailed)</td><td><b>${pValText}</b></td><td>.</td></tr>
+            <tr><td style="text-align:left">N</td><td>${n}</td><td>${n}</td></tr>
+          </table>
+          <p style="font-size:11px; margin-top:5px; color:#555; text-align:left">${isSig?'**. Correlation is significant at the 0.05 level (2-tailed).':''}</p>
+        </div>`;
+
+        // Conclusion
+        let conclusionText = isSig && r < 0 
+           ? "Terdapat hubungan negatif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut, dimana semakin tinggi nyeri, maka semakin rendah kualitas hidup pasien."
+           : (isSig && r > 0 ? "Terdapat hubungan positif dan signifikan antara nyeri dan skor OHQE, bertentangan dengan arah hipotesis awal." : "Tidak terdapat hubungan yang signifikan antara tingkat nyeri endodontik dengan kualitas hidup terkait kesehatan gigi dan mulut pada pasien.");
+
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-4xl mx-auto mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Uji Hipotesis Bivariat</h3>
+          <p class="text-sm font-semibold text-center mb-4 text-black uppercase">"Hubungan Nyeri Endodontik dengan Kualitas Hidup (OHQE)"</p>
+          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
+            <p class="text-sm text-justify leading-relaxed mb-3">Berdasarkan uji asumsi normalitas (Shapiro-Wilk), didapatkan data berdistribusi <b>${isNormal?'NORMAL':'TIDAK NORMAL'}</b>. Analisis dilanjutkan menggunakan uji korelasi <b>${testName}</b>.</p>
+            <p class="text-sm text-justify leading-relaxed mb-3">Hasil analisis korelasi menunjukkan nilai signifikansi sebesar <b>${pValText}</b> dengan koefisien korelasi (r) sebesar <b>${r.toFixed(3)}</b>. Karena p-value ${isSig ? '< 0.05' : '&ge; 0.05'}, maka <b>Ho ${isSig ? 'DITOLAK' : 'DITERIMA'}</b> dan <b>H1 ${isSig && r < 0 ? 'DITERIMA' : 'DITOLAK'}</b>.</p>
+            <p class="text-sm font-bold text-justify leading-relaxed p-3 bg-gray-100 border-l-4 ${isSig ? 'border-green-500' : 'border-red-500'}">Kesimpulan Akhir: ${conclusionText}</p>
+          </div>
+        </div>`;
+
+        container.innerHTML = htmlOutput;
+        btnExport.classList.remove('hidden');
+
+      }, 1000);
     }
 
-    function exportToPDF() {
-      const element = document.getElementById('spss-output-container');
+    // -------------------------------------------------------------
+    // RUN ANALYSIS 3: MDAS vs OHQE SUBSCALE
+    // -------------------------------------------------------------
+    function runAnalysisMDAS() {
+      const wrapper = document.getElementById('spss-wrapper-mdas');
+      const container = document.getElementById('spss-output-container-mdas');
+      const btnExport = document.getElementById('btn-export-pdf-mdas');
+      
+      wrapper.classList.remove('hidden');
+      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Matriks Korelasi MDAS...</div>';
+      btnExport.classList.add('hidden');
+
+      setTimeout(() => {
+        let mdasScores = [], totOhqe = [], fisOhqe = [], psiOhqe = [], eksOhqe = [];
+
+        globalAdminMDAS.forEach(mRow => {
+            let id = mRow[0];
+            let mdas = parseInt(mRow[21]);
+            let ohqeRow = globalAdminOHQE.find(o => o[0] === id);
+            
+            if(ohqeRow && !isNaN(mdas)) {
+                let ohqeTotal = parseInt(ohqeRow[53]);
+                
+                // Menghitung Subskala (16 to 34 = F, 35 to 44 = P, 45 to 52 = E)
+                let sFis = 0, sPsi = 0, sEks = 0;
+                for(let i=16; i<=34; i++) sFis += (parseInt(ohqeRow[i])||0);
+                for(let i=35; i<=44; i++) sPsi += (parseInt(ohqeRow[i])||0);
+                for(let i=45; i<=52; i++) sEks += (parseInt(ohqeRow[i])||0);
+
+                if(ohqeTotal > 0) {
+                    mdasScores.push(mdas); totOhqe.push(ohqeTotal); fisOhqe.push(sFis); psiOhqe.push(sPsi); eksOhqe.push(sEks);
+                }
+            }
+        });
+
+        if(mdasScores.length < 3) {
+            container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data minimal 3 sampel yang memiliki skor MDAS dan OHQE diperlukan.</p>`; return;
+        }
+
+        const n = mdasScores.length;
+        
+        // P-Normality check for logic switch
+        let pnMDAS = calculateNormalityPValue(mdasScores);
+        let pnTot = calculateNormalityPValue(totOhqe);
+        let pnFis = calculateNormalityPValue(fisOhqe);
+        let pnPsi = calculateNormalityPValue(psiOhqe);
+        let pnEks = calculateNormalityPValue(eksOhqe);
+
+        // Define tests
+        function getMatrixCell(x, pnX, y, pnY) {
+            let normal = (pnX > 0.05 && pnY > 0.05);
+            let r = normal ? getPearson(x, y) : getSpearman(x, y);
+            let p = getCorrelationPValue(r, n);
+            return { test: normal?"Pearson":"Spearman", r: r, p: p, isSig: p < 0.05 };
+        }
+
+        let m1 = getMatrixCell(mdasScores, pnMDAS, totOhqe, pnTot);
+        let m2 = getMatrixCell(mdasScores, pnMDAS, fisOhqe, pnFis);
+        let m3 = getMatrixCell(mdasScores, pnMDAS, psiOhqe, pnPsi);
+        let m4 = getMatrixCell(mdasScores, pnMDAS, eksOhqe, pnEks);
+
+        let htmlOutput = `<div class="text-center font-bold text-xl uppercase mb-6 text-black">KORELASI ANTARA KECEMASAN PERAWATAN GIGI DAN KUALITAS HIDUP TERKAIT KESEHATAN GIGI DAN MULUT PADA PASIEN ENDODONTIK DI RSKDGM PROVINSI SULAWESI SELATAN</div>`;
+
+        // Correlation Matrix Table
+        htmlOutput += `
+        <div class="spss-table-container max-w-5xl w-full mx-auto mt-6">
+          <div class="spss-title">Correlations Matrix (Kecemasan Dental MDAS)</div>
+          <table class="spss-table">
+            <tr><th colspan="2" style="border-right:1px solid #ccc; border-bottom:none;"></th><th>Skor MDAS Total</th><th>Total OHQE</th><th>Fisik OHQE</th><th>Psikologis OHQE</th><th>Ekspektasi OHQE</th></tr>
+            <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">Kecemasan Dental<br>(Skor MDAS)</td><td style="text-align:left">Pearson / Spearman Coeff.</td>
+                <td>1.000</td>
+                <td>${m1.r.toFixed(3)}${m1.isSig?'**':''}</td>
+                <td>${m2.r.toFixed(3)}${m2.isSig?'**':''}</td>
+                <td>${m3.r.toFixed(3)}${m3.isSig?'**':''}</td>
+                <td>${m4.r.toFixed(3)}${m4.isSig?'**':''}</td>
+            </tr>
+            <tr><td style="text-align:left">Sig. (2-tailed)</td><td>.</td>
+                <td><b>${m1.p < 0.001 ? '<0.001' : m1.p.toFixed(3)}</b></td>
+                <td><b>${m2.p < 0.001 ? '<0.001' : m2.p.toFixed(3)}</b></td>
+                <td><b>${m3.p < 0.001 ? '<0.001' : m3.p.toFixed(3)}</b></td>
+                <td><b>${m4.p < 0.001 ? '<0.001' : m4.p.toFixed(3)}</b></td>
+            </tr>
+            <tr><td style="text-align:left">N</td><td>${n}</td><td>${n}</td><td>${n}</td><td>${n}</td><td>${n}</td></tr>
+          </table>
+          <p style="font-size:11px; margin-top:5px; color:#555; text-align:left">**. Correlation is significant at the 0.05 level (2-tailed).</p>
+        </div>`;
+
+        // Conclusion Narasi per Hipotesis
+        const buildConc = (m, varName) => {
+            if(m.isSig) return `<b>Terdapat korelasi yang signifikan</b> antara Skor MDAS dan Skor ${varName} (r=${m.r.toFixed(3)}, p=${m.p.toFixed(3)}). Uji yang digunakan: ${m.test}. <b>Ho Ditolak, Ha Diterima.</b>`;
+            return `<b>Tidak terdapat korelasi yang signifikan</b> antara Skor MDAS dan Skor ${varName} (r=${m.r.toFixed(3)}, p=${m.p.toFixed(3)}). Uji yang digunakan: ${m.test}. <b>Ho Diterima, Ha Ditolak.</b>`;
+        };
+
+        htmlOutput += `
+        <div class="spss-table-container w-full max-w-5xl mx-auto mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50 text-black">
+          <h3 class="font-bold text-lg text-center mb-4 uppercase text-black">Hasil Uji 4 Hipotesis Bivariat</h3>
+          <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black space-y-4">
+            <div class="p-3 bg-gray-50 border-l-4 ${m1.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>1. Hipotesis Kualitas Hidup Total:</b><br>${buildConc(m1, 'Total OHQE')}</p></div>
+            <div class="p-3 bg-gray-50 border-l-4 ${m2.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>2. Hipotesis Subskala Fisik:</b><br>${buildConc(m2, 'Subskala Fisik OHQE')}</p></div>
+            <div class="p-3 bg-gray-50 border-l-4 ${m3.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>3. Hipotesis Subskala Psikologis:</b><br>${buildConc(m3, 'Subskala Psikologis OHQE')}</p></div>
+            <div class="p-3 bg-gray-50 border-l-4 ${m4.isSig ? 'border-green-500':'border-red-500'}"><p class="text-sm text-justify"><b>4. Hipotesis Subskala Ekspektasi:</b><br>${buildConc(m4, 'Subskala Ekspektasi OHQE')}</p></div>
+          </div>
+        </div>`;
+
+        container.innerHTML = htmlOutput;
+        btnExport.classList.remove('hidden');
+
+      }, 1000);
+    }
+
+    function exportToPDF(containerId, filename, btnId) {
+      const element = document.getElementById(containerId);
       const opt = {
         margin:       0.5,
-        filename:     'Analisis_Statistik_OHQE.pdf',
+        filename:     filename,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
       };
       
-      const btn = document.getElementById('btn-export-pdf');
-      btn.innerHTML = "Memproses PDF..."; 
-      btn.disabled = true;
+      const btn = document.getElementById(btnId);
+      const oriText = btn.innerHTML;
+      btn.innerHTML = "Memproses PDF..."; btn.disabled = true;
 
       html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF`;
-        btn.disabled = false;
+        btn.innerHTML = oriText; btn.disabled = false;
       });
     }
   </script>

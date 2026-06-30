@@ -767,7 +767,12 @@
     function autoSyncSpss() {
         if(globalAdminOHQE.length < 4 || globalAdminOHQE.length === lastAutoSyncCount) return;
         let group1 = [], group2 = [];
-        globalAdminOHQE.forEach(r => { let score = parseInt(r[50]) || 0; if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score); if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score); });
+        globalAdminOHQE.forEach(r => { 
+           // Skor OHQE berada di index 53 (setelah penambahan BB, TB, TD)
+           let score = parseInt(r[53]) || 0; 
+           if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score); 
+           if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score); 
+        });
         if(group1.length < 2 || group2.length < 2) return;
 
         const stats1 = getSPSSStats(group1), stats2 = getSPSSStats(group2);
@@ -841,11 +846,11 @@
 
     function renderTables() {
       const tbOHQE = document.getElementById('admin-table-body-ohqe');
-      if(!globalAdminOHQE.length) { tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10">Kosong.</td></tr>`; } else { tbOHQE.innerHTML = globalAdminOHQE.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 text-xs text-gray-300">${row[3]}</td><td class="px-4 sm:px-5 py-3.5 text-sm"><span class="px-2 py-1 text-[0.65rem] uppercase rounded bg-gray-800 border border-gray-700 text-gray-300">${row[5]}</span></td><td class="px-4 sm:px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${row[50] || '0'}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-blue-400">${row[51] || '-'}</td></tr>`).join(''); }
+      if(!globalAdminOHQE.length) { tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10">Kosong.</td></tr>`; } else { tbOHQE.innerHTML = globalAdminOHQE.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 text-xs text-gray-300">${row[3]}</td><td class="px-4 sm:px-5 py-3.5 text-sm"><span class="px-2 py-1 text-[0.65rem] uppercase rounded bg-gray-800 border border-gray-700 text-gray-300">${row[5]}</span></td><td class="px-4 sm:px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${row[53] || '0'}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-blue-400">${row[54] || '-'}</td></tr>`).join(''); }
       const tbVAS = document.getElementById('admin-table-body-vas');
-      if(!globalAdminVAS.length) { tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbVAS.innerHTML = globalAdminVAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[14] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[15] || '-'}</td></tr>`).join(''); }
+      if(!globalAdminVAS.length) { tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbVAS.innerHTML = globalAdminVAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[17] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[18] || '-'}</td></tr>`).join(''); }
       const tbMDAS = document.getElementById('admin-table-body-mdas');
-      if(!globalAdminMDAS.length) { tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbMDAS.innerHTML = globalAdminMDAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[18] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[19] || '-'}</td></tr>`).join(''); }
+      if(!globalAdminMDAS.length) { tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbMDAS.innerHTML = globalAdminMDAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[21] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[22] || '-'}</td></tr>`).join(''); }
     }
 
     function renderRontgenTable() {
@@ -890,7 +895,7 @@
            document.getElementById('custom-confirm').classList.add('hidden');
            const btn = document.getElementById('btn_del_' + id); btn.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`; btn.disabled = true;
            fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRontgen', id: id }) })
-           .then(r => r.json()).then(res => { if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); } else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `Hapus`; btn.disabled = false; } }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `Hapus`; btn.disabled = false; });
+           .then(r => r.json()).then(res => { if(res.status === 'success') { fetchAdminDataSilent(); showCustomAlert(res.message, "Hapus Berhasil"); } else { showCustomAlert(res.message, "Gagal Hapus"); btn.innerHTML = `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; } }).catch(e => { showCustomAlert("Koneksi gagal saat menghapus", "Error"); btn.innerHTML = `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`; btn.disabled = false; });
        };
     }
 
@@ -1016,13 +1021,11 @@
         let group2 = []; // Nekrosis Pulpa
         
         globalAdminOHQE.forEach(r => {
-          let score = 0;
-          for(let i=10; i<=46; i++) score += parseInt(r[i]) || 0; // index F1 sd E8 (asumsi index fix OHQE backend)
-          // Fallback jika perhitungan total di backend sudah ada di index 50
-          let totalScoreDb = parseInt(r[50]) || score;
+          // Skor OHQE berada di index 53 (setelah penambahan BB, TB, TD)
+          let score = parseInt(r[53]) || 0; 
           
-          if(r[9] === 'Pulpitis Ireversibel' && totalScoreDb > 0) group1.push(totalScoreDb);
-          if(r[9] === 'Nekrosis Pulpa' && totalScoreDb > 0) group2.push(totalScoreDb);
+          if(r[9] === 'Pulpitis Ireversibel' && score > 0) group1.push(score);
+          if(r[9] === 'Nekrosis Pulpa' && score > 0) group2.push(score);
         });
 
         if(group1.length < 2 || group2.length < 2) {

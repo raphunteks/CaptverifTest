@@ -202,7 +202,7 @@
       </div>
     </div>
 
-    <form id="ohqeForm" onsubmit="event.preventDefault(); submitData();">
+    <form id="ohqeForm" onsubmit="event.preventDefault();">
       
       <!-- STEP 1: BIODATA -->
       <div id="step-1" class="step-content">
@@ -259,33 +259,26 @@
         </div>
       </div>
 
-      <!-- STEP 2: RIWAYAT NYERI (Kunjungan 1 Only) -->
+      <!-- STEP 2: OHQE FISIK -->
       <div id="step-2" class="step-content">
-        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian Khusus</span> Riwayat Nyeri</h2>
-        <div class="p-3 sm:p-4 bg-[rgba(57,255,20,0.03)] rounded-xl border border-[rgba(57,255,20,0.15)] text-[0.8rem] sm:text-sm text-gray-300 mb-5 sm:mb-6 mt-4"><p class="font-semibold text-white leading-relaxed">Jawablah berdasarkan keluhan riwayat nyeri gigi Anda.</p></div>
-        <div id="container-riwayat" class="space-y-4 sm:space-y-5"></div>
-      </div>
-
-      <!-- STEP 3: OHQE FISIK -->
-      <div id="step-3" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 1</span> Kondisi Fisik</h2>
         <div id="container-fisik" class="space-y-4 sm:space-y-5 mt-4"></div>
       </div>
 
-      <!-- STEP 4: OHQE PSIKOLOGIS -->
-      <div id="step-4" class="step-content">
+      <!-- STEP 3: OHQE PSIKOLOGIS -->
+      <div id="step-3" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 2</span> Kondisi Psikologis</h2>
         <div id="container-psiko" class="space-y-4 sm:space-y-5 mt-4"></div>
       </div>
 
-      <!-- STEP 5: OHQE EKSPEKTASI -->
-      <div id="step-5" class="step-content">
+      <!-- STEP 4: OHQE EKSPEKTASI -->
+      <div id="step-4" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 3</span> Ekspektasi Perawatan</h2>
         <div id="container-ekspektasi" class="space-y-4 sm:space-y-5 mt-4"></div>
       </div>
 
-      <!-- STEP 6: VAS (Wong-Baker FACES) -->
-      <div id="step-6" class="step-content">
+      <!-- STEP 5: VAS (Wong-Baker FACES) -->
+      <div id="step-5" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 4</span> Visual Analogue Scale</h2>
         <div class="mt-4 sm:mt-6 p-3 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
           <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium leading-relaxed text-center">Pilih tingkat intensitas nyeri gigi Anda saat ini.</p>
@@ -309,6 +302,13 @@
         </div>
       </div>
 
+      <!-- STEP 6: RIWAYAT NYERI (Kunjungan 1 Only) -->
+      <div id="step-6" class="step-content">
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian Khusus</span> Riwayat Nyeri</h2>
+        <div class="p-3 sm:p-4 bg-[rgba(57,255,20,0.03)] rounded-xl border border-[rgba(57,255,20,0.15)] text-[0.8rem] sm:text-sm text-gray-300 mb-5 sm:mb-6 mt-4"><p class="font-semibold text-white leading-relaxed">Jawablah berdasarkan keluhan riwayat nyeri gigi Anda.</p></div>
+        <div id="container-riwayat" class="space-y-4 sm:space-y-5"></div>
+      </div>
+
       <!-- STEP 7: MDAS (Kunjungan 1 Only) -->
       <div id="step-7" class="step-content">
         <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 5</span> Kecemasan Dental (MDAS)</h2>
@@ -328,7 +328,9 @@
         <button type="button" id="btn-prev" onclick="prevStep()" class="w-full sm:w-auto px-6 py-3.5 sm:py-3 rounded-xl bg-gray-800/80 border border-gray-700 hover:bg-gray-700 text-white font-bold transition-colors hidden text-sm sm:text-base tracking-wide shadow-md">KEMBALI</button>
         <div class="hidden sm:block flex-grow"></div>
         <button type="button" id="btn-next" onclick="nextStep()" class="w-full sm:w-auto px-6 py-3.5 sm:py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base flex justify-center items-center shadow-lg">SELANJUTNYA <svg class="w-4 h-4 ml-2 sm:ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
-        <button type="submit" id="btn-submit" class="w-full sm:w-auto px-6 py-3.5 sm:py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base hidden relative overflow-hidden shadow-[0_0_15px_rgba(57,255,20,0.3)]">
+        
+        <!-- FIXED: Mengganti type="submit" menjadi type="button" untuk mencegah pemblokiran dari native browser HTML5 Form Validation -->
+        <button type="button" id="btn-submit" onclick="submitData()" class="w-full sm:w-auto px-6 py-3.5 sm:py-3 rounded-xl btn-neon font-bold tracking-widest text-sm sm:text-base hidden relative overflow-hidden shadow-[0_0_15px_rgba(57,255,20,0.3)]">
           <span id="submit-text">KIRIM DATA</span>
           <div id="submit-loader" class="hidden absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[rgba(57,255,20,0.1)] backdrop-blur-sm rounded-xl"><div class="w-5 h-5 border-2 border-neon border-t-transparent rounded-full animate-spin"></div></div>
         </button>
@@ -478,11 +480,11 @@
             activeSteps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7'];
             document.getElementById('kunjungan-title').innerText = 'Kunjungan 1';
         } else if(kunjunganType === 2) {
-            activeSteps = ['step-1', 'step-3', 'step-4', 'step-5'];
+            activeSteps = ['step-1', 'step-2', 'step-3', 'step-4'];
             document.getElementById('btn-autofill').classList.remove('hidden');
             document.getElementById('kunjungan-title').innerText = 'Kunjungan 2';
         } else if(kunjunganType === 3) {
-            activeSteps = ['step-1', 'step-3', 'step-4', 'step-5', 'step-6'];
+            activeSteps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
             document.getElementById('btn-autofill').classList.remove('hidden');
             document.getElementById('kunjungan-title').innerText = 'Kunjungan 3';
         }
@@ -623,12 +625,12 @@
         
         let stepText = '';
         if(currentId==='step-1') stepText = "Biodata & Informasi";
-        if(currentId==='step-2') stepText = "Riwayat Nyeri Gigi";
-        if(currentId==='step-3') stepText = "Kondisi Fisik (OHQE)";
-        if(currentId==='step-4') stepText = "Psikologis (OHQE)";
-        if(currentId==='step-5') stepText = "Ekspektasi (OHQE)";
-        if(currentId==='step-6') stepText = "Skala Nyeri (VAS)";
-        if(currentId==='step-7') stepText = "Kecemasan (MDAS)";
+        if(currentId==='step-2') stepText = "Kondisi Fisik (OHQE)";
+        if(currentId==='step-3') stepText = "Kondisi Psikologis (OHQE)";
+        if(currentId==='step-4') stepText = "Ekspektasi Perawatan (OHQE)";
+        if(currentId==='step-5') stepText = "Skala Nyeri (VAS)";
+        if(currentId==='step-6') stepText = "Riwayat Nyeri Gigi";
+        if(currentId==='step-7') stepText = "Kecemasan Dental (MDAS)";
         document.getElementById('step-indicator').innerText = `Step ${currentStepIndex + 1} dari ${activeSteps.length}: ${stepText}`;
         
         const btnPrev = document.getElementById('btn-prev');

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Keamanan & Autentikasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SCRIPT GOOGLE IDENTITY SERVICES (Untuk Login Akun Google Asli) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        /* Pengaturan Tema Gelap Spesifik */
+        body {
+            background-color: #0b1121;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #cbd5e1;
+        }
+        .glass-card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+        }
+        .info-box {
+            background-color: #0b1121;
+            border: 1px solid #1f2937;
+        }
+        
+        /* Animasi Getar untuk Error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        /* Hilangkan panah up/down di input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        /* Styling Form Inputs */
+        .form-input {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        /* Penyesuaian ikon kalender di dark mode */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
+        /* Animasi Transisi Card */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+    <!-- Efek Glow Latar Belakang Global -->
+    <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 pointer-events-none"></div>
+
+    <!-- ==========================================
+         VIEW 1: CAPTCHA VERIFICATION CARD
+         ========================================== -->
+    <div id="captchaCard" class="glass-card w-full max-w-lg rounded-2xl p-6 sm:p-8 shadow-2xl relative z-10 transition-all duration-500">
+        <!-- Logo -->
+        <div class="flex justify-center mb-8">
+            <div class="w-16 h-16 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="flex justify-center sm:justify-start mb-6">
+            <div class="flex items-center space-x-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full shadow-sm">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span class="text-[11px] text-slate-300 font-bold tracking-widest uppercase">Verifikasi Keamanan</span>
+            </div>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-semibold text-white mb-3 text-center sm:text-left">Memverifikasi koneksi Anda</h1>
+        <p class="text-slate-400 text-sm mb-8 leading-relaxed text-center sm:text-left">
+            Selesaikan tantangan di bawah ini untuk membuktikan Anda adalah manusia sebelum mengakses portal login.
+        </p>
+
+        <!-- CAPTCHA SECTION -->
+        <div class="bg-slate-800/50 rounded-xl p-5 mb-8 border border-gray-700 shadow-md">
+            <div class="flex flex-col gap-4">
+                <div class="flex items-stretch gap-3 w-full">
+                    <img id="captchaImage" class="flex-1 object-cover bg-white border-2 border-gray-300 rounded-lg h-20 shadow-inner cursor-pointer" alt="Captcha Base64" onclick="refreshCaptcha()" title="Klik gambar untuk ganti kode" src="">
+                    <button onclick="refreshCaptcha()" class="flex-shrink-0 w-20 h-20 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-gray-200 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="captchaInput" autocomplete="off" placeholder="Ketik 4 angka..." maxlength="4" inputmode="numeric" class="flex-1 text-gray-900 text-center sm:text-left text-lg px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono">
+                    <button id="verifyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center justify-center min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span id="btnText">Lanjutkan</span>
+                        <svg id="btnSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg id="btnCheck" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <p id="captchaMsg" class="mt-3 text-sm font-medium text-center hidden"></p>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         VIEW 2: AUTHENTICATION (LOGIN & REGISTER)
+         ========================================== -->
+    <div id="authCard" class="hidden glass-card w-full max-w-md rounded-2xl p-6 sm:p-8 shadow-2xl relative z-10 fade-enter">
+        
+        <!-- Toggle Header (Login / Register) -->
+        <div class="flex justify-center mb-8 border-b border-slate-700">
+            <button id="tabLogin" onclick="switchTab('login')" class="flex-1 pb-3 text-center font-semibold text-blue-400 border-b-2 border-blue-500 transition-colors">Masuk</button>
+            <button id="tabRegister" onclick="switchTab('register')" class="flex-1 pb-3 text-center font-semibold text-slate-500 hover:text-slate-300 border-b-2 border-transparent transition-colors">Daftar Manual</button>
+        </div>
+
+        <!-- FORM LOGIN -->
+        <div id="formLoginView" class="block">
+            <h2 class="text-2xl font-bold text-white mb-2 text-center">Selamat Datang</h2>
+            <p class="text-slate-400 text-sm text-center mb-6">Silakan masuk ke akun Anda.</p>
+
+            <!-- Pesan Notifikasi Auth -->
+            <div id="authLoginMsg" class="hidden mb-4 p-3 rounded-lg text-sm text-center font-medium"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Email atau Username</label>
+                    <input type="text" id="loginId" required placeholder="itsmeaxaa@gmail.com / axaaxyz_01" class="form-input w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" id="loginPass" required placeholder="••••••••" class="form-input w-full px-4 py-3 rounded-lg">
+                </div>
+                
+                <button type="submit" id="btnSubmitLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors mt-2 flex justify-center items-center gap-2">
+                    <span>Masuk Sekarang</span>
+                    <svg id="spinnerLogin" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 relative flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-700"></div></div>
+                <div class="relative bg-[#111827] px-4 text-xs text-slate-400 uppercase tracking-widest">ATAU</div>
+            </div>
+
+            <button onclick="handleGoogleAuth()" class="mt-6 w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-3">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                Masuk dengan Google
+            </button>
+        </div>
+
+        <!-- FORM REGISTER (Disembunyikan default) -->
+        <div id="formRegisterView" class="hidden">
+            <h2 class="text-2xl font-bold text-white mb-2 text-center">Buat Akun Baru</h2>
+            <p class="text-slate-400 text-sm text-center mb-6">Lengkapi data diri Anda di bawah ini.</p>
+
+            <!-- Pesan Notifikasi Register -->
+            <div id="authRegMsg" class="hidden mb-4 p-3 rounded-lg text-sm text-center font-medium"></div>
+
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="regEmail" required placeholder="email@contoh.com" class="form-input w-full px-4 py-2.5 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Username <span class="text-red-500">*</span></label>
+                    <input type="text" id="regUser" required placeholder="username_unik" class="form-input w-full px-4 py-2.5 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Password <span class="text-red-500">*</span></label>
+                    <input type="password" id="regPass" required placeholder="Minimal 6 karakter" minlength="6" class="form-input w-full px-4 py-2.5 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">No. WhatsApp <span class="text-red-500">*</span></label>
+                    <input type="tel" id="regWa" required placeholder="081234567890" class="form-input w-full px-4 py-2.5 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Tanggal Lahir <span class="text-red-500">*</span></label>
+                    <input type="date" id="regDob" required class="form-input w-full px-4 py-2.5 rounded-lg text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Alamat Lengkap <span class="text-red-500">*</span></label>
+                    <textarea id="regAddress" required placeholder="Masukkan alamat lengkap..." rows="2" class="form-input w-full px-4 py-2.5 rounded-lg resize-none"></textarea>
+                </div>
+                
+                <button type="submit" id="btnSubmitReg" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors mt-4 flex justify-center items-center gap-2">
+                    <span>Daftar Sekarang</span>
+                    <svg id="spinnerReg" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </button>
+            </form>
+        </div>
+        
+        <div class="text-center text-xs text-slate-500 mt-6">
+            <p>&copy; 2026 AXA Keamanan &copy; Google Identity</p>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT -->
+    <script>
+        // ==========================================
+        // KONFIGURASI GOOGLE APPS SCRIPT (GAS)
+        // ==========================================
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxvVGpzARGSdoyE2g8rHjEmIFgTrgAxdxkiOYUsD2AFQGMMZBxFab1UBCQRtancQv0/exec"; 
+        
+        // ==========================================
+        // KONFIGURASI GOOGLE CLIENT ID (GCP)
+        // ==========================================
+        // SANGAT PENTING: Ganti string di bawah ini dengan Client ID dari Google Cloud Anda!
+        const GOOGLE_CLIENT_ID = "GANTI_DENGAN_CLIENT_ID_GCP_ANDA.apps.googleusercontent.com"; 
+
+        // ==========================================
+        // 1. LOGIKA CAPTCHA (Pelindung Keamanan)
+        // ==========================================
+        const captchaImage = document.getElementById('captchaImage');
+        const captchaInput = document.getElementById('captchaInput');
+        let currentCaptchaCode = '';
+
+        function generateBase64Captcha() {
+            const offScreenCanvas = document.createElement('canvas');
+            const ctx = offScreenCanvas.getContext('2d');
+            offScreenCanvas.width = 300; offScreenCanvas.height = 80;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
+            
+            for(let i = 0; i < 400; i++) {
+                ctx.fillStyle = `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 0.7)`;
+                ctx.beginPath();
+                ctx.arc(Math.random() * offScreenCanvas.width, Math.random() * offScreenCanvas.height, Math.random() * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            const paletWarna = ['#22c55e', '#8b5cf6', '#3b82f6', '#f97316', '#ef4444', '#14b8a6'];
+            for(let i = 0; i < 3; i++) {
+                ctx.strokeStyle = paletWarna[Math.floor(Math.random() * paletWarna.length)];
+                ctx.lineWidth = Math.random() * 1.5 + 1;
+                ctx.beginPath();
+                ctx.moveTo(0, Math.random() * offScreenCanvas.height);
+                ctx.bezierCurveTo(
+                    offScreenCanvas.width/3, Math.random()*offScreenCanvas.height,
+                    (offScreenCanvas.width/3)*2, Math.random()*offScreenCanvas.height,
+                    offScreenCanvas.width, Math.random()*offScreenCanvas.height
+                );
+                ctx.stroke();
+            }
+
+            const chars = currentCaptchaCode.split('');
+            const charWidth = offScreenCanvas.width / (chars.length + 1);
+            ctx.font = `bold ${Math.floor(offScreenCanvas.height * 0.75)}px "Comic Sans MS", sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+            chars.forEach((char, i) => {
+                const charColor = paletWarna[Math.floor(Math.random() * paletWarna.length)];
+                ctx.save();
+                ctx.translate(charWidth * (i + 1), (offScreenCanvas.height / 2) + (Math.random() * 16 - 8));
+                ctx.rotate((Math.random() * 0.5) - 0.25);
+                ctx.lineWidth = 2;
+
+                ctx.fillStyle = charColor; ctx.fillText(char, 3, 4); // Shadow
+                ctx.strokeStyle = charColor; ctx.strokeText(char, 0, 0); // Outline
+                ctx.fillStyle = '#ffffff'; ctx.fillText(char, 0, 0); // Fill
+                ctx.restore();
+            });
+            return offScreenCanvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        function refreshCaptcha() {
+            document.getElementById('refreshIcon').style.transform = `rotate(${Math.random() * 360 + 360}deg)`;
+            document.getElementById('captchaMsg').classList.add('hidden');
+            captchaInput.value = '';
+            captchaInput.classList.remove('border-red-500', 'focus:ring-red-500');
+            currentCaptchaCode = Math.floor(1000 + Math.random() * 9000).toString();
+            captchaImage.src = generateBase64Captcha();
+            captchaInput.focus();
+        }
+
+        document.getElementById('verifyBtn').addEventListener('click', () => {
+            const val = captchaInput.value.trim();
+            if(!val) return;
+
+            const btnText = document.getElementById('btnText'), btnSpinner = document.getElementById('btnSpinner'), btnCheck = document.getElementById('btnCheck'), msgEl = document.getElementById('captchaMsg');
+            captchaInput.disabled = true; document.getElementById('verifyBtn').disabled = true;
+            btnText.classList.add('hidden'); btnSpinner.classList.remove('hidden'); btnSpinner.classList.add('flex');
+            msgEl.classList.add('hidden');
+
+            setTimeout(() => {
+                if(val === currentCaptchaCode) {
+                    msgEl.textContent = 'Aman. Membuka Portal...';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-center text-green-500 block';
+                    document.getElementById('verifyBtn').classList.replace('bg-blue-600', 'bg-green-600');
+                    btnSpinner.classList.replace('flex', 'hidden'); btnCheck.classList.remove('hidden');
+                    
+                    // TRANSISI KE FORM LOGIN
+                    setTimeout(() => {
+                        document.getElementById('captchaCard').style.display = 'none';
+                        document.getElementById('authCard').classList.remove('hidden');
+                    }, 800);
+                } else {
+                    msgEl.textContent = 'Kode salah!';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-center text-red-500 block';
+                    btnSpinner.classList.replace('flex', 'hidden'); btnText.classList.remove('hidden');
+                    captchaInput.disabled = false; document.getElementById('verifyBtn').disabled = false;
+                    captchaInput.classList.add('border-red-500', 'animate-shake');
+                    setTimeout(() => captchaInput.classList.remove('animate-shake'), 400);
+                    refreshCaptcha();
+                }
+            }, 600);
+        });
+
+        window.onload = refreshCaptcha;
+
+
+        // ==========================================
+        // 2. LOGIKA UI TABS (Login & Register)
+        // ==========================================
+        function switchTab(tab) {
+            const loginView = document.getElementById('formLoginView');
+            const regView = document.getElementById('formRegisterView');
+            const tabLog = document.getElementById('tabLogin');
+            const tabReg = document.getElementById('tabRegister');
+
+            if(tab === 'login') {
+                loginView.classList.remove('hidden'); regView.classList.add('hidden');
+                tabLog.className = "flex-1 pb-3 text-center font-semibold text-blue-400 border-b-2 border-blue-500 transition-colors";
+                tabReg.className = "flex-1 pb-3 text-center font-semibold text-slate-500 hover:text-slate-300 border-b-2 border-transparent transition-colors";
+            } else {
+                loginView.classList.add('hidden'); regView.classList.remove('hidden');
+                tabReg.className = "flex-1 pb-3 text-center font-semibold text-blue-400 border-b-2 border-blue-500 transition-colors";
+                tabLog.className = "flex-1 pb-3 text-center font-semibold text-slate-500 hover:text-slate-300 border-b-2 border-transparent transition-colors";
+            }
+        }
+
+        function showAuthMsg(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `mb-4 p-3 rounded-lg text-sm text-center font-medium block ${type === 'error' ? 'bg-red-900/50 text-red-200 border border-red-700' : 'bg-green-900/50 text-green-200 border border-green-700'}`;
+        }
+
+
+        // ==========================================
+        // 3. LOGIKA REQUEST KE GOOGLE APPS SCRIPT
+        // ==========================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('loginId').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            
+            const btn = document.getElementById('btnSubmitLogin');
+            const spinner = document.getElementById('spinnerLogin');
+            
+            btn.disabled = true; spinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(GAS_WEBAPP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "login", identifier: id, password: pass })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showAuthMsg('authLoginMsg', data.message || 'Login Berhasil! Mengalihkan...', 'success');
+                    setTimeout(() => { window.location.href = "https://axa-eklinik.vercel.app"; }, 1500);
+                } else {
+                    showAuthMsg('authLoginMsg', data.message || 'Akun tidak ditemukan atau Password salah!', 'error');
+                }
+            } catch (error) {
+                if(GAS_WEBAPP_URL.includes("CONTOH_GANTI")) {
+                    showAuthMsg('authLoginMsg', 'SYSTEM INFO: Anda belum mengganti URL WebApp Google Script.', 'error');
+                } else {
+                    showAuthMsg('authLoginMsg', 'Terjadi kesalahan jaringan/CORS. Pastikan Web App diset ke "Anyone".', 'error');
+                }
+            } finally {
+                btn.disabled = false; spinner.classList.add('hidden');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const payload = {
+                action: "register",
+                email: document.getElementById('regEmail').value.trim(),
+                user: document.getElementById('regUser').value.trim(),
+                pass: document.getElementById('regPass').value,
+                wa: document.getElementById('regWa').value.trim(),
+                dob: document.getElementById('regDob').value,
+                address: document.getElementById('regAddress').value.trim()
+            };
+
+            const btn = document.getElementById('btnSubmitReg');
+            const spinner = document.getElementById('spinnerReg');
+
+            btn.disabled = true; spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(GAS_WEBAPP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showAuthMsg('authRegMsg', 'Registrasi Berhasil! Silakan masuk.', 'success');
+                    setTimeout(() => {
+                        document.getElementById('registerForm').reset();
+                        document.getElementById('authRegMsg').classList.add('hidden');
+                        switchTab('login');
+                    }, 2000);
+                } else {
+                    showAuthMsg('authRegMsg', data.message || 'Email atau Username sudah terdaftar!', 'error');
+                }
+            } catch (error) {
+                 if(GAS_WEBAPP_URL.includes("CONTOH_GANTI")) {
+                    showAuthMsg('authRegMsg', 'SYSTEM INFO: Script Spreadsheet belum terhubung. Silakan setup GAS terlebih dahulu.', 'error');
+                } else {
+                    showAuthMsg('authRegMsg', 'Terjadi kesalahan sistem. Coba beberapa saat lagi.', 'error');
+                }
+            } finally {
+                btn.disabled = false; spinner.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // 4. LOGIKA GOOGLE IDENTITY SERVICES (GIS)
+        // ==========================================
+        function handleGoogleAuth() {
+            // Validasi apakah Client ID sudah diubah atau belum
+            if (GOOGLE_CLIENT_ID.includes("GANTI_DENGAN_CLIENT_ID")) {
+                alert("Tahap Terakhir: Anda harus mengganti variabel GOOGLE_CLIENT_ID di dalam kode HTML ini dengan Client ID dari Google Cloud (GCP) Anda.");
+                return;
+            }
+
+            // Memulai inisialisasi layanan Google Login
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_select: false, // jangan otomatis login tanpa klik
+                cancel_on_tap_outside: true
+            });
+
+            // Memanggil pop-up / jendela One-Tap Login
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // Jika popup diblok oleh pengaturan browser
+                    showAuthMsg('authLoginMsg', 'Popup Google diblokir oleh browser Anda. Mohon izinkan popup untuk situs ini.', 'error');
+                }
+            });
+        }
+
+        // Fungsi ini akan dipanggil otomatis oleh Google jika pengguna berhasil login
+        function handleCredentialResponse(response) {
+            // response.credential adalah token JWT dari Google yang berisi data user
+            console.log("Encoded JWT ID token: " + response.credential);
+
+            // Karena ini adalah Front-End saja, kita asumsikan jika mendapat token berarti sukses
+            showAuthMsg('authLoginMsg', 'Autentikasi Google Berhasil! Mengalihkan...', 'success');
+            
+            setTimeout(() => { 
+                window.location.href = "https://axa-eklinik.vercel.app"; 
+            }, 1500);
+
+            // INFO PRO: Jika dihubungkan ke GAS, kita harusnya mengirim response.credential ini
+            // ke endpoint backend untuk diverifikasi (google-auth-library) sebelum login.
+        }
+    </script>
+</body>
+</html>

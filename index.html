@@ -139,6 +139,610 @@
     .toggle-label { width: 3.5rem; height: 1.75rem; background-color: rgba(255,255,255,0.1); border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; border: 1px solid rgba(255,255,255,0.2); display: inline-block; }
     .toggle-label:after { content: ''; position: absolute; top: 2px; left: 2px; width: 1.35rem; height: 1.35rem; background-color: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
   </style>
+
+  <style id="neubrutalism-ui-upgrade">
+/* ================================================================
+   AXA OHQE — NEUBRUTALISM UI/UX UPGRADE
+   UI ONLY: no IDs, functions, data bindings, routing or logic changed.
+   Performance focus: no backdrop-filter, lighter paint, bounded effects.
+   ================================================================ */
+:root {
+  --nb-bg: #f7f3e8;
+  --nb-surface: #fffdf7;
+  --nb-ink: #111111;
+  --nb-muted: #5f5a50;
+  --nb-line: #111111;
+  --nb-lime: #b7ff2a;
+  --nb-yellow: #ffd84d;
+  --nb-pink: #ff5aa5;
+  --nb-blue: #57c7ff;
+  --nb-purple: #9b7bff;
+  --nb-orange: #ff914d;
+  --nb-green: #46d66a;
+  --nb-red: #ff5b5b;
+  --nb-shadow: 6px 6px 0 var(--nb-ink);
+  --nb-shadow-sm: 4px 4px 0 var(--nb-ink);
+  --nb-radius: 18px;
+  --nb-radius-sm: 12px;
+}
+
+html {
+  background: var(--nb-bg);
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: var(--nb-bg) !important;
+  background-image:
+    radial-gradient(circle at 8% 10%, rgba(255,216,77,.34) 0 70px, transparent 71px),
+    radial-gradient(circle at 92% 18%, rgba(87,199,255,.30) 0 90px, transparent 91px),
+    radial-gradient(circle at 85% 86%, rgba(255,90,165,.20) 0 110px, transparent 111px) !important;
+  color: var(--nb-ink) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  min-height: 100vh;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Remove expensive glass effects while preserving the original class API. */
+.glass-card {
+  background: var(--nb-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-ink);
+  isolation: isolate;
+}
+
+.text-neon { color: #111 !important; text-shadow: none !important; }
+.border-neon { border-color: var(--nb-line) !important; box-shadow: none !important; }
+
+/* Main cards get a playful top accent without changing markup. */
+#gate-container,
+#app-container,
+#login-container,
+#admin-container,
+#rontgen-login-container,
+#rontgen-dashboard-container {
+  position: relative;
+  overflow: hidden;
+}
+
+#gate-container::before,
+#app-container::before,
+#login-container::before,
+#admin-container::before,
+#rontgen-login-container::before,
+#rontgen-dashboard-container::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12px;
+  background: repeating-linear-gradient(135deg, var(--nb-pink) 0 18px, var(--nb-yellow) 18px 36px, var(--nb-blue) 36px 54px, var(--nb-lime) 54px 72px);
+  border-bottom: 3px solid var(--nb-line);
+  z-index: 0;
+}
+
+#gate-container > *,
+#app-container > *,
+#login-container > *,
+#admin-container > *,
+#rontgen-login-container > *,
+#rontgen-dashboard-container > * { position: relative; z-index: 1; }
+
+/* Typography */
+h1, h2, h3, h4, h5, button, label, th { letter-spacing: .01em; }
+h1, h2, h3, h4 { font-weight: 900 !important; }
+
+/* Buttons: bold, flat, tactile, mobile-safe. */
+button,
+.btn-neon,
+input[type="button"],
+input[type="submit"] {
+  min-height: 44px;
+  border-radius: 12px !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+  font-weight: 900 !important;
+  color: var(--nb-ink) !important;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-neon {
+  background: var(--nb-lime) !important;
+  border-color: var(--nb-line) !important;
+  color: var(--nb-ink) !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+
+.btn-neon:hover:not(:disabled),
+button:hover:not(:disabled) {
+  background-image: none !important;
+  filter: brightness(1.04);
+  transform: translate(-2px,-2px) !important;
+  box-shadow: 6px 6px 0 var(--nb-ink) !important;
+}
+
+.btn-neon:active:not(:disabled),
+button:active:not(:disabled) {
+  transform: translate(2px,2px) !important;
+  box-shadow: 1px 1px 0 var(--nb-ink) !important;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+label:focus-visible {
+  outline: 4px solid var(--nb-blue) !important;
+  outline-offset: 3px;
+}
+
+#btn-next, #btn-submit { background: var(--nb-lime) !important; }
+#btn-prev { background: var(--nb-yellow) !important; }
+#link-admin-panel { color: var(--nb-purple) !important; }
+
+/* Inputs */
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="password"],
+select,
+textarea {
+  min-height: 48px;
+  background: #fff !important;
+  color: var(--nb-ink) !important;
+  border: 3px solid var(--nb-line) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 rgba(17,17,17,.18) !important;
+  appearance: auto;
+}
+
+input::placeholder,
+textarea::placeholder { color: #777 !important; opacity: 1; }
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--nb-line) !important;
+  box-shadow: 4px 4px 0 var(--nb-blue) !important;
+  outline: none !important;
+}
+
+select { background-image: none !important; }
+select option { background: #fff !important; color: #111 !important; }
+
+input[type="file"] {
+  color: var(--nb-ink) !important;
+  min-height: 44px;
+}
+input[type="file"]::file-selector-button {
+  background: var(--nb-blue) !important;
+  color: var(--nb-ink) !important;
+  border: 3px solid var(--nb-line) !important;
+  border-radius: 9px !important;
+  font-weight: 900;
+  min-height: 40px;
+}
+
+/* Section headings and question cards */
+#step-1 h2,
+#step-2 h2,
+#step-3 h2,
+#step-4 h2,
+#step-5 h2,
+#step-6 h2,
+#step-7 h2 {
+  color: var(--nb-ink) !important;
+  border-color: var(--nb-line) !important;
+}
+
+#step-2 > div[id^="container-"],
+#step-3 > div[id^="container-"],
+#step-4 > div[id^="container-"],
+#step-6 > div[id^="container-"],
+#step-7 > div[id^="container-"] {
+  contain: layout style;
+}
+
+/* Existing generated question cards */
+.radio-group label {
+  min-height: 58px !important;
+  background: #fff !important;
+  color: var(--nb-ink) !important;
+  border: 3px solid var(--nb-line) !important;
+  border-radius: 12px !important;
+  box-shadow: 3px 3px 0 rgba(17,17,17,.16) !important;
+  font-weight: 800;
+  padding: .7rem !important;
+}
+
+@media (hover:hover) {
+  .radio-group label:hover {
+    background: var(--nb-yellow) !important;
+    border-color: var(--nb-line) !important;
+    transform: translate(-1px,-1px);
+  }
+}
+
+.radio-group input[type="radio"]:checked + label {
+  background: var(--nb-lime) !important;
+  color: var(--nb-ink) !important;
+  border-color: var(--nb-line) !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+  transform: none !important;
+}
+
+.radio-group label span.num { color: inherit !important; }
+
+/* VAS: large, colorful, easy-to-tap controls */
+#container-vas {
+  gap: .65rem !important;
+}
+.vas-item { min-width: 0; }
+.vas-item .face-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 72px;
+  background: #fff;
+  border: 3px solid var(--nb-line);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--nb-line);
+}
+.face-svg {
+  width: 48px !important;
+  height: 48px !important;
+  stroke: var(--nb-ink) !important;
+  filter: none !important;
+}
+.vas-item input[type="radio"]:checked + .face-icon {
+  background: var(--nb-yellow);
+  transform: translate(-2px,-2px);
+  box-shadow: 5px 5px 0 var(--nb-line);
+}
+.vas-item input[type="radio"]:checked + .face-icon .face-svg {
+  stroke: var(--nb-ink) !important;
+  filter: none !important;
+  transform: none !important;
+}
+.vas-item input[type="radio"]:checked ~ .face-num {
+  background: var(--nb-pink) !important;
+  color: var(--nb-ink) !important;
+  border-color: var(--nb-line) !important;
+  box-shadow: 3px 3px 0 var(--nb-line) !important;
+}
+.face-num {
+  border: 3px solid var(--nb-line) !important;
+  background: #fff !important;
+  color: var(--nb-ink) !important;
+  font-weight: 900;
+}
+
+/* Progress */
+#progress-container {
+  padding-top: .7rem;
+}
+#progress-bar {
+  background: var(--nb-pink) !important;
+  box-shadow: none !important;
+  border-right: 3px solid var(--nb-line);
+}
+#progress-container > div:last-child {
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  height: 15px !important;
+}
+#progress-percentage { color: var(--nb-ink) !important; }
+#step-indicator { color: var(--nb-muted) !important; }
+
+/* Researcher warning */
+#step-1 .bg-red-900\/20 {
+  background: #ffe2e2 !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+#step-1 .text-red-400 { color: #c92b2b !important; }
+
+/* Success */
+#step-8 > div:first-child {
+  background: var(--nb-lime) !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+#step-8 .text-neon { color: var(--nb-ink) !important; }
+
+/* Navigation */
+#nav-buttons { border-color: var(--nb-line) !important; }
+
+/* Modal surfaces */
+#custom-alert,
+#custom-confirm,
+#preview-modal {
+  background: rgba(17,17,17,.72) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+#custom-alert > div,
+#custom-confirm > div {
+  background: var(--nb-surface) !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: 8px 8px 0 var(--nb-line) !important;
+  color: var(--nb-ink) !important;
+}
+#custom-alert-title,
+#custom-confirm h3 { color: var(--nb-ink) !important; }
+#custom-alert-message,
+#custom-confirm-message { color: var(--nb-muted) !important; }
+
+#preview-modal > div {
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: 8px 8px 0 var(--nb-line) !important;
+}
+
+/* Loader: fast and simple, reducing paint cost. */
+#loader {
+  background: var(--nb-bg) !important;
+  color: var(--nb-ink) !important;
+}
+.spinner {
+  width: 48px !important;
+  height: 48px !important;
+  border: 5px solid rgba(17,17,17,.15) !important;
+  border-top-color: var(--nb-pink) !important;
+  animation-duration: .65s !important;
+}
+#loader .text-neon { color: var(--nb-ink) !important; }
+#loader-subtext { color: var(--nb-muted) !important; }
+
+/* Admin / Rontgen */
+#admin-container,
+#rontgen-dashboard-container { background: #fffdf7 !important; }
+#admin-container .border-gray-700,
+#admin-container .border-gray-700\/80,
+#rontgen-dashboard-container .border-gray-700,
+#rontgen-dashboard-container .border-gray-700\/80 { border-color: var(--nb-line) !important; }
+
+/* Tab strip */
+#admin-container .overflow-x-auto {
+  scrollbar-width: thin;
+}
+#admin-container [id^="btn-tab-"] {
+  border-bottom-width: 3px !important;
+  min-height: 44px;
+}
+#admin-container [id^="btn-tab-"]:not(.text-neon):not(.text-purple-400) {
+  color: var(--nb-muted) !important;
+}
+#btn-tab-data, #btn-tab-spss, #btn-tab-spss-vas, #btn-tab-spss-mdas,
+#btn-tab-gpower, #btn-tab-settings, #btn-tab-websettings {
+  background: #fff !important;
+  border: 3px solid transparent !important;
+  border-bottom-width: 3px !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+#btn-tab-data.text-neon,
+#btn-tab-spss.text-neon,
+#btn-tab-spss-vas.text-neon,
+#btn-tab-spss-mdas.text-neon,
+#btn-tab-gpower.text-neon,
+#btn-tab-settings.text-neon { background: var(--nb-yellow) !important; border-color: var(--nb-line) !important; color: var(--nb-ink) !important; }
+#btn-tab-websettings.text-purple-400 { background: var(--nb-purple) !important; border-color: var(--nb-line) !important; color: var(--nb-ink) !important; }
+
+/* Data tables */
+#subtable-ohqe,
+#subtable-vas,
+#subtable-mdas,
+#rontgen-dashboard-container table {
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  border-radius: 12px !important;
+  box-shadow: 5px 5px 0 var(--nb-line);
+}
+#admin-container table thead,
+#rontgen-dashboard-container table thead {
+  background: var(--nb-yellow) !important;
+  color: var(--nb-ink) !important;
+}
+#admin-container table th,
+#admin-container table td,
+#rontgen-dashboard-container table th,
+#rontgen-dashboard-container table td {
+  border-color: rgba(17,17,17,.25) !important;
+}
+#admin-container table tbody tr:hover,
+#rontgen-dashboard-container table tbody tr:hover {
+  background: #fff4b8 !important;
+}
+
+/* SPSS output remains paper-like, but gets stronger hierarchy. */
+.spss-wrapper,
+.spss-table-container,
+.chart-box {
+  border: 2px solid #111 !important;
+  box-shadow: 4px 4px 0 #111 !important;
+}
+.spss-wrapper { border-radius: 12px !important; }
+.spss-table-container { border-radius: 10px !important; }
+.spss-title { font-weight: 900 !important; }
+
+/* G*Power */
+#tab-gpower .bg-gray-800\/50 {
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  color: var(--nb-ink) !important;
+  box-shadow: var(--nb-shadow-sm);
+}
+#tab-gpower .bg-purple-600 {
+  background: var(--nb-purple) !important;
+  color: var(--nb-ink) !important;
+}
+#tab-gpower canvas { max-width: 100%; }
+
+/* Settings */
+#tab-settings .bg-gray-800\/50,
+#tab-websettings .bg-gray-800\/50 {
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: var(--nb-shadow-sm);
+}
+#tab-settings textarea,
+#tab-settings input,
+#tab-websettings input { background: #fff !important; }
+#tab-websettings .toggle-label {
+  width: 58px !important;
+  height: 32px !important;
+  background: #fff !important;
+  border: 3px solid var(--nb-line) !important;
+  box-shadow: 3px 3px 0 var(--nb-line);
+}
+#tab-websettings .toggle-label:after {
+  top: 3px !important;
+  left: 3px !important;
+  width: 22px !important;
+  height: 22px !important;
+  background: var(--nb-pink) !important;
+  border: 2px solid var(--nb-line);
+}
+#tab-websettings .toggle-checkbox:checked + .toggle-label {
+  background: var(--nb-lime) !important;
+  border-color: var(--nb-line) !important;
+}
+#tab-websettings .toggle-checkbox:checked + .toggle-label:after {
+  transform: translateX(24px) !important;
+  border-color: var(--nb-line) !important;
+}
+
+/* Footer */
+footer {
+  color: var(--nb-muted) !important;
+  font-weight: 800 !important;
+}
+
+/* Mobile-first layout corrections */
+@media (max-width: 640px) {
+  body {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    background-image:
+      radial-gradient(circle at 8% 6%, rgba(255,216,77,.28) 0 46px, transparent 47px),
+      radial-gradient(circle at 94% 16%, rgba(87,199,255,.24) 0 55px, transparent 56px) !important;
+  }
+
+  #gate-container,
+  #app-container,
+  #login-container,
+  #admin-container,
+  #rontgen-login-container,
+  #rontgen-dashboard-container {
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-shadow: 4px 4px 0 var(--nb-line) !important;
+  }
+
+  #app-container { padding: 16px !important; }
+  #gate-container { padding: 24px 16px !important; }
+  #admin-container,
+  #rontgen-dashboard-container { padding: 12px !important; }
+
+  #app-container .absolute.top-3.right-3 {
+    top: 18px !important;
+    right: 14px !important;
+  }
+
+  #app-container h1 { padding-right: 44px; }
+  #progress-container { margin-top: 6px !important; }
+
+  #container-vas { grid-template-columns: repeat(3, minmax(0,1fr)) !important; }
+  .vas-item .face-icon { min-height: 68px !important; }
+  .face-svg { width: 42px !important; height: 42px !important; }
+
+  #nav-buttons { gap: 12px !important; }
+  #btn-prev, #btn-next, #btn-submit { width: 100% !important; }
+
+  #admin-container [id^="btn-tab-"] { font-size: .75rem !important; }
+  #admin-container .min-w-\[1000px\] { min-width: 760px !important; }
+
+  .spss-table { font-size: 11px !important; min-width: 560px !important; }
+  .spss-table th, .spss-table td { padding: 6px 8px !important; }
+
+  #preview-modal { padding: 8px !important; }
+  #preview-modal > div { height: 92vh !important; border-radius: 12px !important; }
+
+  .shadow-2xl,
+  .shadow-xl,
+  .shadow-lg { box-shadow: 4px 4px 0 var(--nb-line) !important; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  #app-container { width: min(94%, 820px) !important; }
+  #gate-container { width: min(90%, 520px) !important; }
+  #admin-container,
+  #rontgen-dashboard-container { width: 96% !important; }
+  #container-vas { grid-template-columns: repeat(6, minmax(0,1fr)); }
+}
+
+/* Desktop: keep generous whitespace without huge effects. */
+@media (min-width: 1025px) {
+  #app-container { max-width: 980px !important; }
+  #admin-container,
+  #rontgen-dashboard-container { max-width: 1280px !important; }
+}
+
+/* Performance + accessibility */
+img { content-visibility: auto; }
+#admin-container, #rontgen-dashboard-container { contain: layout style; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (pointer: coarse) {
+  button, select, input, textarea, .radio-group label, .vas-item { touch-action: manipulation; }
+  .radio-group label { min-height: 62px !important; }
+}
+
+/* Keep utility-driven white text readable after the theme switch. */
+#app-container .text-white,
+#gate-container .text-white,
+#login-container .text-white,
+#admin-container .text-white,
+#rontgen-login-container .text-white,
+#rontgen-dashboard-container .text-white {
+  color: var(--nb-ink) !important;
+}
+
+#app-container .text-gray-300,
+#app-container .text-gray-400,
+#gate-container .text-gray-400,
+#admin-container .text-gray-400,
+#admin-container .text-gray-300,
+#rontgen-dashboard-container .text-gray-400 {
+  color: var(--nb-muted) !important;
+}
+
+/* Preserve colored semantic labels. */
+#admin-container .text-blue-400,
+#rontgen-dashboard-container .text-blue-400 { color: #1268b3 !important; }
+#admin-container .text-red-400 { color: #c92b2b !important; }
+#admin-container .text-yellow-400 { color: #9a6800 !important; }
+#admin-container .text-purple-400 { color: #6b4bd8 !important; }
+
+  </style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
 

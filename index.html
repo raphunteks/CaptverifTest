@@ -1812,6 +1812,31 @@ a:hover{
 }
 </style>
 
+
+<style id="landing-first-render-fix">
+/* Landing buttons are the first meaningful public UI. */
+body:not(:has(#admin-container:not(.hidden))):not(:has(#rontgen-dashboard-container:not(.hidden))) #gate-container{
+  visibility:visible;
+}
+#gate-container{
+  min-height:220px;
+}
+#gate-container button{
+  min-height:54px!important;
+}
+@media (max-width:767px){
+  #gate-container{
+    width:min(94vw,520px)!important;
+    padding:1.25rem!important;
+  }
+  #gate-container button{
+    min-height:56px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere;
+  }
+}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1847,7 +1872,7 @@ a:hover{
   </div>
 
   <!-- GATE / LANDING PAGE -->
-  <div id="gate-container" class="glass-card rounded-3xl w-[90%] max-w-md p-8 sm:p-10 hidden mx-auto mt-10 mb-10 text-center shadow-[0_20px_60px_-15px_rgba(57,255,20,0.15)] border border-[rgba(57,255,20,0.3)]">
+  <div id="gate-container" class="glass-card rounded-3xl w-[90%] max-w-md p-8 sm:p-10 mx-auto mt-10 mb-10 text-center shadow-[0_20px_60px_-15px_rgba(57,255,20,0.15)] border border-[rgba(57,255,20,0.3)]">
     <div class="w-24 h-24 mx-auto bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(57,255,20,0.3)] border border-gray-700 relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-[rgba(57,255,20,0.1)] to-transparent"></div>
       <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="64" height="64" decoding="async" fetchpriority="high" class="w-16 h-16 object-contain relative z-10">
@@ -2281,11 +2306,40 @@ a:hover{
     ];
 
     window.onload = () => {
-      // Hanya jalankan di landing page utama (non admin) agar UX instan
+      /*
+       * LANDING-FIRST UX
+       * ------------------------------------------------------------
+       * Kunjungan buttons are intentionally available immediately.
+       * Initial fallback:
+       *   Kunjungan 1 = ON
+       *   Kunjungan 2 = OFF
+       *   Kunjungan 3 = OFF
+       *
+       * Google Sheets remains the source of truth and will refresh
+       * the labels/status as soon as getQuestions() returns.
+       *
+       * No questionnaire, routing, admin, Rontgen, save, or analysis
+       * logic is changed.
+       */
       if(!isAdminMode && !isRontgenMode && kunjunganType === 0) {
-          applyWebSettingsToDOM();
+        webSettings = {
+          adminPanel: false,
+          syncVAS: false,
+          syncMDAS: false,
+          kunjungan1: true,
+          kunjungan2: false,
+          kunjungan3: false
+        };
+
+        // Render the landing buttons immediately.
+        applyWebSettingsToDOM();
+
+        const loader = document.getElementById('loader');
+        const gate = document.getElementById('gate-container');
+        if(loader) loader.style.display = 'none';
+        if(gate) gate.classList.remove('hidden');
       }
-      
+
       if(isAdminMode) {
         if(localStorage.getItem('axa_admin_logged') === 'true') {
            document.getElementById('loader').style.display = 'none'; document.getElementById('admin-container').classList.remove('hidden');
@@ -2300,9 +2354,15 @@ a:hover{
         }
       }
 
+      /*
+       * For questionnaire routes, keep the original loading flow.
+       * Only the landing page receives the landing-first behavior.
+       */
       if(kunjunganType === 0) {
-          document.getElementById('loader').style.display = 'none'; 
-          document.getElementById('gate-container').classList.remove('hidden');
+        const loader = document.getElementById('loader');
+        const gate = document.getElementById('gate-container');
+        if(loader) loader.style.display = 'none';
+        if(gate) gate.classList.remove('hidden');
       }
 
       if(GAS_URL) {
@@ -2312,15 +2372,22 @@ a:hover{
             qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
             if(data.configData) {
                sysConfig = data.configData;
-               // Tarik web settings dari database Google Sheet
+               // Tarik web settings dari database Google Sheet.
+               // Landing page sudah tampil; di sini hanya sinkronisasi.
                if(sysConfig.webSettings) {
                    webSettings = sysConfig.webSettings;
-                   applyWebSettingsToDOM(); // Eksekusi UI landing page secara Realtime
+                   applyWebSettingsToDOM();
                }
             }
           }
-          if(kunjunganType !== 0) setupFlowAndUI(); // Lanjut jika form
-        }).catch(e => { if(kunjunganType !== 0) alert("Error koneksi sistem."); });
+          if(kunjunganType !== 0) setupFlowAndUI();
+        }).catch(e => {
+          /*
+           * Landing page tetap usable dengan default K1 ON.
+           * Form routes mempertahankan perilaku error lama.
+           */
+          if(kunjunganType !== 0) alert("Error koneksi sistem.");
+        });
       } else {
         if(kunjunganType !== 0) { document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden'); }
       }
@@ -2328,6 +2395,11 @@ a:hover{
 
     // Fungsi Render Tampilan berdasarkan Settings yang ada
     function applyWebSettingsToDOM() {
+       // Landing-first: gate remains visible while settings synchronize.
+       const landingGate = document.getElementById('gate-container');
+       if(landingGate && !isAdminMode && !isRontgenMode && kunjunganType === 0) {
+          landingGate.classList.remove('hidden');
+       }
        // Backward-compatible defaults:
        // Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.
        webSettings = {

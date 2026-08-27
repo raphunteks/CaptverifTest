@@ -1077,158 +1077,336 @@ textarea{
 #visit-access-settings .toggle-label{flex:0 0 auto}
 </style>
 
-<style id="index4-font-contrast-fix">
-/* =========================================================
-   INDEX(4).HTML — FONT CONTRAST ACCESSIBILITY PATCH
-   Additive CSS only. No application logic/structure changed.
-   ========================================================= */
+<style id="index4-comprehensive-font-contrast">
+/*
+================================================================
+INDEX(4).HTML — COMPREHENSIVE FONT CONTRAST / READABILITY
+================================================================
+Goal:
+- eliminate white/light text disappearing on light backgrounds
+- keep white text on genuinely dark controls/modals
+- strengthen gray text on paper/white/neubrutalist surfaces
+- preserve all existing application logic and DOM structure
+================================================================
+*/
 
-/* Light backgrounds: force readable dark text. */
-.bg-white,
-.bg-gray-50,
-.bg-gray-100,
-.bg-slate-50,
-.bg-slate-100,
-.bg-zinc-50,
-.bg-zinc-100,
-.bg-neutral-50,
-.bg-neutral-100,
-.bg-stone-50,
-.bg-stone-100,
-.bg-yellow-50,
-.bg-yellow-100,
-.bg-amber-50,
-.bg-amber-100,
-.bg-orange-50,
-.bg-orange-100,
-.bg-green-50,
-.bg-green-100,
-.bg-emerald-50,
-.bg-emerald-100,
-.bg-blue-50,
-.bg-blue-100,
-.bg-sky-50,
-.bg-sky-100,
-.bg-indigo-50,
-.bg-indigo-100,
-.bg-violet-50,
-.bg-violet-100,
-.bg-purple-50,
-.bg-purple-100,
-.bg-pink-50,
-.bg-pink-100,
-.bg-red-50,
-.bg-red-100 {
-  color: #111827;
+/* ---------- GLOBAL PAPER / LIGHT SURFACES ---------- */
+html,
+body {
+  color: #111111 !important;
 }
 
-/* The common failure: white text placed inside a light card. */
+.glass-card,
+#gate-container,
+#app-container,
+#admin-container,
+#rontgen-dashboard-container,
+#login-container,
+#rontgen-login-container,
+#editor-container,
+#tab-websettings,
+#tab-gpower,
+#step-1,
+#step-2,
+#step-3,
+#step-4,
+#step-5,
+#step-6,
+#step-7,
+#step-8 {
+  color: #111111 !important;
+}
+
+/* ---------- THE EXACT LANDING-PAGE PROBLEM ---------- */
+#gate-container h1 {
+  color: #111111 !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+#gate-container h1 > span,
+#gate-container h1 .text-neon {
+  color: #111111 !important;
+  background: #b8f34a !important;
+  border: 2px solid #111111 !important;
+  text-shadow: none !important;
+}
+
+#gate-container > p,
+#gate-container .text-gray-300,
+#gate-container .text-gray-400,
+#gate-container .text-gray-500,
+#gate-container .text-gray-600 {
+  color: #374151 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- LIGHT SURFACE + WHITE TEXT ---------- */
+/* This is deliberately scoped to known light UI containers. */
+.glass-card .text-white,
+#gate-container .text-white,
+#app-container .text-white,
+#admin-container .text-white,
+#rontgen-dashboard-container .text-white,
+#login-container .text-white,
+#rontgen-login-container .text-white,
+#editor-container .text-white,
+#tab-websettings .text-white,
+#tab-gpower .text-white,
+#step-1 .text-white,
+#step-2 .text-white,
+#step-3 .text-white,
+#step-4 .text-white,
+#step-5 .text-white,
+#step-6 .text-white,
+#step-7 .text-white,
+#step-8 .text-white {
+  color: #111111 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- LIGHT SURFACE + FAINT GRAY TEXT ---------- */
+.glass-card .text-gray-300,
+.glass-card .text-gray-400,
+.glass-card .text-gray-500,
+#gate-container .text-gray-300,
+#gate-container .text-gray-400,
+#gate-container .text-gray-500,
+#app-container .text-gray-300,
+#app-container .text-gray-400,
+#app-container .text-gray-500,
+#admin-container .text-gray-300,
+#admin-container .text-gray-400,
+#admin-container .text-gray-500,
+#rontgen-dashboard-container .text-gray-300,
+#rontgen-dashboard-container .text-gray-400,
+#rontgen-dashboard-container .text-gray-500,
+#login-container .text-gray-300,
+#login-container .text-gray-400,
+#login-container .text-gray-500,
+#rontgen-login-container .text-gray-300,
+#rontgen-login-container .text-gray-400,
+#rontgen-login-container .text-gray-500 {
+  color: #374151 !important;
+}
+
+/* ---------- LIGHT CARDS / PANELS ---------- */
 .bg-white .text-white,
 .bg-gray-50 .text-white,
 .bg-gray-100 .text-white,
-.bg-slate-50 .text-white,
-.bg-slate-100 .text-white,
 .bg-yellow-50 .text-white,
 .bg-yellow-100 .text-white,
-.bg-amber-50 .text-white,
-.bg-amber-100 .text-white,
-.bg-green-50 .text-white,
-.bg-green-100 .text-white,
 .bg-blue-50 .text-white,
 .bg-blue-100 .text-white,
-.bg-indigo-50 .text-white,
-.bg-indigo-100 .text-white,
+.bg-green-50 .text-white,
+.bg-green-100 .text-white,
 .bg-purple-50 .text-white,
 .bg-purple-100 .text-white,
 .bg-pink-50 .text-white,
 .bg-pink-100 .text-white,
 .bg-orange-50 .text-white,
-.bg-orange-100 .text-white,
-.bg-red-50 .text-white,
-.bg-red-100 .text-white {
-  color: #111827 !important;
+.bg-orange-100 .text-white {
+  color: #111111 !important;
   text-shadow: none !important;
 }
 
-/* Weak gray text on light backgrounds. */
-.bg-white .text-gray-300,
-.bg-white .text-gray-400,
-.bg-gray-50 .text-gray-300,
-.bg-gray-50 .text-gray-400,
-.bg-gray-100 .text-gray-300,
-.bg-gray-100 .text-gray-400 {
-  color: #374151 !important;
+/* ---------- NEUBRUTALIST BUTTONS ---------- */
+#gate-container button,
+#btn-kunjungan-1,
+#btn-kunjungan-2,
+#btn-kunjungan-3 {
+  color: #111111 !important;
+  text-shadow: none !important;
 }
 
-/* Form controls on light surfaces. */
-.bg-white input,
-.bg-white textarea,
-.bg-white select,
-.bg-gray-50 input,
-.bg-gray-50 textarea,
-.bg-gray-50 select,
-.bg-gray-100 input,
-.bg-gray-100 textarea,
-.bg-gray-100 select {
-  color: #111827 !important;
-  background-color: #ffffff;
+#gate-container button:hover,
+#btn-kunjungan-1:hover,
+#btn-kunjungan-2:hover,
+#btn-kunjungan-3:hover {
+  color: #111111 !important;
 }
 
-.bg-white input::placeholder,
-.bg-white textarea::placeholder,
-.bg-gray-50 input::placeholder,
-.bg-gray-50 textarea::placeholder,
-.bg-gray-100 input::placeholder,
-.bg-gray-100 textarea::placeholder {
-  color: #4b5563 !important;
-  opacity: 1;
+/* ---------- NAV / ICON BUTTONS ON LIGHT SURFACES ---------- */
+#app-container button,
+#admin-container button,
+#rontgen-dashboard-container button,
+#login-container button,
+#rontgen-login-container button {
+  text-shadow: none !important;
 }
 
-/* Preserve white text where the actual surface is dark. */
-.bg-black .text-white,
-.bg-gray-800 .text-white,
-.bg-gray-900 .text-white,
-.bg-slate-800 .text-white,
-.bg-slate-900 .text-white,
-.bg-zinc-800 .text-white,
-.bg-zinc-900 .text-white,
-.bg-neutral-800 .text-white,
-.bg-neutral-900 .text-white,
-.bg-indigo-800 .text-white,
-.bg-indigo-900 .text-white,
-.bg-purple-800 .text-white,
-.bg-purple-900 .text-white,
-.bg-blue-800 .text-white,
-.bg-blue-900 .text-white,
-.bg-green-800 .text-white,
-.bg-green-900 .text-white,
-.bg-red-800 .text-white,
-.bg-red-900 .text-white {
+/* Explicitly readable text on the common dark utility buttons. */
+#app-container button.bg-gray-800,
+#app-container button.bg-gray-900,
+#admin-container button.bg-gray-800,
+#admin-container button.bg-gray-900,
+#rontgen-dashboard-container button.bg-gray-800,
+#rontgen-dashboard-container button.bg-gray-900,
+#login-container button.bg-gray-800,
+#login-container button.bg-gray-900,
+#rontgen-login-container button.bg-gray-800,
+#rontgen-login-container button.bg-gray-900 {
   color: #ffffff !important;
 }
 
-/* Inline white backgrounds must not inherit white foreground text. */
-[style*="background-color: white"] .text-white,
-[style*="background-color:#fff"] .text-white,
-[style*="background:#fff"] .text-white {
-  color: #111827 !important;
-  text-shadow: none !important;
+/* ---------- FORMS ---------- */
+input,
+select,
+textarea {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
 }
 
-/* Tables/charts already use white surfaces: keep their text explicit. */
+input::placeholder,
+textarea::placeholder {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+select option {
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+/* ---------- TABLES / SPSS / CHART PANELS ---------- */
 .spss-wrapper,
 .spss-table-container,
 .chart-box {
-  color: #111827;
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+.spss-wrapper *,
+.spss-table-container *,
+.chart-box * {
+  border-color: inherit;
 }
 
 .spss-wrapper .text-white,
 .spss-table-container .text-white,
-.chart-box .text-white {
-  color: #111827 !important;
+.chart-box .text-white,
+.spss-wrapper .text-gray-300,
+.spss-wrapper .text-gray-400,
+.spss-table-container .text-gray-300,
+.spss-table-container .text-gray-400,
+.chart-box .text-gray-300,
+.chart-box .text-gray-400 {
+  color: #111111 !important;
+  text-shadow: none !important;
 }
 
-/* Better readability on mobile without changing layout/logic. */
+/* ---------- ADMIN / RONTGEN DATA TABLES ---------- */
+#admin-container table,
+#admin-container th,
+#admin-container td,
+#rontgen-dashboard-container table,
+#rontgen-dashboard-container th,
+#rontgen-dashboard-container td {
+  color: #111111 !important;
+}
+
+#admin-container table .text-white,
+#admin-container table .text-gray-300,
+#admin-container table .text-gray-400,
+#rontgen-dashboard-container table .text-white,
+#rontgen-dashboard-container table .text-gray-300,
+#rontgen-dashboard-container table .text-gray-400 {
+  color: #111111 !important;
+}
+
+/* ---------- LIGHT TOGGLES / SETTINGS ---------- */
+#tab-websettings .toggle-label,
+#tab-websettings .toggle-label span {
+  color: #111111 !important;
+}
+
+#tab-websettings .visit-label-input {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+  background: #ffffff !important;
+}
+
+#tab-websettings .visit-label-input::placeholder {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
+
+/* ---------- FOOTER ---------- */
+footer,
+footer * {
+  color: #111111 !important;
+}
+
+footer a:hover {
+  color: #175cd3 !important;
+}
+
+/* ---------- DARK MODALS: WHITE TEXT IS CORRECT HERE ---------- */
+#custom-alert,
+#custom-confirm,
+#preview-modal {
+  color: #ffffff !important;
+}
+
+#custom-alert > div,
+#custom-confirm > div,
+#preview-modal > div {
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+#custom-alert > div .text-white,
+#custom-confirm > div .text-white,
+#preview-modal > div .text-white {
+  color: #111111 !important;
+}
+
+#custom-alert button.bg-gray-800,
+#custom-alert button.bg-gray-700,
+#custom-confirm button.bg-gray-700,
+#custom-confirm button.bg-red-600 {
+  color: #ffffff !important;
+}
+
+/* ---------- LOADER ---------- */
+#loader {
+  color: #111111 !important;
+}
+
+#loader .text-gray-400,
+#loader .text-gray-500 {
+  color: #374151 !important;
+}
+
+/* ---------- ACCESSIBLE LINKS ---------- */
+.glass-card a,
+#gate-container a,
+#app-container a,
+#admin-container a,
+#rontgen-dashboard-container a {
+  text-underline-offset: 2px;
+}
+
+.glass-card a.text-blue-400,
+.glass-card a.text-blue-500,
+.glass-card a.text-blue-600,
+#admin-container a.text-blue-400,
+#admin-container a.text-blue-500,
+#admin-container a.text-blue-600 {
+  color: #175cd3 !important;
+}
+
+/* ---------- SVG ICONS ---------- */
+.glass-card svg,
+#gate-container svg,
+#app-container svg,
+#admin-container svg,
+#rontgen-dashboard-container svg {
+  max-width: 100%;
+}
+
+/* ---------- MOBILE READABILITY ---------- */
 @media (max-width: 767px) {
   body,
   button,
@@ -1236,9 +1414,72 @@ textarea{
   select,
   textarea,
   label,
-  a {
+  a,
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  #gate-container h1 {
+    line-height: 1.15 !important;
+  }
+
+  #gate-container > p {
+    color: #374151 !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* ---------- HIGH CONTRAST / FORCED COLORS ---------- */
+@media (forced-colors: active) {
+  body,
+  .glass-card,
+  #gate-container,
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container {
+    color: CanvasText !important;
+    background: Canvas !important;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    color: ButtonText !important;
+    background: ButtonFace !important;
+    border: 2px solid ButtonText !important;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+  }
+}
+
+/* ---------- PRINT ---------- */
+@media print {
+  body,
+  .glass-card,
+  #gate-container,
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container {
+    color: #111111 !important;
+    background: #ffffff !important;
+  }
+
+  .text-white,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500 {
+    color: #111111 !important;
   }
 }
 </style>

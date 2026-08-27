@@ -1064,6 +1064,12 @@ textarea{
 #btn-kunjungan-1[disabled],#btn-kunjungan-2[disabled],#btn-kunjungan-3[disabled]{pointer-events:none!important}
 </style>
 
+
+<style id="visit-label-enterprise">
+#tab-websettings .visit-label-input{min-height:44px;box-shadow:3px 3px 0 #111;transition:transform .12s ease,box-shadow .12s ease}
+#tab-websettings .visit-label-input:focus{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #111}
+@media (max-width:640px){#tab-websettings .visit-label-input{font-size:16px}}
+</style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1398,7 +1404,7 @@ textarea{
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-yellow-100 shadow-[4px_4px_0_#111] cursor-pointer">
-              <div><div class="font-black text-black">Kunjungan 1</div><div class="text-xs text-gray-600 mt-1">Default: AKTIF</div></div>
+              <div class="min-w-0 flex-1"><div class="font-black text-black">Nama Tombol Kunjungan 1</div><div class="text-xs text-gray-600 mt-1">Default: Kunjungan 1 • Maks. 40 karakter</div><input type="text" id="label-kunjungan-1" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="Kunjungan 1" maxlength="40" autocomplete="off" onchange="updateWebSettings()" aria-label="Nama tombol Kunjungan 1"></div>
               <div class="relative shrink-0">
                 <input type="checkbox" id="toggle-kunjungan-1" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 1">
                 <div class="toggle-label" aria-hidden="true"></div>
@@ -1406,7 +1412,7 @@ textarea{
             </label>
 
             <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-pink-100 shadow-[4px_4px_0_#111] cursor-pointer">
-              <div><div class="font-black text-black">Kunjungan 2</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="min-w-0 flex-1"><div class="font-black text-black">Nama Tombol Kunjungan 2</div><div class="text-xs text-gray-600 mt-1">Default: Kunjungan 2 • Maks. 40 karakter</div><input type="text" id="label-kunjungan-2" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="Kunjungan 2" maxlength="40" autocomplete="off" onchange="updateWebSettings()" aria-label="Nama tombol Kunjungan 2"></div>
               <div class="relative shrink-0">
                 <input type="checkbox" id="toggle-kunjungan-2" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 2">
                 <div class="toggle-label" aria-hidden="true"></div>
@@ -1414,7 +1420,7 @@ textarea{
             </label>
 
             <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-blue-100 shadow-[4px_4px_0_#111] cursor-pointer">
-              <div><div class="font-black text-black">Kunjungan 3</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="min-w-0 flex-1"><div class="font-black text-black">Nama Tombol Kunjungan 3</div><div class="text-xs text-gray-600 mt-1">Default: Kunjungan 3 • Maks. 40 karakter</div><input type="text" id="label-kunjungan-3" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="Kunjungan 3" maxlength="40" autocomplete="off" onchange="updateWebSettings()" aria-label="Nama tombol Kunjungan 3"></div>
               <div class="relative shrink-0">
                 <input type="checkbox" id="toggle-kunjungan-3" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 3">
                 <div class="toggle-label" aria-hidden="true"></div>
@@ -1503,7 +1509,10 @@ textarea{
       syncMDAS: false,
       kunjungan1: true,
       kunjungan2: false,
-      kunjungan3: false
+      kunjungan3: false,
+      kunjungan1Label: 'Kunjungan 1',
+      kunjungan2Label: 'Kunjungan 2',
+      kunjungan3Label: 'Kunjungan 3'
     };
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
@@ -1580,80 +1589,88 @@ textarea{
 
     // Fungsi Render Tampilan berdasarkan Settings yang ada
     function applyWebSettingsToDOM() {
-       // Backward-compatible defaults:
-       // Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.
        webSettings = {
           adminPanel: webSettings.adminPanel === true || webSettings.adminPanel === 'true',
           syncVAS: webSettings.syncVAS === true || webSettings.syncVAS === 'true',
           syncMDAS: webSettings.syncMDAS === true || webSettings.syncMDAS === 'true',
           kunjungan1: webSettings.kunjungan1 === undefined ? true : (webSettings.kunjungan1 === true || webSettings.kunjungan1 === 'true'),
           kunjungan2: webSettings.kunjungan2 === undefined ? false : (webSettings.kunjungan2 === true || webSettings.kunjungan2 === 'true'),
-          kunjungan3: webSettings.kunjungan3 === undefined ? false : (webSettings.kunjungan3 === true || webSettings.kunjungan3 === 'true')
+          kunjungan3: webSettings.kunjungan3 === undefined ? false : (webSettings.kunjungan3 === true || webSettings.kunjungan3 === 'true'),
+          kunjungan1Label: (typeof webSettings.kunjungan1Label === 'string' && webSettings.kunjungan1Label.trim()) ? webSettings.kunjungan1Label.trim() : 'Kunjungan 1',
+          kunjungan2Label: (typeof webSettings.kunjungan2Label === 'string' && webSettings.kunjungan2Label.trim()) ? webSettings.kunjungan2Label.trim() : 'Kunjungan 2',
+          kunjungan3Label: (typeof webSettings.kunjungan3Label === 'string' && webSettings.kunjungan3Label.trim()) ? webSettings.kunjungan3Label.trim() : 'Kunjungan 3'
        };
-
        const adminLink = document.getElementById('link-admin-panel');
        const adminSep = document.getElementById('link-admin-sep');
-
        if(adminLink && adminSep) {
            adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
            adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
        }
-
        const visitButtons = [
-         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1 },
-         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2 },
-         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3 }
+         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1, label: webSettings.kunjungan1Label },
+         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2, label: webSettings.kunjungan2Label },
+         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3, label: webSettings.kunjungan3Label }
        ];
-
        visitButtons.forEach(item => {
          const btn = document.getElementById(item.id);
          if(btn) {
            btn.style.display = item.enabled ? '' : 'none';
            btn.setAttribute('aria-hidden', item.enabled ? 'false' : 'true');
            btn.disabled = !item.enabled;
+           btn.textContent = item.label;
+           btn.setAttribute('aria-label', item.label);
          }
        });
-
        const visitStatus = document.getElementById('visit-settings-status');
        if(visitStatus) {
          const active = [webSettings.kunjungan1, webSettings.kunjungan2, webSettings.kunjungan3].filter(Boolean).length;
          visitStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> ' + active + '/3 AKTIF';
        }
-
        const toggleAdmin = document.getElementById('toggle-admin');
        const toggleVas = document.getElementById('toggle-vas');
        const toggleMdas = document.getElementById('toggle-mdas');
        const toggleK1 = document.getElementById('toggle-kunjungan-1');
        const toggleK2 = document.getElementById('toggle-kunjungan-2');
        const toggleK3 = document.getElementById('toggle-kunjungan-3');
-
+       const labelK1 = document.getElementById('label-kunjungan-1');
+       const labelK2 = document.getElementById('label-kunjungan-2');
+       const labelK3 = document.getElementById('label-kunjungan-3');
        if(toggleAdmin) toggleAdmin.checked = webSettings.adminPanel;
        if(toggleVas) toggleVas.checked = webSettings.syncVAS;
        if(toggleMdas) toggleMdas.checked = webSettings.syncMDAS;
        if(toggleK1) toggleK1.checked = webSettings.kunjungan1;
        if(toggleK2) toggleK2.checked = webSettings.kunjungan2;
        if(toggleK3) toggleK3.checked = webSettings.kunjungan3;
-    }
+       if(labelK1 && document.activeElement !== labelK1) labelK1.value = webSettings.kunjungan1Label;
+       if(labelK2 && document.activeElement !== labelK2) labelK2.value = webSettings.kunjungan2Label;
+       if(labelK3 && document.activeElement !== labelK3) labelK3.value = webSettings.kunjungan3Label;
+     }
 
-    function updateWebSettings() {
+     function updateWebSettings() {
        const btnAdmin = document.getElementById('toggle-admin');
        const btnVas = document.getElementById('toggle-vas');
        const btnMdas = document.getElementById('toggle-mdas');
        const btnK1 = document.getElementById('toggle-kunjungan-1');
        const btnK2 = document.getElementById('toggle-kunjungan-2');
        const btnK3 = document.getElementById('toggle-kunjungan-3');
-
+       const labelK1 = document.getElementById('label-kunjungan-1');
+       const labelK2 = document.getElementById('label-kunjungan-2');
+       const labelK3 = document.getElementById('label-kunjungan-3');
+       const cleanVisitLabel = (input, fallback) => {
+          const value = input ? input.value.trim().replace(/\s+/g, ' ') : '';
+          return value.slice(0, 40) || fallback;
+       };
        webSettings.adminPanel = btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel;
        webSettings.syncVAS = btnVas ? btnVas.checked : !!webSettings.syncVAS;
        webSettings.syncMDAS = btnMdas ? btnMdas.checked : !!webSettings.syncMDAS;
        webSettings.kunjungan1 = btnK1 ? btnK1.checked : (webSettings.kunjungan1 !== false);
        webSettings.kunjungan2 = btnK2 ? btnK2.checked : false;
        webSettings.kunjungan3 = btnK3 ? btnK3.checked : false;
-
+       webSettings.kunjungan1Label = cleanVisitLabel(labelK1, 'Kunjungan 1');
+       webSettings.kunjungan2Label = cleanVisitLabel(labelK2, 'Kunjungan 2');
+       webSettings.kunjungan3Label = cleanVisitLabel(labelK3, 'Kunjungan 3');
        applyWebSettingsToDOM();
-
        if (!GAS_URL) return;
-
        const payload = {
            action: 'saveWebSettings',
            adminPanel: webSettings.adminPanel,
@@ -1661,12 +1678,13 @@ textarea{
            syncMDAS: webSettings.syncMDAS,
            kunjungan1: webSettings.kunjungan1,
            kunjungan2: webSettings.kunjungan2,
-           kunjungan3: webSettings.kunjungan3
+           kunjungan3: webSettings.kunjungan3,
+           kunjungan1Label: webSettings.kunjungan1Label,
+           kunjungan2Label: webSettings.kunjungan2Label,
+           kunjungan3Label: webSettings.kunjungan3Label
        };
-
-       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3].filter(Boolean);
+       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3, labelK1, labelK2, labelK3].filter(Boolean);
        controls.forEach(el => el.disabled = true);
-
        fetch(GAS_URL, {
            method: 'POST',
            headers: {'Content-Type': 'text/plain;charset=utf-8'},

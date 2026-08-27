@@ -1485,6 +1485,189 @@ footer a:hover {
 </style>
 
   <script src="/protect-devtools.js" defer></script>
+
+<style id="devtools-warning-popup-style">
+/* ============================================================
+   DEVTOOLS WARNING POPUP — NEUBRUTALISM
+   ============================================================ */
+#devtools-warning-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#devtools-warning-popup.hidden {
+  display: none !important;
+}
+
+#devtools-warning-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 11, .72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+#devtools-warning-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 26px;
+  background: #ffffff;
+  color: #111111;
+  border: 4px solid #111111;
+  border-radius: 24px;
+  box-shadow: 10px 10px 0 #111111;
+  animation: devtoolsWarningIn .18s ease-out;
+}
+
+#devtools-warning-icon {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  background: #ff5c5c;
+  color: #111111;
+  border: 4px solid #111111;
+  border-radius: 16px;
+  box-shadow: 5px 5px 0 #111111;
+  font-size: 34px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+#devtools-warning-content {
+  min-width: 0;
+  flex: 1;
+}
+
+#devtools-warning-badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 5px 9px;
+  background: #b8f34a;
+  color: #111111;
+  border: 2px solid #111111;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+#devtools-warning-title {
+  margin: 0;
+  color: #111111 !important;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+#devtools-warning-message {
+  margin: 12px 0 0;
+  color: #1f2937 !important;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+#devtools-warning-detail {
+  margin: 8px 0 18px;
+  color: #4b5563 !important;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#devtools-warning-close {
+  min-height: 46px;
+  padding: 10px 18px;
+  background: #ffe36e;
+  color: #111111 !important;
+  border: 3px solid #111111;
+  border-radius: 12px;
+  box-shadow: 5px 5px 0 #111111;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+#devtools-warning-close:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 #111111;
+}
+
+#devtools-warning-close:active {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 #111111;
+}
+
+#devtools-warning-close:focus-visible {
+  outline: 3px solid #175cd3;
+  outline-offset: 3px;
+}
+
+@keyframes devtoolsWarningIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  #devtools-warning-popup {
+    padding: 14px;
+  }
+
+  #devtools-warning-card {
+    gap: 13px;
+    padding: 20px;
+    border-width: 3px;
+    border-radius: 20px;
+    box-shadow: 7px 7px 0 #111111;
+  }
+
+  #devtools-warning-icon {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+    border-width: 3px;
+    box-shadow: 4px 4px 0 #111111;
+    font-size: 28px;
+  }
+
+  #devtools-warning-message {
+    font-size: 14px;
+  }
+
+  #devtools-warning-close {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #devtools-warning-card {
+    animation: none;
+  }
+
+  #devtools-warning-close {
+    transition: none;
+  }
+}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -3398,5 +3581,199 @@ footer a:hover {
       });
     }
   </script>
+
+<!-- ============================================================
+     DEVTOOLS WARNING POPUP
+     Additive UI only — existing application structure preserved.
+     ============================================================ -->
+<div id="devtools-warning-popup"
+     class="hidden"
+     role="alertdialog"
+     aria-modal="true"
+     aria-labelledby="devtools-warning-title"
+     aria-describedby="devtools-warning-message">
+  <div id="devtools-warning-backdrop"></div>
+
+  <section id="devtools-warning-card">
+    <div id="devtools-warning-icon" aria-hidden="true">!</div>
+
+    <div id="devtools-warning-content">
+      <span id="devtools-warning-badge">PERINGATAN KEAMANAN</span>
+
+      <h2 id="devtools-warning-title">Tindakan Tidak Diizinkan</h2>
+
+      <p id="devtools-warning-message">
+        Shortcut developer tools terdeteksi. Demi menjaga keamanan
+        dan integritas sistem, tindakan ini tidak dapat digunakan
+        pada halaman ini.
+      </p>
+
+      <p id="devtools-warning-detail">
+        Silakan lanjutkan menggunakan website secara normal.
+      </p>
+
+      <button type="button"
+              id="devtools-warning-close"
+              aria-label="Tutup peringatan">
+        SAYA MENGERTI
+      </button>
+    </div>
+  </section>
+</div>
+
+
+<script id="devtools-warning-popup-script">
+(function () {
+  'use strict';
+
+  /*
+   * This layer only displays the warning UI when a blocked
+   * developer shortcut is attempted.
+   *
+   * /protect-devtools.js remains the actual protection layer.
+   * This does NOT replace it.
+   */
+  function initDevToolsWarningPopup() {
+    const popup = document.getElementById('devtools-warning-popup');
+    const closeButton = document.getElementById('devtools-warning-close');
+    const backdrop = document.getElementById('devtools-warning-backdrop');
+
+    if (!popup) return;
+
+    let lastShown = 0;
+    const COOLDOWN = 700;
+
+    function showWarning() {
+      const now = Date.now();
+
+      if (now - lastShown < COOLDOWN) return;
+      lastShown = now;
+
+      popup.classList.remove('hidden');
+      document.body.classList.add('devtools-warning-open');
+
+      if (closeButton) {
+        window.setTimeout(function () {
+          closeButton.focus({ preventScroll: true });
+        }, 20);
+      }
+    }
+
+    function hideWarning() {
+      popup.classList.add('hidden');
+      document.body.classList.remove('devtools-warning-open');
+    }
+
+    function isDeveloperShortcut(e) {
+      const key = String(e.key || '').toLowerCase();
+      const code = e.keyCode;
+
+      /* F12 */
+      if (key === 'f12' || code === 123) {
+        return true;
+      }
+
+      /* Inspector: Ctrl+Shift+I / Cmd+Option+I */
+      if (
+        (e.ctrlKey && e.shiftKey && key === 'i') ||
+        (e.metaKey && e.altKey && key === 'i')
+      ) {
+        return true;
+      }
+
+      /* Console: Ctrl+Shift+J / Cmd+Option+J */
+      if (
+        (e.ctrlKey && e.shiftKey && key === 'j') ||
+        (e.metaKey && e.altKey && key === 'j')
+      ) {
+        return true;
+      }
+
+      /* View Source: Ctrl+U / Cmd+U */
+      if (
+        (e.ctrlKey && key === 'u') ||
+        (e.metaKey && key === 'u')
+      ) {
+        return true;
+      }
+
+      /* Save Page: Ctrl+S / Cmd+S */
+      if (
+        (e.ctrlKey && key === 's') ||
+        (e.metaKey && key === 's')
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (isDeveloperShortcut(e)) {
+        /*
+         * protect-devtools.js is still responsible for blocking.
+         * We only provide the visible warning here.
+         */
+        e.preventDefault();
+        e.stopPropagation();
+        showWarning();
+      }
+    }, true);
+
+    if (closeButton) {
+      closeButton.addEventListener('click', hideWarning);
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener('click', hideWarning);
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !popup.classList.contains('hidden')) {
+        hideWarning();
+      }
+    });
+
+    /*
+     * Do not allow focus to disappear behind the popup.
+     * This is intentionally lightweight and does not interfere
+     * with the application's existing focus/keyboard logic.
+     */
+    popup.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+
+      const focusable = popup.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  /*
+   * The page may already have loaded by the time this inline
+   * script runs, so support both cases.
+   */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDevToolsWarningPopup, {
+      once: true
+    });
+  } else {
+    initDevToolsWarningPopup();
+  }
+})();
+</script>
+
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Instrumen OHQE - Oral Health-Related Quality of Life Scale for Endodontic Patients</title>
+  <title>Instrumen OHQE - Kuesioner Kualitas Hidup Kesehatan Gigi</title>
   <meta name="description" content="Instrumen OHQE untuk penilaian kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik. Mendukung Kunjungan 1, 2, dan 3, VAS, MDAS, analisis statistik, dan pengelolaan data penelitian.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="theme-color" content="#111111">
@@ -1668,6 +1668,9 @@ footer a:hover {
 }
 </style>
 
+<style id="devtools-warning-body-style">
+body.devtools-warning-open { overflow: hidden !important; }
+</style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1709,7 +1712,7 @@ footer a:hover {
       <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="64" height="64" decoding="async" fetchpriority="high" class="w-16 h-16 object-contain relative z-10">
     </div>
     <h1 class="text-3xl font-extrabold text-white tracking-wide mb-1">Instrumen <span class="text-neon">OHQE</span></h1>
-    <p class="text-sm text-gray-400 mb-10 font-medium">Silahkan klik tombol dibawah untuk mengisi Instrumen OHQE (Oral Health-Related Quality of Life Scale for Endodontic Patients)</p>
+    <p class="text-sm text-gray-400 mb-10 font-medium">Pilih Tahap Kunjungan Responden</p>
     
     <div class="space-y-4">
       <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
@@ -3627,34 +3630,70 @@ footer a:hover {
   'use strict';
 
   /*
-   * This layer only displays the warning UI when a blocked
-   * developer shortcut is attempted.
+   * DEVTOOLS WARNING UI
+   * ------------------------------------------------------------
+   * This is an additive warning layer for the existing
+   * /protect-devtools.js file. It does not replace the external
+   * protection script.
    *
-   * /protect-devtools.js remains the actual protection layer.
-   * This does NOT replace it.
+   * It covers the same protection family already used by
+   * protect-devtools.js plus common browser/DevTools shortcuts:
+   * - Right click / Context Menu
+   * - F12
+   * - Ctrl/Cmd + Shift + I  (Inspector)
+   * - Ctrl/Cmd + Shift + J  (Console)
+   * - Ctrl/Cmd + Shift + C  (Inspect Element)
+   * - Ctrl/Cmd + Shift + K  (Console in some browsers)
+   * - Ctrl/Cmd + U          (View Source)
+   * - Ctrl/Cmd + S          (Save Page)
+   * - Ctrl/Cmd + P          (Print)
+   * - Ctrl/Cmd + A          (Select All)
+   * - common DevTools command shortcuts
+   *
+   * NOTE: Browser shortcut availability differs by browser/OS.
    */
   function initDevToolsWarningPopup() {
     const popup = document.getElementById('devtools-warning-popup');
     const closeButton = document.getElementById('devtools-warning-close');
     const backdrop = document.getElementById('devtools-warning-backdrop');
+    const title = document.getElementById('devtools-warning-title');
+    const message = document.getElementById('devtools-warning-message');
+    const detail = document.getElementById('devtools-warning-detail');
 
     if (!popup) return;
 
     let lastShown = 0;
-    const COOLDOWN = 700;
+    const COOLDOWN = 650;
 
-    function showWarning() {
+    function showWarning(reason) {
       const now = Date.now();
-
       if (now - lastShown < COOLDOWN) return;
       lastShown = now;
+
+      if (title) {
+        title.textContent = 'Tindakan Tidak Diizinkan';
+      }
+
+      if (message) {
+        message.textContent = reason ||
+          'Aksi developer atau browser yang dibatasi terdeteksi pada halaman ini.';
+      }
+
+      if (detail) {
+        detail.textContent =
+          'Silakan gunakan website secara normal. Peringatan ini merupakan bagian dari sistem proteksi halaman.';
+      }
 
       popup.classList.remove('hidden');
       document.body.classList.add('devtools-warning-open');
 
       if (closeButton) {
         window.setTimeout(function () {
-          closeButton.focus({ preventScroll: true });
+          try {
+            closeButton.focus({ preventScroll: true });
+          } catch (_) {
+            closeButton.focus();
+          }
         }, 20);
       }
     }
@@ -3664,60 +3703,118 @@ footer a:hover {
       document.body.classList.remove('devtools-warning-open');
     }
 
-    function isDeveloperShortcut(e) {
-      const key = String(e.key || '').toLowerCase();
-      const code = e.keyCode;
-
-      /* F12 */
-      if (key === 'f12' || code === 123) {
-        return true;
-      }
-
-      /* Inspector: Ctrl+Shift+I / Cmd+Option+I */
-      if (
-        (e.ctrlKey && e.shiftKey && key === 'i') ||
-        (e.metaKey && e.altKey && key === 'i')
-      ) {
-        return true;
-      }
-
-      /* Console: Ctrl+Shift+J / Cmd+Option+J */
-      if (
-        (e.ctrlKey && e.shiftKey && key === 'j') ||
-        (e.metaKey && e.altKey && key === 'j')
-      ) {
-        return true;
-      }
-
-      /* View Source: Ctrl+U / Cmd+U */
-      if (
-        (e.ctrlKey && key === 'u') ||
-        (e.metaKey && key === 'u')
-      ) {
-        return true;
-      }
-
-      /* Save Page: Ctrl+S / Cmd+S */
-      if (
-        (e.ctrlKey && key === 's') ||
-        (e.metaKey && key === 's')
-      ) {
-        return true;
-      }
-
-      return false;
+    function modifierPrimary(e) {
+      return !!(e.ctrlKey || e.metaKey);
     }
 
-    document.addEventListener('keydown', function (e) {
-      if (isDeveloperShortcut(e)) {
-        /*
-         * protect-devtools.js is still responsible for blocking.
-         * We only provide the visible warning here.
-         */
-        e.preventDefault();
-        e.stopPropagation();
-        showWarning();
+    function keyIs(e, value) {
+      const key = String(e.key || '').toLowerCase();
+      const code = e.keyCode;
+      const target = String(value).toLowerCase();
+
+      if (key === target) return true;
+
+      const keyCodes = {
+        a: 65,
+        c: 67,
+        e: 69,
+        i: 73,
+        j: 74,
+        k: 75,
+        p: 80,
+        s: 83,
+        u: 85
+      };
+
+      return code === keyCodes[target];
+    }
+
+    function getShortcutReason(e) {
+      const key = String(e.key || '').toLowerCase();
+      const primary = modifierPrimary(e);
+
+      /* F12 */
+      if (key === 'f12' || e.keyCode === 123) {
+        return 'Shortcut F12 diblokir untuk menjaga keamanan halaman.';
       }
+
+      /* Inspector — Ctrl/Cmd + Shift + I */
+      if (primary && e.shiftKey && keyIs(e, 'i')) {
+        return 'Shortcut Inspector / Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* Console — Ctrl/Cmd + Shift + J */
+      if (primary && e.shiftKey && keyIs(e, 'j')) {
+        return 'Shortcut Console Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* Inspect Element — Ctrl/Cmd + Shift + C */
+      if (primary && e.shiftKey && keyIs(e, 'c')) {
+        return 'Shortcut Inspect Element diblokir pada halaman ini.';
+      }
+
+      /* Console — Ctrl/Cmd + Shift + K (Firefox/common) */
+      if (primary && e.shiftKey && keyIs(e, 'k')) {
+        return 'Shortcut Console Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* View Source — Ctrl/Cmd + U */
+      if (primary && keyIs(e, 'u')) {
+        return 'Shortcut View Source diblokir pada halaman ini.';
+      }
+
+      /* Save Page — Ctrl/Cmd + S */
+      if (primary && keyIs(e, 's')) {
+        return 'Shortcut Save Page diblokir pada halaman ini.';
+      }
+
+      /* Print — Ctrl/Cmd + P */
+      if (primary && keyIs(e, 'p')) {
+        return 'Shortcut Print diblokir pada halaman ini.';
+      }
+
+      /* Select All — Ctrl/Cmd + A */
+      if (primary && keyIs(e, 'a')) {
+        return 'Shortcut Select All dibatasi pada halaman ini.';
+      }
+
+      /* Common DevTools command/search shortcut */
+      if (primary && e.shiftKey && keyIs(e, 'p')) {
+        return 'Shortcut Developer Tools Command diblokir pada halaman ini.';
+      }
+
+      /* Some browser/DevTools variants use Ctrl/Cmd+Shift+E. */
+      if (primary && e.shiftKey && keyIs(e, 'e')) {
+        return 'Shortcut Developer Tools dibatasi pada halaman ini.';
+      }
+
+      return '';
+    }
+
+    /*
+     * Right-click / Inspect Element via context menu.
+     * Capture phase is intentional so the warning is shown before
+     * application-level handlers can consume the event.
+     */
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showWarning('Klik kanan / Context Menu diblokir pada halaman ini. Gunakan antarmuka website secara normal.');
+    }, true);
+
+    /*
+     * Keyboard protection/warning.
+     * This mirrors protect-devtools.js and extends it with
+     * Select All, Print, Inspect Element and other common shortcuts.
+     */
+    document.addEventListener('keydown', function (e) {
+      const reason = getShortcutReason(e);
+
+      if (!reason) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      showWarning(reason);
     }, true);
 
     if (closeButton) {
@@ -3729,16 +3826,16 @@ footer a:hover {
     }
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !popup.classList.contains('hidden')) {
+      if (
+        e.key === 'Escape' &&
+        !popup.classList.contains('hidden')
+      ) {
+        e.preventDefault();
         hideWarning();
       }
     });
 
-    /*
-     * Do not allow focus to disappear behind the popup.
-     * This is intentionally lightweight and does not interfere
-     * with the application's existing focus/keyboard logic.
-     */
+    /* Lightweight focus trap for accessibility. */
     popup.addEventListener('keydown', function (e) {
       if (e.key !== 'Tab') return;
 
@@ -3761,10 +3858,6 @@ footer a:hover {
     });
   }
 
-  /*
-   * The page may already have loaded by the time this inline
-   * script runs, so support both cases.
-   */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initDevToolsWarningPopup, {
       once: true

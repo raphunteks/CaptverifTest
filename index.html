@@ -1065,17 +1065,845 @@ textarea{
 </style>
 
 
-<style id="visit-label-enterprise">
-#tab-websettings .visit-label-input{min-height:44px;box-shadow:3px 3px 0 #111;transition:transform .12s ease,box-shadow .12s ease}
-#tab-websettings .visit-label-input:focus{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #111}
-@media (max-width:640px){#tab-websettings .visit-label-input{font-size:16px}}
+<style id="contrast-accessibility-master">
+/*
+  ================================================================
+  OHQE — MASTER COLOR / CONTRAST REMEDIATION LAYER
+  ================================================================
+  PURPOSE:
+  - Prevent light/white text from disappearing on the light
+    Neubrutalism background.
+  - Keep the existing DOM, IDs, classes, routes, data schema and
+    JavaScript logic intact.
+  - Make public form, admin dashboard, Rontgen, modal and generated
+    SPSS content readable on mobile/tablet/desktop.
+  - No new dependency, no blur, no animation and no logic change.
+*/
+
+/* ---------- 01. COLOR TOKENS ---------- */
+:root{
+  color-scheme:light!important;
+  --contrast-ink:#111111;
+  --contrast-muted:#4b5563;
+  --contrast-muted-2:#374151;
+  --contrast-blue:#0757b8;
+  --contrast-blue-dark:#06458f;
+  --contrast-red:#b42318;
+  --contrast-green:#087443;
+  --contrast-yellow-ink:#5b4300;
+  --contrast-purple:#6b3fc4;
+  --contrast-pink-ink:#8a174f;
+  --contrast-paper:#fffdf6;
+  --contrast-white:#ffffff;
+}
+
+/* ---------- 02. LIGHT CANVAS / NO DARK TEXT TRAPS ---------- */
+html,
+body{
+  background-color:var(--contrast-paper)!important;
+  color:var(--contrast-ink)!important;
+  color-scheme:light!important;
+}
+
+body{
+  background-image:
+    linear-gradient(135deg,rgba(255,227,110,.13),transparent 23%),
+    radial-gradient(circle at 94% 7%,rgba(182,156,255,.14),transparent 24%),
+    radial-gradient(circle at 5% 88%,rgba(98,215,255,.13),transparent 24%)!important;
+}
+
+/* ---------- 03. GLOBAL LIGHT-TEXT REMEDIATION ---------- */
+/*
+  The old dark-glass theme used text-white/text-gray-* extensively.
+  The current Neubrutalism surface is light, so these utilities must
+  resolve to dark ink rather than white/light gray.
+*/
+.text-white,
+.text-gray-100,
+.text-gray-200,
+.text-gray-300,
+.text-gray-400,
+.text-gray-500{
+  color:var(--contrast-ink)!important;
+}
+
+.text-gray-600{
+  color:var(--contrast-muted)!important;
+}
+
+.text-gray-700{
+  color:var(--contrast-muted-2)!important;
+}
+
+.text-gray-800,
+.text-gray-900{
+  color:var(--contrast-ink)!important;
+}
+
+/* ---------- 04. SEMANTIC ACCENT COLORS — DARKEN FOR WHITE ---------- */
+.text-blue-300,
+.text-blue-400,
+.text-blue-500,
+.text-blue-600{
+  color:var(--contrast-blue)!important;
+}
+
+.text-red-300,
+.text-red-400,
+.text-red-500,
+.text-red-600{
+  color:var(--contrast-red)!important;
+}
+
+.text-green-300,
+.text-green-400,
+.text-green-500,
+.text-green-600{
+  color:var(--contrast-green)!important;
+}
+
+.text-yellow-300,
+.text-yellow-400,
+.text-yellow-500,
+.text-yellow-600{
+  color:var(--contrast-yellow-ink)!important;
+}
+
+.text-purple-300,
+.text-purple-400,
+.text-purple-500,
+.text-purple-600{
+  color:var(--contrast-purple)!important;
+}
+
+.text-pink-300,
+.text-pink-400,
+.text-pink-500,
+.text-pink-600{
+  color:var(--contrast-pink-ink)!important;
+}
+
+/* Existing neon class already has its own high-contrast treatment. */
+.text-neon{
+  color:var(--contrast-ink)!important;
+}
+
+/* ---------- 05. DARK UTILITY BACKGROUNDS → LIGHT SURFACES ---------- */
+.bg-gray-900,
+.bg-gray-800,
+.bg-gray-700,
+.bg-gray-800\/80,
+.bg-gray-800\/50,
+.bg-gray-800\/40,
+.bg-gray-900\/95,
+.bg-gray-900\/80,
+.bg-gray-900\/50,
+.bg-gray-900\/30,
+.bg-gray-900\/20,
+.bg-gray-700\/80,
+.bg-gray-700\/60,
+.bg-gray-700\/50,
+.bg-gray-700\/40,
+.bg-gray-700\/30{
+  background-color:var(--contrast-white)!important;
+  color:var(--contrast-ink)!important;
+}
+
+/* Transparent dark surfaces used inside forms/tables. */
+[class*="bg-gray-800/"],
+[class*="bg-gray-900/"]{
+  color:var(--contrast-ink);
+}
+
+/* Keep modal backdrop genuinely dark; its content remains light. */
+#custom-alert,
+#custom-confirm,
+#preview-modal{
+  background:rgba(17,17,17,.78)!important;
+  color:var(--contrast-white)!important;
+}
+
+#custom-alert > div,
+#custom-confirm > div,
+#preview-modal > div{
+  background:var(--contrast-white)!important;
+  color:var(--contrast-ink)!important;
+}
+
+/* ---------- 06. FORM CONTROLS ---------- */
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+select,
+textarea{
+  background:var(--contrast-white)!important;
+  color:var(--contrast-ink)!important;
+  caret-color:var(--contrast-ink)!important;
+  border-color:var(--contrast-ink)!important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#555b65!important;
+  opacity:1!important;
+}
+
+select option{
+  background:#fff!important;
+  color:#111!important;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled{
+  color:#555!important;
+  background:#f2f2f2!important;
+}
+
+/* ---------- 07. LABELS / HEADINGS ---------- */
+label,
+legend,
+h1,h2,h3,h4,h5,h6,
+p,
+li,
+dt,dd,
+small,
+span{
+  text-shadow:none!important;
+}
+
+label{
+  color:var(--contrast-ink);
+}
+
+/* Tailwind text-white labels inside white cards must stay dark. */
+.glass-card label,
+.glass-card h1,
+.glass-card h2,
+.glass-card h3,
+.glass-card h4,
+.glass-card h5,
+.glass-card h6,
+.glass-card p{
+  color:var(--contrast-ink);
+}
+
+/* ---------- 08. BUTTON CONTRAST ---------- */
+button{
+  text-shadow:none!important;
+}
+
+.btn-neon{
+  background:var(--ux-lime)!important;
+  color:var(--contrast-ink)!important;
+}
+
+/* Main visit buttons: black ink on yellow/pink hover. */
+#btn-kunjungan-1,
+#btn-kunjungan-2,
+#btn-kunjungan-3{
+  background:#ffe36e!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+#btn-kunjungan-1:hover,
+#btn-kunjungan-2:hover,
+#btn-kunjungan-3:hover{
+  background:#ff72b6!important;
+  color:#111!important;
+}
+
+/* Colored action buttons use dark text for predictable contrast. */
+#gate-container button,
+#login-container button,
+#rontgen-login-container button,
+#btn-next,
+#btn-prev,
+#btn-submit,
+#btn-admin,
+#btn-rontgen,
+#btn-export-pdf,
+#btn-save-questions{
+  color:#111!important;
+}
+
+/* Explicit high-contrast close button. */
+#custom-alert button,
+#custom-confirm button,
+#preview-modal button{
+  color:#111!important;
+}
+
+/* ---------- 09. ADMIN DASHBOARD ---------- */
+#admin-container,
+#rontgen-dashboard-container{
+  background:#fff!important;
+  color:#111!important;
+}
+
+#admin-container *,
+#rontgen-dashboard-container *{
+  text-shadow:none!important;
+}
+
+#admin-container .border-b,
+#rontgen-dashboard-container .border-b{
+  border-color:#111!important;
+}
+
+/* Tabs: dark ink on white, yellow active/hover. */
+#admin-container [onclick^="switchTab"],
+#admin-container [onclick^="switchSubTable"]{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+#admin-container [onclick^="switchTab"]:hover,
+#admin-container [onclick^="switchSubTable"]:hover{
+  background:#ffe36e!important;
+  color:#111!important;
+}
+
+/* Active text utilities generated by JS. */
+#admin-container .text-gray-400,
+#admin-container .text-purple-400,
+#admin-container .text-neon{
+  color:#111!important;
+}
+
+/* ---------- 10. DATA TABLES ---------- */
+#admin-container table,
+#rontgen-dashboard-container table,
+#admin-container .overflow-x-auto,
+#rontgen-dashboard-container .overflow-x-auto{
+  background:#fff!important;
+  color:#111!important;
+}
+
+#admin-container thead,
+#rontgen-dashboard-container thead{
+  background:#ffe36e!important;
+  color:#111!important;
+}
+
+#admin-container th,
+#rontgen-dashboard-container th{
+  background:#ffe36e!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+#admin-container td,
+#rontgen-dashboard-container td{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+#admin-container tbody tr:hover,
+#rontgen-dashboard-container tbody tr:hover{
+  background:#e7f7ff!important;
+}
+
+#admin-container td .text-blue-400,
+#admin-container td .text-red-400,
+#admin-container td .text-green-400,
+#admin-container td .text-yellow-400,
+#rontgen-dashboard-container td .text-blue-400,
+#rontgen-dashboard-container td .text-red-400,
+#rontgen-dashboard-container td .text-green-400,
+#rontgen-dashboard-container td .text-yellow-400{
+  color:var(--contrast-ink)!important;
+}
+
+/* ---------- 11. SETTING WEB ---------- */
+#tab-websettings{
+  color:#111!important;
+}
+
+#tab-websettings .bg-gray-800\/50{
+  background:#fff!important;
+  color:#111!important;
+}
+
+#tab-websettings .text-white,
+#tab-websettings .text-gray-300,
+#tab-websettings .text-gray-400,
+#tab-websettings .text-gray-500{
+  color:#111!important;
+}
+
+#tab-websettings hr{
+  border-color:#d1d5db!important;
+}
+
+#tab-websettings .toggle-label{
+  background:#fff!important;
+  border:3px solid #111!important;
+  box-shadow:3px 3px 0 #111!important;
+}
+
+#tab-websettings .toggle-label:after{
+  background:#111!important;
+}
+
+#tab-websettings .toggle-checkbox:checked + .toggle-label{
+  background:#b9f34a!important;
+}
+
+/* ---------- 12. QUESTIONNAIRE CARDS ---------- */
+.radio-group label{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+.radio-group label:hover{
+  background:#ffe36e!important;
+  color:#111!important;
+}
+
+.radio-group input[type="radio"]:checked + label{
+  background:#ff72b6!important;
+  color:#111!important;
+}
+
+.vas-item{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+.face-num{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+
+/* ---------- 13. STEP HEADERS / INFO BLOCKS ---------- */
+#step-1 h2,
+#step-2 h2,
+#step-3 h2,
+#step-4 h2,
+#step-5 h2,
+#step-6 h2,
+#step-7 h2,
+#step-8 h2{
+  color:#111!important;
+}
+
+#step-1 .text-red-400,
+#step-5 .text-gray-300,
+#step-6 .text-gray-300,
+#step-7 .text-gray-300{
+  color:#111!important;
+}
+
+#step-1 .mb-6:first-child{
+  background:#fff0f0!important;
+  color:#111!important;
+}
+
+#step-5 .bg-gray-800\/40{
+  background:#eaf9ff!important;
+  color:#111!important;
+}
+
+#step-6 .bg-\[rgba\(57\,255\,20\,0\.03\)\]{
+  background:#f5edff!important;
+  color:#111!important;
+}
+
+/* ---------- 14. LOADER ---------- */
+#loader{
+  background:#ffe36e!important;
+  color:#111!important;
+}
+
+#loader .text-neon{
+  color:#111!important;
+  background:#fff!important;
+  border-color:#111!important;
+}
+
+#loader .text-gray-400,
+#loader .text-gray-500{
+  color:#111!important;
+}
+
+/* ---------- 15. LOGIN / RONTGEN ---------- */
+#login-container,
+#rontgen-login-container{
+  background:#fff!important;
+  color:#111!important;
+}
+
+#login-container h2,
+#rontgen-login-container h2{
+  color:#111!important;
+}
+
+#login-container .text-gray-400,
+#rontgen-login-container .text-gray-400{
+  color:#374151!important;
+}
+
+/* ---------- 16. PREVIEW / IFRAME ---------- */
+#preview-modal .bg-gray-800,
+#preview-modal .bg-gray-900,
+#preview-modal .bg-gray-900\/95{
+  background:#fff!important;
+  color:#111!important;
+}
+
+#preview-modal h3{
+  color:#111!important;
+}
+
+iframe{
+  background:#fff!important;
+}
+
+/* ---------- 17. SPSS OUTPUT — ALWAYS PRINT-READABLE ---------- */
+.spss-wrapper,
+.spss-table-container,
+.chart-box,
+#spss-output-container,
+#spss-output-container-vas,
+#spss-output-container-mdas{
+  background:#fff!important;
+  color:#111!important;
+}
+
+.spss-wrapper *,
+.spss-table-container *,
+.chart-box *{
+  color:#111;
+  text-shadow:none!important;
+}
+
+.spss-table th,
+.spss-table td{
+  color:#111!important;
+  background:#fff!important;
+  border-color:#9ca3af!important;
+}
+
+.spss-table th{
+  background:#f3f4f6!important;
+}
+
+.spss-title{
+  color:#111!important;
+}
+
+.histogram-container{
+  color:#111!important;
+}
+
+/* Generated SPSS messages / narrative utilities. */
+#spss-output-container .text-red-600,
+#spss-output-container-vas .text-red-600,
+#spss-output-container-mdas .text-red-600{
+  color:#991b1b!important;
+}
+
+#spss-output-container .text-blue-700,
+#spss-output-container-vas .text-blue-700,
+#spss-output-container-mdas .text-blue-700{
+  color:#0757b8!important;
+}
+
+#spss-output-container .text-green-900,
+#spss-output-container-vas .text-green-900,
+#spss-output-container-mdas .text-green-900{
+  color:#065f46!important;
+}
+
+#spss-output-container .text-red-900,
+#spss-output-container-vas .text-red-900,
+#spss-output-container-mdas .text-red-900{
+  color:#7f1d1d!important;
+}
+
+/* ---------- 18. FOOTER ---------- */
+footer{
+  color:#374151!important;
+}
+
+footer *{
+  color:inherit!important;
+}
+
+/* ---------- 19. LINKS / INTERACTIVE TEXT ---------- */
+a{
+  color:#0757b8;
+  text-decoration-thickness:2px;
+  text-underline-offset:2px;
+}
+
+a:hover{
+  color:#06458f;
+}
+
+/* ---------- 20. FOCUS — ALWAYS VISIBLE ON BOTH LIGHT/DARK ---------- */
+:where(
+  a,button,input,select,textarea,
+  [role="button"],[tabindex]
+):focus-visible{
+  outline:3px solid #0757b8!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 2px #fff,0 0 0 5px #0757b8!important;
+}
+
+/* ---------- 21. MOBILE / TABLET / DESKTOP ---------- */
+@media (max-width:767px){
+  body{
+    min-width:320px!important;
+    padding-left:max(8px,env(safe-area-inset-left))!important;
+    padding-right:max(8px,env(safe-area-inset-right))!important;
+  }
+
+  .glass-card{
+    max-width:100%!important;
+  }
+
+  #gate-container{
+    width:min(100%,520px)!important;
+    padding:22px 16px!important;
+  }
+
+  #gate-container button{
+    min-height:56px!important;
+    font-size:clamp(.85rem,3.5vw,1rem)!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere;
+  }
+
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container{
+    width:100%!important;
+    max-width:100%!important;
+  }
+
+  #admin-container{
+    padding:12px!important;
+  }
+
+  #admin-container .overflow-x-auto,
+  #rontgen-dashboard-container .overflow-x-auto{
+    max-width:100%!important;
+  }
+
+  .spss-table{
+    min-width:620px!important;
+  }
+
+  #tab-websettings .grid{
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media (min-width:768px) and (max-width:1199px){
+  #app-container{
+    max-width:960px!important;
+  }
+
+  #admin-container,
+  #rontgen-dashboard-container{
+    max-width:1180px!important;
+  }
+}
+
+@media (min-width:1200px){
+  #app-container{
+    max-width:1180px!important;
+  }
+
+  #admin-container,
+  #rontgen-dashboard-container{
+    max-width:1280px!important;
+  }
+}
+
+/* ---------- 22. HIGH CONTRAST / FORCED COLORS ---------- */
+@media (forced-colors:active){
+  html,body,
+  .glass-card,
+  #admin-container,
+  #rontgen-dashboard-container{
+    background:Canvas!important;
+    color:CanvasText!important;
+  }
+
+  *,
+  *::before,
+  *::after{
+    text-shadow:none!important;
+    box-shadow:none!important;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .radio-group label{
+    border:2px solid CanvasText!important;
+    color:CanvasText!important;
+    background:Canvas!important;
+  }
+
+  :focus-visible{
+    outline:3px solid Highlight!important;
+    box-shadow:none!important;
+  }
+}
+
+/* ---------- 23. REDUCED MOTION ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+
+/* ---------- 24. PRINT ---------- */
+@media print{
+  html,body{
+    background:#fff!important;
+    color:#111!important;
+  }
+
+  .text-white,
+  .text-gray-100,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500{
+    color:#111!important;
+  }
+
+  #loader,
+  #custom-alert,
+  #custom-confirm,
+  #preview-modal{
+    display:none!important;
+  }
+
+  .glass-card,
+  .spss-wrapper,
+  .spss-table-container,
+  .chart-box{
+    background:#fff!important;
+    color:#111!important;
+    box-shadow:none!important;
+    border:1px solid #111!important;
+  }
+}
 </style>
-<style id="settings-sync-hardening">
-#gate-container{visibility:hidden}
-#gate-container.web-settings-ready{visibility:visible}
-.visit-label-input:disabled{opacity:.65;cursor:wait}
-#visit-access-settings .toggle-label{flex:0 0 auto}
+
+
+<style id="landing-first-render-fix">
+/* Landing buttons are the first meaningful public UI. */
+body:not(:has(#admin-container:not(.hidden))):not(:has(#rontgen-dashboard-container:not(.hidden))) #gate-container{
+  visibility:visible;
+}
+#gate-container{
+  min-height:220px;
+}
+#gate-container button{
+  min-height:54px!important;
+}
+@media (max-width:767px){
+  #gate-container{
+    width:min(94vw,520px)!important;
+    padding:1.25rem!important;
+  }
+  #gate-container button{
+    min-height:56px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere;
+  }
+}
 </style>
+
+
+<style id="ohqe-font-contrast-upgrade">
+/* FONT CONTRAST ONLY — existing HTML/JS structure and logic preserved */
+.bg-white,.bg-gray-50,.bg-gray-100,.bg-slate-50,.bg-slate-100,
+.bg-zinc-50,.bg-zinc-100,.bg-neutral-50,.bg-neutral-100,
+.bg-stone-50,.bg-stone-100,.bg-yellow-50,.bg-yellow-100,
+.bg-amber-50,.bg-amber-100,.bg-orange-50,.bg-orange-100,
+.bg-green-50,.bg-green-100,.bg-emerald-50,.bg-emerald-100,
+.bg-blue-50,.bg-blue-100,.bg-sky-50,.bg-sky-100,
+.bg-indigo-50,.bg-indigo-100,.bg-violet-50,.bg-violet-100,
+.bg-purple-50,.bg-purple-100,.bg-pink-50,.bg-pink-100,
+.bg-red-50,.bg-red-100{color:#111827}
+
+.bg-white .text-white,.bg-gray-50 .text-white,.bg-gray-100 .text-white,
+.bg-yellow-50 .text-white,.bg-yellow-100 .text-white,
+.bg-green-50 .text-white,.bg-green-100 .text-white,
+.bg-blue-50 .text-white,.bg-blue-100 .text-white,
+.bg-purple-50 .text-white,.bg-purple-100 .text-white,
+.bg-pink-50 .text-white,.bg-pink-100 .text-white,
+.bg-orange-50 .text-white,.bg-orange-100 .text-white,
+.bg-red-50 .text-white,.bg-red-100 .text-white{
+  color:#111827!important;text-shadow:none
+}
+
+.bg-white .text-gray-300,.bg-gray-50 .text-gray-300,.bg-gray-100 .text-gray-300,
+.bg-white .text-gray-400,.bg-gray-50 .text-gray-400,.bg-gray-100 .text-gray-400{
+  color:#374151!important
+}
+
+.bg-white input,.bg-white textarea,.bg-white select,
+.bg-gray-50 input,.bg-gray-50 textarea,.bg-gray-50 select,
+.bg-gray-100 input,.bg-gray-100 textarea,.bg-gray-100 select{
+  color:#111827!important;background:#fff
+}
+
+.bg-white input::placeholder,.bg-white textarea::placeholder,
+.bg-gray-50 input::placeholder,.bg-gray-50 textarea::placeholder,
+.bg-gray-100 input::placeholder,.bg-gray-100 textarea::placeholder{
+  color:#4b5563!important;opacity:1
+}
+
+.bg-gray-800 .text-white,.bg-gray-900 .text-white,.bg-black .text-white,
+.bg-slate-800 .text-white,.bg-slate-900 .text-white,
+.bg-zinc-800 .text-white,.bg-zinc-900 .text-white,
+.bg-neutral-800 .text-white,.bg-neutral-900 .text-white,
+.bg-indigo-900 .text-white,.bg-purple-900 .text-white,
+.bg-blue-900 .text-white,.bg-green-900 .text-white,.bg-red-900 .text-white{
+  color:#fff!important
+}
+
+[style*="background-color: white"] .text-white,
+[style*="background-color:#fff"] .text-white,
+[style*="background:#fff"] .text-white{
+  color:#111827!important;text-shadow:none
+}
+
+@media(max-width:767px){
+  #gate-container,#login-container,#admin-container,#rontgen-dashboard-container{
+    -webkit-text-size-adjust:100%;
+    text-rendering:optimizeLegibility
+  }
+  button,a,label,input,select,textarea{
+    -webkit-font-smoothing:antialiased
+  }
+}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1111,7 +1939,7 @@ textarea{
   </div>
 
   <!-- GATE / LANDING PAGE -->
-  <div id="gate-container" class="glass-card rounded-3xl w-[90%] max-w-md p-8 sm:p-10 hidden mx-auto mt-10 mb-10 text-center shadow-[0_20px_60px_-15px_rgba(57,255,20,0.15)] border border-[rgba(57,255,20,0.3)]">
+  <div id="gate-container" class="glass-card rounded-3xl w-[90%] max-w-md p-8 sm:p-10 mx-auto mt-10 mb-10 text-center shadow-[0_20px_60px_-15px_rgba(57,255,20,0.15)] border border-[rgba(57,255,20,0.3)]">
     <div class="w-24 h-24 mx-auto bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(57,255,20,0.3)] border border-gray-700 relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-[rgba(57,255,20,0.1)] to-transparent"></div>
       <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="64" height="64" decoding="async" fetchpriority="high" class="w-16 h-16 object-contain relative z-10">
@@ -1120,9 +1948,9 @@ textarea{
     <p class="text-sm text-gray-400 mb-10 font-medium">Pilih Tahap Kunjungan Responden</p>
     
     <div class="space-y-4">
-      <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
-      <button id="btn-kunjungan-2" data-visit-button="2" onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
-      <button id="btn-kunjungan-3" data-visit-button="3" onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
+      <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 1</button>
+      <button id="btn-kunjungan-2" data-visit-button="2" onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 2</button>
+      <button id="btn-kunjungan-3" data-visit-button="3" onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 3</button>
     </div>
     
     <div class="mt-8 pt-6 border-t border-gray-800 flex justify-center gap-4">
@@ -1401,7 +2229,7 @@ textarea{
             <div>
               <span class="inline-flex items-center px-3 py-1 rounded-full border-2 border-black bg-yellow-300 text-black font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#111]">Akses Kunjungan</span>
               <h4 id="visit-access-title" class="mt-3 text-black font-black text-base sm:text-lg">Kontrol Tombol Kunjungan</h4>
-              <p class="mt-1 text-gray-600 text-xs sm:text-sm leading-relaxed">Atur nama dan tombol yang tampil pada halaman awal. Perubahan disimpan langsung ke Database Google Sheets.</p>
+              <p class="mt-1 text-gray-600 text-xs sm:text-sm leading-relaxed">Atur tombol yang tampil pada halaman awal. Default sistem: Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.</p>
             </div>
             <span id="visit-settings-status" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full border-2 border-black bg-green-200 text-black font-black text-xs" aria-live="polite">
               <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> 1/3 AKTIF
@@ -1409,44 +2237,29 @@ textarea{
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="p-4 rounded-xl border-3 border-black bg-yellow-100 shadow-[4px_4px_0_#111]">
-              <div class="min-w-0">
-                <div class="font-black text-black">Nama Tombol Kunjungan 1</div>
-                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 1 • Maks. 40 karakter</div>
-                <input type="text" id="label-kunjungan-1" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 1">
-                <div class="mt-3 flex items-center justify-between gap-3">
-                  <label for="toggle-kunjungan-1" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 1</label>
-                  <input type="checkbox" id="toggle-kunjungan-1" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 1" onchange="updateWebSettings()">
-                  <label for="toggle-kunjungan-1" class="toggle-label cursor-pointer" aria-hidden="true"></label>
-                </div>
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-yellow-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 1</div><div class="text-xs text-gray-600 mt-1">Default: AKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-1" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 1">
+                <div class="toggle-label" aria-hidden="true"></div>
               </div>
-            </div>
+            </label>
 
-            <div class="p-4 rounded-xl border-3 border-black bg-pink-100 shadow-[4px_4px_0_#111]">
-              <div class="min-w-0">
-                <div class="font-black text-black">Nama Tombol Kunjungan 2</div>
-                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 2 • Maks. 40 karakter</div>
-                <input type="text" id="label-kunjungan-2" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 2">
-                <div class="mt-3 flex items-center justify-between gap-3">
-                  <label for="toggle-kunjungan-2" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 2</label>
-                  <input type="checkbox" id="toggle-kunjungan-2" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 2" onchange="updateWebSettings()">
-                  <label for="toggle-kunjungan-2" class="toggle-label cursor-pointer" aria-hidden="true"></label>
-                </div>
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-pink-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 2</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-2" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 2">
+                <div class="toggle-label" aria-hidden="true"></div>
               </div>
-            </div>
+            </label>
 
-            <div class="p-4 rounded-xl border-3 border-black bg-blue-100 shadow-[4px_4px_0_#111]">
-              <div class="min-w-0">
-                <div class="font-black text-black">Nama Tombol Kunjungan 3</div>
-                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 3 • Maks. 40 karakter</div>
-                <input type="text" id="label-kunjungan-3" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 3">
-                <div class="mt-3 flex items-center justify-between gap-3">
-                  <label for="toggle-kunjungan-3" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 3</label>
-                  <input type="checkbox" id="toggle-kunjungan-3" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 3" onchange="updateWebSettings()">
-                  <label for="toggle-kunjungan-3" class="toggle-label cursor-pointer" aria-hidden="true"></label>
-                </div>
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-blue-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 3</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-3" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 3">
+                <div class="toggle-label" aria-hidden="true"></div>
               </div>
-            </div>
+            </label>
           </div>
         </section>
 
@@ -1530,15 +2343,8 @@ textarea{
       syncMDAS: false,
       kunjungan1: true,
       kunjungan2: false,
-      kunjungan3: false,
-      kunjungan1Label: 'Kunjungan 1',
-      kunjungan2Label: 'Kunjungan 2',
-      kunjungan3Label: 'Kunjungan 3'
+      kunjungan3: false
     };
-    let webSettingsSaveTimer = null;
-    let webSettingsSaveInFlight = false;
-    let webSettingsSaveQueued = false;
-    let webSettingsLoaded = false;
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -1567,11 +2373,40 @@ textarea{
     ];
 
     window.onload = () => {
-      // Hanya jalankan di landing page utama (non admin) agar UX instan
+      /*
+       * LANDING-FIRST UX
+       * ------------------------------------------------------------
+       * Kunjungan buttons are intentionally available immediately.
+       * Initial fallback:
+       *   Kunjungan 1 = ON
+       *   Kunjungan 2 = OFF
+       *   Kunjungan 3 = OFF
+       *
+       * Google Sheets remains the source of truth and will refresh
+       * the labels/status as soon as getQuestions() returns.
+       *
+       * No questionnaire, routing, admin, Rontgen, save, or analysis
+       * logic is changed.
+       */
       if(!isAdminMode && !isRontgenMode && kunjunganType === 0) {
-          applyWebSettingsToDOM();
+        webSettings = {
+          adminPanel: false,
+          syncVAS: false,
+          syncMDAS: false,
+          kunjungan1: true,
+          kunjungan2: false,
+          kunjungan3: false
+        };
+
+        // Render the landing buttons immediately.
+        applyWebSettingsToDOM();
+
+        const loader = document.getElementById('loader');
+        const gate = document.getElementById('gate-container');
+        if(loader) loader.style.display = 'none';
+        if(gate) gate.classList.remove('hidden');
       }
-      
+
       if(isAdminMode) {
         if(localStorage.getItem('axa_admin_logged') === 'true') {
            document.getElementById('loader').style.display = 'none'; document.getElementById('admin-container').classList.remove('hidden');
@@ -1586,6 +2421,17 @@ textarea{
         }
       }
 
+      /*
+       * For questionnaire routes, keep the original loading flow.
+       * Only the landing page receives the landing-first behavior.
+       */
+      if(kunjunganType === 0) {
+        const loader = document.getElementById('loader');
+        const gate = document.getElementById('gate-container');
+        if(loader) loader.style.display = 'none';
+        if(gate) gate.classList.remove('hidden');
+      }
+
       if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json()).then(data => {
@@ -1593,87 +2439,57 @@ textarea{
             qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
             if(data.configData) {
                sysConfig = data.configData;
-               // Database adalah sumber kebenaran utama untuk Web Settings.
+               // Tarik web settings dari database Google Sheet.
+               // Landing page sudah tampil; di sini hanya sinkronisasi.
                if(sysConfig.webSettings) {
                    webSettings = sysConfig.webSettings;
+                   applyWebSettingsToDOM();
                }
             }
           }
-
-          applyWebSettingsToDOM();
-          webSettingsLoaded = true;
-
-          if(kunjunganType === 0) {
-              document.getElementById('loader').style.display = 'none';
-              document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
-          }
-
-          if(kunjunganType !== 0) setupFlowAndUI(); // Lanjut jika form
+          if(kunjunganType !== 0) setupFlowAndUI();
         }).catch(e => {
-          // Jangan menampilkan label default sebelum database gagal.
-          // Hanya fallback setelah request benar-benar gagal.
-          if(kunjunganType === 0) {
-             webSettingsLoaded = true;
-             applyWebSettingsToDOM();
-             document.getElementById('loader').style.display = 'none';
-             document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
-          } else {
-             alert("Error koneksi sistem.");
-          }
+          /*
+           * Landing page tetap usable dengan default K1 ON.
+           * Form routes mempertahankan perilaku error lama.
+           */
+          if(kunjunganType !== 0) alert("Error koneksi sistem.");
         });
       } else {
-        applyWebSettingsToDOM();
-        webSettingsLoaded = true;
-        if(kunjunganType === 0) {
-          document.getElementById('loader').style.display = 'none';
-          document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
-        } else {
-          document.getElementById('loader').style.display = 'none';
-          document.getElementById('login-container').classList.remove('hidden');
-        }
+        if(kunjunganType !== 0) { document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden'); }
       }
     };
 
     // Fungsi Render Tampilan berdasarkan Settings yang ada
-    function normalizeWebSettingsClient(source) {
-       const incoming = source || {};
-       const cleanBoolean = (value, fallback) => {
-          if(value === true || value === 'true' || value === 1 || value === '1') return true;
-          if(value === false || value === 'false' || value === 0 || value === '0') return false;
-          return fallback;
-       };
-       const cleanLabel = (value, fallback) => {
-          const text = value === null || value === undefined ? '' : String(value).trim().replace(/\s+/g, ' ');
-          return (text ? text.substring(0, 40) : fallback);
-       };
-
-       return {
-          adminPanel: cleanBoolean(incoming.adminPanel, false),
-          syncVAS: cleanBoolean(incoming.syncVAS, false),
-          syncMDAS: cleanBoolean(incoming.syncMDAS, false),
-          kunjungan1: cleanBoolean(incoming.kunjungan1, true),
-          kunjungan2: cleanBoolean(incoming.kunjungan2, false),
-          kunjungan3: cleanBoolean(incoming.kunjungan3, false),
-          kunjungan1Label: cleanLabel(incoming.kunjungan1Label, 'Kunjungan 1'),
-          kunjungan2Label: cleanLabel(incoming.kunjungan2Label, 'Kunjungan 2'),
-          kunjungan3Label: cleanLabel(incoming.kunjungan3Label, 'Kunjungan 3')
-       };
-    }
-
     function applyWebSettingsToDOM() {
-       webSettings = normalizeWebSettingsClient(webSettings);
+       // Landing-first: gate remains visible while settings synchronize.
+       const landingGate = document.getElementById('gate-container');
+       if(landingGate && !isAdminMode && !isRontgenMode && kunjunganType === 0) {
+          landingGate.classList.remove('hidden');
+       }
+       // Backward-compatible defaults:
+       // Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.
+       webSettings = {
+          adminPanel: webSettings.adminPanel === true || webSettings.adminPanel === 'true',
+          syncVAS: webSettings.syncVAS === true || webSettings.syncVAS === 'true',
+          syncMDAS: webSettings.syncMDAS === true || webSettings.syncMDAS === 'true',
+          kunjungan1: webSettings.kunjungan1 === undefined ? true : (webSettings.kunjungan1 === true || webSettings.kunjungan1 === 'true'),
+          kunjungan2: webSettings.kunjungan2 === undefined ? false : (webSettings.kunjungan2 === true || webSettings.kunjungan2 === 'true'),
+          kunjungan3: webSettings.kunjungan3 === undefined ? false : (webSettings.kunjungan3 === true || webSettings.kunjungan3 === 'true')
+       };
 
        const adminLink = document.getElementById('link-admin-panel');
        const adminSep = document.getElementById('link-admin-sep');
+
        if(adminLink && adminSep) {
            adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
            adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
        }
 
        const visitButtons = [
-         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1, label: webSettings.kunjungan1Label },
-         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2, label: webSettings.kunjungan2Label },
-         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3, label: webSettings.kunjungan3Label }
+         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1 },
+         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2 },
+         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3 }
        ];
 
        visitButtons.forEach(item => {
@@ -1682,8 +2498,6 @@ textarea{
            btn.style.display = item.enabled ? '' : 'none';
            btn.setAttribute('aria-hidden', item.enabled ? 'false' : 'true');
            btn.disabled = !item.enabled;
-           btn.textContent = item.label;
-           btn.setAttribute('aria-label', item.label);
          }
        });
 
@@ -1699,9 +2513,6 @@ textarea{
        const toggleK1 = document.getElementById('toggle-kunjungan-1');
        const toggleK2 = document.getElementById('toggle-kunjungan-2');
        const toggleK3 = document.getElementById('toggle-kunjungan-3');
-       const labelK1 = document.getElementById('label-kunjungan-1');
-       const labelK2 = document.getElementById('label-kunjungan-2');
-       const labelK3 = document.getElementById('label-kunjungan-3');
 
        if(toggleAdmin) toggleAdmin.checked = webSettings.adminPanel;
        if(toggleVas) toggleVas.checked = webSettings.syncVAS;
@@ -1709,92 +2520,38 @@ textarea{
        if(toggleK1) toggleK1.checked = webSettings.kunjungan1;
        if(toggleK2) toggleK2.checked = webSettings.kunjungan2;
        if(toggleK3) toggleK3.checked = webSettings.kunjungan3;
-
-       // Jangan menimpa input yang sedang diedit.
-       if(labelK1 && document.activeElement !== labelK1) labelK1.value = webSettings.kunjungan1Label;
-       if(labelK2 && document.activeElement !== labelK2) labelK2.value = webSettings.kunjungan2Label;
-       if(labelK3 && document.activeElement !== labelK3) labelK3.value = webSettings.kunjungan3Label;
-    }
-
-    function collectWebSettingsFromDOM() {
-       const btnAdmin = document.getElementById('toggle-admin');
-       const btnVas = document.getElementById('toggle-vas');
-       const btnMdas = document.getElementById('toggle-mdas');
-       const btnK1 = document.getElementById('toggle-kunjungan-1');
-       const btnK2 = document.getElementById('toggle-kunjungan-2');
-       const btnK3 = document.getElementById('toggle-kunjungan-3');
-       const labelK1 = document.getElementById('label-kunjungan-1');
-       const labelK2 = document.getElementById('label-kunjungan-2');
-       const labelK3 = document.getElementById('label-kunjungan-3');
-
-       const cleanVisitLabel = (input, fallback) => {
-          const value = input ? input.value.trim().replace(/\s+/g, ' ') : '';
-          return value.slice(0, 40) || fallback;
-       };
-
-       return {
-         adminPanel: btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel,
-         syncVAS: btnVas ? btnVas.checked : !!webSettings.syncVAS,
-         syncMDAS: btnMdas ? btnMdas.checked : !!webSettings.syncMDAS,
-         kunjungan1: btnK1 ? btnK1.checked : !!webSettings.kunjungan1,
-         kunjungan2: btnK2 ? btnK2.checked : !!webSettings.kunjungan2,
-         kunjungan3: btnK3 ? btnK3.checked : !!webSettings.kunjungan3,
-         kunjungan1Label: cleanVisitLabel(labelK1, webSettings.kunjungan1Label || 'Kunjungan 1'),
-         kunjungan2Label: cleanVisitLabel(labelK2, webSettings.kunjungan2Label || 'Kunjungan 2'),
-         kunjungan3Label: cleanVisitLabel(labelK3, webSettings.kunjungan3Label || 'Kunjungan 3')
-       };
     }
 
     function updateWebSettings() {
-       // Satu sumber payload untuk semua setting; debounce mencegah request
-       // bertumpuk ketika Admin mengganti nama lalu ON/OFF dengan cepat.
-       webSettings = normalizeWebSettingsClient(collectWebSettingsFromDOM());
-       applyWebSettingsToDOM();
-
-       if(!GAS_URL) return;
-
-       clearTimeout(webSettingsSaveTimer);
-       webSettingsSaveQueued = true;
-
-       webSettingsSaveTimer = setTimeout(() => {
-         saveWebSettingsToServer();
-       }, 250);
-    }
-
-    function saveWebSettingsToServer() {
-       if(webSettingsSaveInFlight) {
-         webSettingsSaveQueued = true;
-         return;
-       }
-
-       webSettingsSaveQueued = false;
-       webSettingsSaveInFlight = true;
-
        const btnAdmin = document.getElementById('toggle-admin');
        const btnVas = document.getElementById('toggle-vas');
        const btnMdas = document.getElementById('toggle-mdas');
        const btnK1 = document.getElementById('toggle-kunjungan-1');
        const btnK2 = document.getElementById('toggle-kunjungan-2');
        const btnK3 = document.getElementById('toggle-kunjungan-3');
-       const labelK1 = document.getElementById('label-kunjungan-1');
-       const labelK2 = document.getElementById('label-kunjungan-2');
-       const labelK3 = document.getElementById('label-kunjungan-3');
 
-       const payloadSettings = normalizeWebSettingsClient(webSettings);
+       webSettings.adminPanel = btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel;
+       webSettings.syncVAS = btnVas ? btnVas.checked : !!webSettings.syncVAS;
+       webSettings.syncMDAS = btnMdas ? btnMdas.checked : !!webSettings.syncMDAS;
+       webSettings.kunjungan1 = btnK1 ? btnK1.checked : (webSettings.kunjungan1 !== false);
+       webSettings.kunjungan2 = btnK2 ? btnK2.checked : false;
+       webSettings.kunjungan3 = btnK3 ? btnK3.checked : false;
+
+       applyWebSettingsToDOM();
+
+       if (!GAS_URL) return;
+
        const payload = {
            action: 'saveWebSettings',
-           adminPanel: payloadSettings.adminPanel,
-           syncVAS: payloadSettings.syncVAS,
-           syncMDAS: payloadSettings.syncMDAS,
-           kunjungan1: payloadSettings.kunjungan1,
-           kunjungan2: payloadSettings.kunjungan2,
-           kunjungan3: payloadSettings.kunjungan3,
-           kunjungan1Label: payloadSettings.kunjungan1Label,
-           kunjungan2Label: payloadSettings.kunjungan2Label,
-           kunjungan3Label: payloadSettings.kunjungan3Label
+           adminPanel: webSettings.adminPanel,
+           syncVAS: webSettings.syncVAS,
+           syncMDAS: webSettings.syncMDAS,
+           kunjungan1: webSettings.kunjungan1,
+           kunjungan2: webSettings.kunjungan2,
+           kunjungan3: webSettings.kunjungan3
        };
 
-       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3, labelK1, labelK2, labelK3].filter(Boolean);
+       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3].filter(Boolean);
        controls.forEach(el => el.disabled = true);
 
        fetch(GAS_URL, {
@@ -1802,40 +2559,20 @@ textarea{
            headers: {'Content-Type': 'text/plain;charset=utf-8'},
            body: JSON.stringify(payload)
        })
-       .then(r => {
-           if(!r.ok) throw new Error('HTTP ' + r.status);
-           return r.json();
-       })
+       .then(r => r.json())
        .then(res => {
-           if(res && res.status === 'success') {
-              // Gunakan hasil server sebagai state final agar UI benar-benar
-              // identik dengan nilai yang sudah masuk Google Sheets.
-              if(res.webSettings) {
-                 webSettings = res.webSettings;
-                 applyWebSettingsToDOM();
-              }
-              console.log("Web Settings Saved: " + (res.message || "success"));
-           } else {
-              throw new Error((res && res.message) || 'Gagal menyimpan Web Settings');
-           }
+           console.log("Web Settings Saved: " + res.message);
+           controls.forEach(el => el.disabled = false);
+           applyWebSettingsToDOM();
        })
        .catch(e => {
            console.error("Gagal menyimpan pengaturan web", e);
-           // Kembalikan dari database pada fetch berikutnya; jangan
-           // menghapus input user hanya karena request gagal.
-       })
-       .finally(() => {
            controls.forEach(el => el.disabled = false);
-           webSettingsSaveInFlight = false;
-
-           if(webSettingsSaveQueued) {
-              clearTimeout(webSettingsSaveTimer);
-              webSettingsSaveTimer = setTimeout(() => saveWebSettingsToServer(), 50);
-           }
+           applyWebSettingsToDOM();
        });
     }
 
-        function setupFlowAndUI() {
+    function setupFlowAndUI() {
         // Setup Active Steps Based on Kunjungan Type
         if(kunjunganType === 1) {
             activeSteps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7'];

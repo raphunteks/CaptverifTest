@@ -1052,6 +1052,18 @@ textarea{
 }
 </style>
 
+
+<style id="visit-availability-enterprise">
+#tab-websettings .toggle-label{width:3.75rem!important;height:2rem!important;border:3px solid #111!important;background:#fff!important;box-shadow:3px 3px 0 #111!important}
+#tab-websettings .toggle-label:after{width:1.5rem!important;height:1.5rem!important;top:2px!important;left:2px!important;background:#111!important;box-shadow:none!important}
+#tab-websettings .toggle-checkbox:checked+.toggle-label{background:#b8f34a!important}
+#tab-websettings .toggle-checkbox:checked+.toggle-label:after{transform:translateX(1.7rem)!important}
+#btn-kunjungan-1,#btn-kunjungan-2,#btn-kunjungan-3{min-height:64px!important;border:3px solid #111!important;box-shadow:6px 6px 0 #111!important;background:#ffe66d!important;color:#111!important;border-radius:14px!important;font-weight:900!important}
+#btn-kunjungan-1:hover,#btn-kunjungan-2:hover,#btn-kunjungan-3:hover{background:#ff6fb5!important}
+#btn-kunjungan-1:active,#btn-kunjungan-2:active,#btn-kunjungan-3:active{transform:translate(3px,3px)!important;box-shadow:2px 2px 0 #111!important}
+#btn-kunjungan-1[disabled],#btn-kunjungan-2[disabled],#btn-kunjungan-3[disabled]{pointer-events:none!important}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1096,9 +1108,9 @@ textarea{
     <p class="text-sm text-gray-400 mb-10 font-medium">Pilih Tahap Kunjungan Responden</p>
     
     <div class="space-y-4">
-      <button onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 1</button>
-      <button onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 2</button>
-      <button onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 3</button>
+      <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 1</button>
+      <button id="btn-kunjungan-2" data-visit-button="2" onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 2</button>
+      <button id="btn-kunjungan-3" data-visit-button="3" onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 3</button>
     </div>
     
     <div class="mt-8 pt-6 border-t border-gray-800 flex justify-center gap-4">
@@ -1371,7 +1383,49 @@ textarea{
       </div>
 
       <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700/50 shadow-md max-w-2xl mx-auto space-y-6">
-        <!-- Toggle 1 -->
+                <!-- KONTROL AKSES KUNJUNGAN -->
+        <section id="visit-access-settings" class="mb-6" aria-labelledby="visit-access-title">
+          <div class="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full border-2 border-black bg-yellow-300 text-black font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#111]">Akses Kunjungan</span>
+              <h4 id="visit-access-title" class="mt-3 text-black font-black text-base sm:text-lg">Kontrol Tombol Kunjungan</h4>
+              <p class="mt-1 text-gray-600 text-xs sm:text-sm leading-relaxed">Atur tombol yang tampil pada halaman awal. Default sistem: Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.</p>
+            </div>
+            <span id="visit-settings-status" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full border-2 border-black bg-green-200 text-black font-black text-xs" aria-live="polite">
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> 1/3 AKTIF
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-yellow-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 1</div><div class="text-xs text-gray-600 mt-1">Default: AKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-1" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 1">
+                <div class="toggle-label" aria-hidden="true"></div>
+              </div>
+            </label>
+
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-pink-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 2</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-2" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 2">
+                <div class="toggle-label" aria-hidden="true"></div>
+              </div>
+            </label>
+
+            <label class="flex items-center justify-between gap-4 p-4 rounded-xl border-3 border-black bg-blue-100 shadow-[4px_4px_0_#111] cursor-pointer">
+              <div><div class="font-black text-black">Kunjungan 3</div><div class="text-xs text-gray-600 mt-1">Default: NONAKTIF</div></div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-kunjungan-3" class="sr-only toggle-checkbox" onchange="updateWebSettings()" aria-label="Aktifkan Kunjungan 3">
+                <div class="toggle-label" aria-hidden="true"></div>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <hr class="border-gray-300 mb-5">
+        <!-- Existing Settings -->
+<!-- Toggle 1 -->
         <label class="flex items-center justify-between cursor-pointer group">
           <div class="flex-grow pr-4">
             <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">1. Tombol Admin Panel</h4>
@@ -1443,7 +1497,14 @@ textarea{
     let isUploadingRontgen = false;
     let lastAutoSyncCount = 0;
     
-    let webSettings = { adminPanel: false, syncVAS: false, syncMDAS: false };
+    let webSettings = {
+      adminPanel: false,
+      syncVAS: false,
+      syncMDAS: false,
+      kunjungan1: true,
+      kunjungan2: false,
+      kunjungan3: false
+    };
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -1519,53 +1580,108 @@ textarea{
 
     // Fungsi Render Tampilan berdasarkan Settings yang ada
     function applyWebSettingsToDOM() {
+       // Backward-compatible defaults:
+       // Kunjungan 1 ON, Kunjungan 2 OFF, Kunjungan 3 OFF.
+       webSettings = {
+          adminPanel: webSettings.adminPanel === true || webSettings.adminPanel === 'true',
+          syncVAS: webSettings.syncVAS === true || webSettings.syncVAS === 'true',
+          syncMDAS: webSettings.syncMDAS === true || webSettings.syncMDAS === 'true',
+          kunjungan1: webSettings.kunjungan1 === undefined ? true : (webSettings.kunjungan1 === true || webSettings.kunjungan1 === 'true'),
+          kunjungan2: webSettings.kunjungan2 === undefined ? false : (webSettings.kunjungan2 === true || webSettings.kunjungan2 === 'true'),
+          kunjungan3: webSettings.kunjungan3 === undefined ? false : (webSettings.kunjungan3 === true || webSettings.kunjungan3 === 'true')
+       };
+
        const adminLink = document.getElementById('link-admin-panel');
        const adminSep = document.getElementById('link-admin-sep');
-       
+
        if(adminLink && adminSep) {
            adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
            adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
        }
-       
-       // Perbarui toggle switch di dashboard admin jika sedang dibuka
-       if(document.getElementById('toggle-admin')) {
-           document.getElementById('toggle-admin').checked = webSettings.adminPanel;
-           document.getElementById('toggle-vas').checked = webSettings.syncVAS;
-           document.getElementById('toggle-mdas').checked = webSettings.syncMDAS;
+
+       const visitButtons = [
+         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1 },
+         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2 },
+         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3 }
+       ];
+
+       visitButtons.forEach(item => {
+         const btn = document.getElementById(item.id);
+         if(btn) {
+           btn.style.display = item.enabled ? '' : 'none';
+           btn.setAttribute('aria-hidden', item.enabled ? 'false' : 'true');
+           btn.disabled = !item.enabled;
+         }
+       });
+
+       const visitStatus = document.getElementById('visit-settings-status');
+       if(visitStatus) {
+         const active = [webSettings.kunjungan1, webSettings.kunjungan2, webSettings.kunjungan3].filter(Boolean).length;
+         visitStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> ' + active + '/3 AKTIF';
        }
+
+       const toggleAdmin = document.getElementById('toggle-admin');
+       const toggleVas = document.getElementById('toggle-vas');
+       const toggleMdas = document.getElementById('toggle-mdas');
+       const toggleK1 = document.getElementById('toggle-kunjungan-1');
+       const toggleK2 = document.getElementById('toggle-kunjungan-2');
+       const toggleK3 = document.getElementById('toggle-kunjungan-3');
+
+       if(toggleAdmin) toggleAdmin.checked = webSettings.adminPanel;
+       if(toggleVas) toggleVas.checked = webSettings.syncVAS;
+       if(toggleMdas) toggleMdas.checked = webSettings.syncMDAS;
+       if(toggleK1) toggleK1.checked = webSettings.kunjungan1;
+       if(toggleK2) toggleK2.checked = webSettings.kunjungan2;
+       if(toggleK3) toggleK3.checked = webSettings.kunjungan3;
     }
 
-    // Fungsi menyimpan ke Database Google Sheets (Realtime)
     function updateWebSettings() {
        const btnAdmin = document.getElementById('toggle-admin');
        const btnVas = document.getElementById('toggle-vas');
        const btnMdas = document.getElementById('toggle-mdas');
-       
-       // 1. Simpan State lokal & perbarui DOM
-       webSettings.adminPanel = btnAdmin.checked;
-       webSettings.syncVAS = btnVas.checked;
-       webSettings.syncMDAS = btnMdas.checked;
+       const btnK1 = document.getElementById('toggle-kunjungan-1');
+       const btnK2 = document.getElementById('toggle-kunjungan-2');
+       const btnK3 = document.getElementById('toggle-kunjungan-3');
+
+       webSettings.adminPanel = btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel;
+       webSettings.syncVAS = btnVas ? btnVas.checked : !!webSettings.syncVAS;
+       webSettings.syncMDAS = btnMdas ? btnMdas.checked : !!webSettings.syncMDAS;
+       webSettings.kunjungan1 = btnK1 ? btnK1.checked : (webSettings.kunjungan1 !== false);
+       webSettings.kunjungan2 = btnK2 ? btnK2.checked : false;
+       webSettings.kunjungan3 = btnK3 ? btnK3.checked : false;
+
        applyWebSettingsToDOM();
-       
-       // 2. Kirim POST ke Backend
+
        if (!GAS_URL) return;
+
        const payload = {
            action: 'saveWebSettings',
            adminPanel: webSettings.adminPanel,
            syncVAS: webSettings.syncVAS,
-           syncMDAS: webSettings.syncMDAS
+           syncMDAS: webSettings.syncMDAS,
+           kunjungan1: webSettings.kunjungan1,
+           kunjungan2: webSettings.kunjungan2,
+           kunjungan3: webSettings.kunjungan3
        };
-       
-       // Indikator Loading sementara
-       btnAdmin.disabled = true; btnVas.disabled = true; btnMdas.disabled = true;
-       
-       fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-       .then(r => r.json()).then(res => {
+
+       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3].filter(Boolean);
+       controls.forEach(el => el.disabled = true);
+
+       fetch(GAS_URL, {
+           method: 'POST',
+           headers: {'Content-Type': 'text/plain;charset=utf-8'},
+           body: JSON.stringify(payload)
+       })
+       .then(r => r.json())
+       .then(res => {
            console.log("Web Settings Saved: " + res.message);
-           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
-       }).catch(e => {
+           controls.forEach(el => el.disabled = false);
+           applyWebSettingsToDOM();
+       })
+       .catch(e => {
            console.error("Gagal menyimpan pengaturan web", e);
-           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
+           controls.forEach(el => el.disabled = false);
+           applyWebSettingsToDOM();
        });
     }
 

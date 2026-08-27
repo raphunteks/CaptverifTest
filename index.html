@@ -318,6 +318,56 @@ iframe{border:0}
 @media print{body{background:#fff!important;color:#000!important}.glass-card{box-shadow:none!important;border:1px solid #000!important}.no-print{display:none!important}}
 </style>
 
+<style id="ohqe-histogram-render-fix">
+/* ============================================================
+   OHQE HISTOGRAM VISIBILITY FIX
+   Does not change analysis/data logic.
+   ============================================================ */
+.histogram-container{
+  width:100%!important;
+  max-width:720px!important;
+  margin:0 auto 40px auto!important;
+  position:relative!important;
+}
+
+.histogram-container .chart-box{
+  width:100%!important;
+  min-height:340px!important;
+  height:390px!important;
+  padding:16px!important;
+  background:#fff!important;
+  color:#111!important;
+  overflow:hidden!important;
+  position:relative!important;
+  contain:layout paint!important;
+}
+
+.histogram-container canvas{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  min-height:0!important;
+}
+
+@media (max-width:767px){
+  .histogram-container .chart-box{
+    height:340px!important;
+    min-height:340px!important;
+    padding:10px!important;
+  }
+}
+
+@media print{
+  .histogram-container .chart-box{
+    height:360px!important;
+    min-height:360px!important;
+    overflow:visible!important;
+    box-shadow:none!important;
+  }
+}
+</style>
+
 <style id="enterprise-ui-performance">
 /*
   ================================================================
@@ -1712,7 +1762,7 @@ body.devtools-warning-open { overflow: hidden !important; }
       <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="64" height="64" decoding="async" fetchpriority="high" class="w-16 h-16 object-contain relative z-10">
     </div>
     <h1 class="text-3xl font-extrabold text-white tracking-wide mb-1">Instrumen <span class="text-neon">OHQE</span></h1>
-    <p class="text-sm text-gray-400 mb-10 font-medium">Silahkan klik tombol dibawah untuk mengisi Instrumen OHQE (Oral Health-Related Quality of Life Scale for Endodontic Patients)</p>
+    <p class="text-sm text-gray-400 mb-10 font-medium">Silahkan klik tombol dibawah untuk mengisi Instrumen OHQE (Oral Health-Related Quality of Life Scale for Endodontic Patients).</p>
     
     <div class="space-y-4">
       <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
@@ -3051,6 +3101,326 @@ body.devtools-warning-open { overflow: hidden !important; }
         html += `<p class="text-sm text-justify leading-relaxed indent-8 mt-2 text-black">${narasiText}</p></div>`;
         return html;
     }
+
+    // -------------------------------------------------------------
+    // ROBUST HISTOGRAM RENDERER — OHQE / SPSS
+    // Additive fix: preserves all existing analysis calculations.
+    // -------------------------------------------------------------
+    const ohqeHistogramCharts = Object.create(null);
+
+    function renderHistogram(canvasId, rawData, title, mean, stdDev, sampleN) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+
+      const data = (Array.isArray(rawData) ? rawData : [])
+        .map(v => Number(v))
+        .filter(v => Number.isFinite(v));
+
+      if (!data.length) return;
+
+      /*
+       * Chart.js is loaded with defer. Analysis normally runs after it,
+       * but this guard prevents a blank chart if the library is still loading.
+       */
+      if (typeof Chart === 'undefined') {
+        window.setTimeout(function () {
+          renderHistogram(canvasId, data, title, mean, stdDev, sampleN);
+        }, 150);
+        return;
+      }
+
+      /* Destroy a previous instance before rebuilding the same canvas. */
+      if (ohqeHistogramCharts[canvasId]) {
+        try { ohqeHistogramCharts[canvasId].destroy(); } catch (_) {}
+        delete ohqeHistogramCharts[canvasId];
+      }
+
+      const parent = canvas.parentElement;
+      if (parent) {
+        parent.style.position = 'relative';
+        parent.style.width = '100%';
+        parent.style.height = window.innerWidth < 768 ? '340px' : '390px';
+        parent.style.minHeight = window.innerWidth < 768 ? '340px' : '390px';
+      }
+
+      /*
+       * Make the canvas explicitly measurable. This fixes the common
+       * "white chart box / no bars" problem caused by an undefined
+       * canvas height when responsive Chart.js is initialized.
+       */
+      canvas.style.display = 'block';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.removeAttribute('height');
+      canvas.removeAttribute('width');
+
+      const sorted = data.slice().sort((a, b) => a - b);
+      const min = sorted[0];
+      const max = sorted[sorted.length - 1];
+
+      /*
+       * Sturges rule gives a stable number of bins for small research
+       * datasets while keeping the visualization readable.
+       */
+      const requestedBins = Math.ceil(Math.log2(data.length) + 1);
+      const binCount = Math.max(5, Math.min(12, requestedBins));
+
+      let lower = Math.floor(min);
+      let upper = Math.ceil(max);
+
+      if (lower === upper) {
+        lower -= 1;
+        upper += 1;
+      }
+
+      let span = upper - lower;
+      let binWidth = span / binCount;
+
+      if (!Number.isFinite(binWidth) || binWidth <= 0) {
+        binWidth = 1;
+      }
+
+      /* Align bins to clean score intervals. */
+      if (binWidth < 1) binWidth = 1;
+
+      const actualBinCount = Math.max(1, Math.ceil(span / binWidth));
+      const labels = [];
+      const frequencies = [];
+
+      for (let i = 0; i < actualBinCount; i++) {
+        const start = lower + (i * binWidth);
+        const end = (i === actualBinCount - 1)
+          ? upper
+          : lower + ((i + 1) * binWidth);
+
+        let count = 0;
+
+        for (let j = 0; j < data.length; j++) {
+          const value = data[j];
+          const inBin = (i === actualBinCount - 1)
+            ? value >= start && value <= end
+            : value >= start && value < end;
+
+          if (inBin) count++;
+        }
+
+        labels.push(
+          Number.isInteger(start) && Number.isInteger(end)
+            ? `${start}–${end}`
+            : `${start.toFixed(1)}–${end.toFixed(1)}`
+        );
+        frequencies.push(count);
+      }
+
+      /*
+       * Normal curve is scaled to histogram frequency units so it is
+       * visually comparable with the bars.
+       */
+      const safeMean = Number(mean);
+      const safeStd = Number(stdDev);
+      const effectiveMean = Number.isFinite(safeMean) ? safeMean : jStat.mean(data);
+      const effectiveStd = Number.isFinite(safeStd) && safeStd > 0
+        ? safeStd
+        : (data.length > 1 ? jStat.stdev(data, true) : 1);
+
+      const normalCurve = labels.map(function (_, i) {
+        const center = lower + ((i + 0.5) * binWidth);
+        const z = (center - effectiveMean) / effectiveStd;
+        const density = Math.exp(-0.5 * z * z) /
+          (effectiveStd * Math.sqrt(2 * Math.PI));
+
+        return density * data.length * binWidth;
+      });
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const barBackground = '#63d5ff';
+      const barBorder = '#111111';
+      const curveColor = '#ff5b5b';
+
+      ohqeHistogramCharts[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Frekuensi',
+              data: frequencies,
+              backgroundColor: barBackground,
+              borderColor: barBorder,
+              borderWidth: 2,
+              borderRadius: 0,
+              barPercentage: 1,
+              categoryPercentage: 1
+            },
+            {
+              type: 'line',
+              label: 'Kurva Normal',
+              data: normalCurve,
+              borderColor: curveColor,
+              backgroundColor: 'transparent',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: curveColor,
+              pointBorderColor: '#111111',
+              pointBorderWidth: 1,
+              tension: 0.25,
+              fill: false,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          resizeDelay: 50,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#111111',
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 12,
+                  weight: 'bold'
+                },
+                usePointStyle: true,
+                padding: 16
+              }
+            },
+            title: {
+              display: true,
+              text: `${title} — Histogram (N=${sampleN || data.length})`,
+              color: '#111111',
+              font: {
+                family: 'Arial, sans-serif',
+                size: 16,
+                weight: 'bold'
+              },
+              padding: {
+                top: 4,
+                bottom: 14
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: '#111111',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              borderColor: '#111111',
+              borderWidth: 1,
+              callbacks: {
+                label: function (context) {
+                  const value = context.parsed && context.parsed.y != null
+                    ? context.parsed.y
+                    : 0;
+                  return `${context.dataset.label}: ${Number(value).toFixed(0)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Skor Total OHQE',
+                color: '#111111',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#111111',
+                autoSkip: false,
+                maxRotation: 45,
+                minRotation: 0,
+                font: {
+                  size: window.innerWidth < 768 ? 9 : 10,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                color: '#111111',
+                width: 2
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Frekuensi',
+                color: '#111111',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#111111',
+                precision: 0,
+                stepSize: 1,
+                font: {
+                  size: 10,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                color: 'rgba(17,17,17,0.12)',
+                lineWidth: 1
+              },
+              border: {
+                color: '#111111',
+                width: 2
+              }
+            }
+          }
+        }
+      });
+
+      /*
+       * A second resize after layout settles prevents charts from being
+       * initialized at zero width when their parent was just injected.
+       */
+      window.requestAnimationFrame(function () {
+        try {
+          ohqeHistogramCharts[canvasId].resize();
+          ohqeHistogramCharts[canvasId].update('none');
+        } catch (_) {}
+      });
+    }
+
+    // Re-render only the existing OHQE histogram charts after viewport changes.
+    let ohqeHistogramResizeTimer = null;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(ohqeHistogramResizeTimer);
+      ohqeHistogramResizeTimer = window.setTimeout(function () {
+        Object.keys(ohqeHistogramCharts).forEach(function (id) {
+          const chart = ohqeHistogramCharts[id];
+          if (!chart) return;
+          try {
+            const canvas = document.getElementById(id);
+            if (canvas && canvas.parentElement) {
+              canvas.parentElement.style.height =
+                window.innerWidth < 768 ? '340px' : '390px';
+            }
+            chart.resize();
+          } catch (_) {}
+        });
+      }, 120);
+    });
 
     // -------------------------------------------------------------
     // RUN ANALYSIS 1: OHQE SCORE BY DIAGNOSIS

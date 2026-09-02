@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta tag wajib untuk Responsivitas Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Awesome Links - Super Expand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* === VARIABEL WARNA & STYLE === */
+        :root {
+            --border-color: #111111;
+            --shadow-color: #111111;
+            --btn-pink: #FF66C4;
+            --btn-red: #FF3B30;
+            --btn-yellow: #FFDE59;
+            --btn-cyan: #38B6FF;
+            
+            --glass-white: rgba(255, 255, 255, 0.7);
+            --glass-blue: rgba(56, 182, 255, 0.45);
+            --glass-green: rgba(140, 255, 158, 0.9);
+            
+            --border-width: 4px;
+            --glass-blur: blur(12px);
+            /* Transisi super smooth untuk efek expand */
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1); 
+            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Public Sans', sans-serif;
+            color: var(--border-color);
+            line-height: 1.6;
+            padding: clamp(10px, 3vw, 20px); /* Padding adaptif */
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
+
+        /* CUSTOM SCROLLBAR (Desktop only) */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #fff9e6; border-left: var(--border-width) solid var(--border-color); }
+        ::-webkit-scrollbar-thumb { background-color: var(--btn-pink); border: 2px solid var(--border-color); border-radius: 10px; }
+
+        /* === LIQUID BACKGROUND === */
+        .liquid-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; background-color: #fffaeb; overflow: hidden;
+        }
+        .blob {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.85;
+            animation: float-blob 15s infinite alternate ease-in-out;
+        }
+        .blob-1 { background: #FF66C4; width: 45vw; height: 45vw; top: -10%; left: -10%; animation-duration: 18s; }
+        .blob-2 { background: #38B6FF; width: 50vw; height: 50vw; bottom: -20%; right: -10%; animation-duration: 22s; animation-direction: alternate-reverse; }
+        .blob-3 { background: #FFDE59; width: 40vw; height: 40vw; top: 30%; left: 30%; animation-duration: 15s; }
+
+        @keyframes float-blob {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(5vw, -5vh) scale(1.2) rotate(10deg); }
+            100% { transform: translate(-3vw, 5vh) scale(0.9) rotate(-10deg); }
+        }
+
+        .container {
+            width: 100%; max-width: 800px; display: flex; flex-direction: column; 
+            gap: clamp(20px, 4vw, 35px); /* Jarak adaptif antar elemen */
+            position: relative; z-index: 1; padding-bottom: 60px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center; padding: clamp(15px, 3vw, 25px); background: var(--glass-blue);
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color); border-radius: 16px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            animation: float-header 4s ease-in-out infinite;
+        }
+        @media(min-width: 768px) { header { box-shadow: 8px 8px 0px var(--shadow-color); } }
+        
+        @keyframes float-header { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* Font adaptif: mengecil di HP, membesar di Desktop */
+        header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 0px #fff; }
+
+        /* WADAH VIDEO RESPONSIVE (Untuk Iframe) */
+        .video-container {
+            position: relative; width: 100%; padding-bottom: 56.25%; background: #000;
+            border: var(--border-width) solid var(--border-color); border-radius: 12px; overflow: hidden;
+            box-shadow: 5px 5px 0px var(--shadow-color);
+        }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* ========================================================
+           WADAH EXPANDING GLOBAL
+           ======================================================== */
+        .form-wrapper-center, .card-wrapper-flex { display: flex; justify-content: center; width: 100%; }
+        
+        /* State Awal: Kapsul Kecil */
+        .expandable-form, .dynamic-video-card {
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+            border-radius: 50px; 
+            width: 100%; 
+            max-width: 320px; /* Maksimal sebesar tombol di HP */
+            padding: 12px 20px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.6s var(--ease-bounce);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+        }
+        @media(min-width: 768px) {
+            .expandable-form, .dynamic-video-card { padding: 15px 30px; box-shadow: 8px 8px 0px var(--shadow-color); }
+        }
+
+        /* Warna Khusus */
+        .expandable-form { background: var(--btn-pink); }
+        .dynamic-video-card { background: var(--btn-yellow); }
+        .main-profile-card { background: var(--btn-cyan); } 
+
+        /* --- STATE EXPANDED: CLASS BASED (Untuk Mobile/Tap & JS) --- */
+        .expandable-form:focus-within, 
+        .expandable-form.mobile-expanded,
+        .dynamic-video-card.expanded {
+            max-width: 100%; 
+            border-radius: 16px; 
+            padding: clamp(20px, 4vw, 35px);
+            cursor: default;
+            box-shadow: 8px 8px 0px var(--shadow-color);
+        }
+        @media(min-width: 768px) {
+            .expandable-form:focus-within, .expandable-form.mobile-expanded, .dynamic-video-card.expanded {
+                box-shadow: 12px 12px 0px var(--shadow-color);
+            }
+        }
+        .expandable-form:focus-within, .expandable-form.mobile-expanded { background: var(--glass-white); }
+        .dynamic-video-card.expanded { background: var(--glass-green); }
+        .main-profile-card.expanded { background: var(--glass-blue); }
+
+        /* --- STATE EXPANDED: HOVER BASED (KHUSUS DESKTOP/MOUSE) --- */
+        /* Menghindari bug hover menyangkut di HP */
+        @media (hover: hover) and (pointer: fine) {
+            .expandable-form:hover, 
+            .dynamic-video-card:hover {
+                max-width: 100%; 
+                border-radius: 16px; 
+                padding: 35px;
+                cursor: default;
+                box-shadow: 12px 12px 0px var(--shadow-color);
+            }
+            .expandable-form:hover { background: var(--glass-white); }
+            .dynamic-video-card:hover { background: var(--glass-green); }
+            .main-profile-card:hover { background: var(--glass-blue); }
+        }
+
+        /* Judul dalam Kapsul */
+        .form-summary, .card-summary {
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; color: var(--border-color);
+            transition: all 0.4s var(--ease-smooth); white-space: nowrap;
+        }
+        .card-summary { justify-content: space-between; }
+        .card-summary .video-title { overflow: hidden; text-overflow: ellipsis; }
+        .expand-icon { transition: transform 0.4s var(--ease-bounce); }
+        
+        /* Animasi Rotasi Ikon (Support Hover Desktop & Class Mobile) */
+        .dynamic-video-card.expanded .expand-icon { transform: rotate(180deg) scale(1.3); }
+        @media (hover: hover) { .dynamic-video-card:hover .expand-icon { transform: rotate(180deg) scale(1.3); } }
+
+        /* Perubahan Judul Form */
+        .expandable-form:focus-within .form-summary, .expandable-form.mobile-expanded .form-summary {
+            font-size: clamp(1.4rem, 4vw, 1.8rem); justify-content: flex-start;
+            margin-bottom: 20px; text-shadow: 2px 2px 0px #fff;
+        }
+        @media (hover: hover) {
+            .expandable-form:hover .form-summary {
+                font-size: clamp(1.4rem, 4vw, 1.8rem); justify-content: flex-start;
+                margin-bottom: 20px; text-shadow: 2px 2px 0px #fff;
+            }
+        }
+
+        /* Animasi Isi Kapsul (Form / Video) */
+        .form-inputs-wrapper, .card-details-wrapper {
+            display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.6s var(--ease-smooth);
+        }
+        
+        .expandable-form:focus-within .form-inputs-wrapper, .expandable-form.mobile-expanded .form-inputs-wrapper,
+        .dynamic-video-card.expanded .card-details-wrapper { grid-template-rows: 1fr; }
+        @media (hover: hover) {
+            .expandable-form:hover .form-inputs-wrapper, .dynamic-video-card:hover .card-details-wrapper { grid-template-rows: 1fr; }
+        }
+        
+        .form-inputs-inner, .card-details-inner {
+            overflow: hidden; opacity: 0; transform: translateY(10px);
+            transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+        }
+        
+        .expandable-form:focus-within .form-inputs-inner, .expandable-form.mobile-expanded .form-inputs-inner,
+        .dynamic-video-card.expanded .card-details-inner { opacity: 1; transform: translateY(0); margin-top: 15px; }
+        @media (hover: hover) {
+            .expandable-form:hover .form-inputs-inner, .dynamic-video-card:hover .card-details-inner { opacity: 1; transform: translateY(0); margin-top: 15px; }
+        }
+
+        /* Gaya Input Form */
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        input {
+            width: 100%; padding: clamp(12px, 3vw, 18px); font-size: clamp(0.9rem, 2vw, 1.1rem); font-weight: 700;
+            background: rgba(255,255,255,0.8); border: 3px solid var(--border-color);
+            border-radius: 12px; outline: none; transition: all 0.3s;
+        }
+        input:focus { background: #fff; box-shadow: 4px 4px 0px var(--shadow-color); transform: translate(-2px, -2px); }
+        
+        /* Tombol Tambah */
+        button.btn-add {
+            margin-top: 15px; width: 100%; padding: clamp(14px, 3vw, 18px); font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 900;
+            background: var(--btn-pink); border: var(--border-width) solid var(--border-color);
+            box-shadow: 5px 5px 0px var(--shadow-color); border-radius: 12px; cursor: pointer; transition: all 0.2s;
+        }
+        button.btn-add:hover { transform: translate(-3px,-3px); box-shadow: 7px 7px 0px var(--shadow-color); background: #ff85d1;}
+        button.btn-add:active { transform: translate(4px,4px); box-shadow: 0px 0px 0px var(--border-color); }
+
+        /* Tombol Hapus */
+        .btn-delete {
+            width: 100%; margin-top: 15px; padding: 12px; font-weight: 900; font-size: 1rem;
+            background: var(--btn-red); color: #fff; border: 3px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color); border-radius: 10px; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 5px;
+        }
+        .btn-delete:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0px var(--shadow-color); }
+        .btn-delete:active { transform: translate(5px,5px); box-shadow: 0px 0px 0px #000; }
+
+        /* TOAST Responsif */
+        #custom-toast {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; text-align: center;
+            background: var(--btn-yellow); border: var(--border-width) solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color); padding: 15px 20px; border-radius: 12px;
+            font-weight: 900; font-size: 1rem; z-index: 9999; transition: top 0.4s var(--ease-bounce);
+        }
+        #custom-toast.show { top: 20px; }
+
+        /* Tablet & Desktop Adjustments */
+        @media (min-width: 768px) {
+            .input-group { flex-direction: row; gap: 15px; }
+            .btn-delete { width: auto; align-self: flex-end; margin-left: auto; float: right; padding: 10px 20px;}
+            .card-details-inner { display: flex; flex-direction: column; gap: 15px; }
+            .card-details-inner::after { content: ""; display: table; clear: both; }
+        }
+    </style>
+</head>
+<body>
+    <div class="liquid-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="custom-toast"><span id="toast-icon"></span> <span id="toast-message"></span></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header><h1>✨ MY SPACE ✨</h1></header>
+
+        <!-- SUPER UPGRADE 3: VIDEO UTAMA KAPSUL (MY PROFILE) -->
+        <div class="card-wrapper-flex">
+            <div class="dynamic-video-card main-profile-card" id="main-video-container">
+                <div class="card-summary">
+                    <span class="video-title">👤 MY PROFILE</span>
+                    <span class="expand-icon">🔽</span>
+                </div>
+                <div class="card-details-wrapper">
+                    <div class="card-details-inner">
+                        <div class="video-container">
+                            <iframe src="https://www.youtube-nocookie.com/embed/7TY11F_8_Go" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUPER UPGRADE 1: FORM KAPSUL -->
+        <div class="form-wrapper-center">
+            <div class="expandable-form" id="form-container">
+                <div class="form-summary">
+                    <span>➕</span> <span>Tambah Video</span>
+                </div>
+                <div class="form-inputs-wrapper">
+                    <div class="form-inputs-inner">
+                        <form id="add-video-form">
+                            <div class="input-group">
+                                <input type="text" id="video-title" placeholder="Judul (Cth: Vlog)" required autocomplete="off">
+                                <input type="text" id="video-embed" placeholder="Paste kode <iframe ...>" required autocomplete="off">
+                            </div>
+                            <button type="submit" class="btn-add">Tambahkan Sekarang!</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUPER UPGRADE 2: DAFTAR VIDEO (Kapsul Kuning) -->
+        <div id="links-container">
+            <!-- Render video dinamis di sini via JS -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('add-video-form');
+            const formContainer = document.getElementById('form-container');
+            const linksContainer = document.getElementById('links-container');
+            const mainVideoContainer = document.getElementById('main-video-container'); 
+            
+            const titleInput = document.getElementById('video-title');
+            const embedInput = document.getElementById('video-embed');
+            const toastEl = document.getElementById('custom-toast');
+            const toastMsg = document.getElementById('toast-message');
+
+            const STORAGE_KEY = 'neubrutalism_videos_super_expand';
+
+            // --- FUNGSI ACCORDION UX (Agar layar HP tidak kepenuhan jika banyak yang terbuka) ---
+            const closeAllCards = (exceptCard = null) => {
+                // Tutup Form
+                if (exceptCard !== formContainer) formContainer.classList.remove('mobile-expanded');
+                // Tutup Profil
+                if (exceptCard !== mainVideoContainer) mainVideoContainer.classList.remove('expanded');
+                // Tutup Kartu Lainnya
+                document.querySelectorAll('.dynamic-video-card').forEach(card => {
+                    if (card !== exceptCard) card.classList.remove('expanded');
+                });
+            };
+
+            // Event Listeners Pintar untuk Mobile Tap (Tutup yang lain saat 1 dibuka)
+            formContainer.addEventListener('click', (e) => {
+                if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                    closeAllCards(formContainer);
+                    formContainer.classList.add('mobile-expanded');
+                }
+            });
+            
+            mainVideoContainer.addEventListener('click', () => {
+                const isExpanded = mainVideoContainer.classList.contains('expanded');
+                closeAllCards();
+                if(!isExpanded) mainVideoContainer.classList.add('expanded');
+            });
+
+            // Menampilkan Toast
+            const showToast = (message, isSuccess = false) => {
+                toastMsg.textContent = message;
+                document.getElementById('toast-icon').textContent = isSuccess ? '✅' : '⚠️';
+                toastEl.style.backgroundColor = isSuccess ? '#8CFF9E' : '#FFDE59';
+                toastEl.classList.add('show');
+                setTimeout(() => toastEl.classList.remove('show'), 3000);
+            };
+
+            const saveVideos = (videos) => localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+
+            // Setup Dummy Data
+            const getVideos = () => {
+                let videos = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (!videos || videos.length === 0) {
+                    videos = [{ title: "Tap Saya! (Contoh Mobile)", src: "https://www.youtube-nocookie.com/embed/8Dly1Z08_Y8" }];
+                    saveVideos(videos);
+                }
+                return videos;
+            };
+
+            const renderVideos = () => {
+                linksContainer.innerHTML = ''; 
+                const videos = getVideos();
+                
+                videos.forEach((video, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'card-wrapper-flex';
+
+                    const card = document.createElement('div');
+                    card.className = 'dynamic-video-card';
+                    
+                    // Logic Mobile Accordion untuk Video Dinamis
+                    card.addEventListener('click', (e) => {
+                        // Cegah tutup jika klik iframe/tombol hapus
+                        if(e.target.tagName === 'BUTTON') return;
+                        const isExpanded = card.classList.contains('expanded');
+                        closeAllCards();
+                        if(!isExpanded) card.classList.add('expanded');
+                    });
+
+                    const summaryDiv = document.createElement('div');
+                    summaryDiv.className = 'card-summary';
+                    summaryDiv.innerHTML = `<span class="video-title">📺 ${video.title}</span><span class="expand-icon">🔽</span>`;
+
+                    const detailsWrapper = document.createElement('div');
+                    detailsWrapper.className = 'card-details-wrapper';
+                    const detailsInner = document.createElement('div');
+                    detailsInner.className = 'card-details-inner';
+
+                    const vidContainer = document.createElement('div');
+                    vidContainer.className = 'video-container';
+                    vidContainer.innerHTML = `<iframe src="${video.src}" title="${video.title}" frameborder="0" allowfullscreen></iframe>`;
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-delete';
+                    deleteBtn.innerHTML = 'HAPUS 🗑️';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation(); 
+                        deleteVideo(index);
+                    };
+
+                    detailsInner.appendChild(vidContainer);
+                    detailsInner.appendChild(deleteBtn);
+                    detailsWrapper.appendChild(detailsInner);
+                    card.appendChild(summaryDiv);
+                    card.appendChild(detailsWrapper);
+                    wrapper.appendChild(card);
+                    
+                    linksContainer.insertBefore(wrapper, linksContainer.firstChild);
+                });
+            };
+
+            // Submit Video Baru
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newTitle = titleInput.value.trim();
+                const embedCode = embedInput.value.trim();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = embedCode;
+                const iframeTag = tempDiv.querySelector('iframe');
+                
+                let extractedSrc = '';
+                if (iframeTag && iframeTag.src) {
+                    extractedSrc = iframeTag.src.replace('youtube.com', 'youtube-nocookie.com');
+                } else {
+                    showToast('Gagal! Pastikan paste kode <iframe ...> utuh.', false);
+                    return; 
+                }
+
+                if(newTitle && extractedSrc) {
+                    const videos = getVideos();
+                    videos.push({ title: newTitle, src: extractedSrc });
+                    saveVideos(videos);
+                    
+                    titleInput.value = ''; embedInput.value = '';
+                    closeAllCards(); // Tutup form setelah sukses
+                    
+                    renderVideos();
+                    showToast(`Berhasil menambahkan "${newTitle}"!`, true);
+                }
+            });
+
+            // Hapus Video
+            const deleteVideo = (index) => {
+                const videos = getVideos();
+                const deletedTitle = videos[index].title;
+                videos.splice(index, 1); 
+                saveVideos(videos); 
+                renderVideos(); 
+                showToast(`Video "${deletedTitle}" dihapus.`);
+            };
+
+            renderVideos();
+        });
+    </script>
+</body>
+</html>

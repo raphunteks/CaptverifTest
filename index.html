@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>E-Pilketos SMAN 3 Makassar | Suara Masa Depan Smaga</title>
   
+  <meta name="theme-color" content="#FFE600">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pilketos Smaga">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2231/2231649.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2231/2231649.png">
+  
+  <!-- Web App Manifest (Data URI for universal PWA installability across Vercel & Apps Script) -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22E-Pilketos%20SMAN%203%20Makassar%22%2C%22short_name%22%3A%22Pilketos%20Smaga%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FDFBF7%22%2C%22theme_color%22%3A%22%23FFE600%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2231%2F2231649.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
   <!-- Google Fonts: Plus Jakarta Sans & Space Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -694,38 +704,93 @@
       gap: 24px;
     }
 
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      .printable-section, .printable-section * {
-        visibility: visible;
-      }
-      .printable-section {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-      }
-      .modal-backdrop {
-        position: static;
-        background: none;
-      }
-      .btn, .main-header, .main-footer, .ticker-wrap {
+    /* Floating In-App PWA Install Banner */
+    .pwa-install-banner {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 580px;
+      background: var(--yellow);
+      border: var(--border-thick);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      padding: 16px 20px;
+      z-index: 2500;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      animation: pwaSlideUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pwaSlideUp {
+      from { transform: translate(-50%, 100px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    /* Isolated Robust Print Engine - Anti-Blank White System */
+    #print-container {
+      display: none;
+    }
+
+    @media screen {
+      .print-only {
         display: none !important;
+      }
+    }
+
+    @media print {
+      html, body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      .no-print, header, footer, .ticker-wrap, .modal-backdrop, .toast-container, .pwa-install-banner, .btn, .nav-actions {
+        display: none !important;
+      }
+
+      #print-container, #print-container * {
+        visibility: visible !important;
+      }
+
+      #print-container {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        background: #FFFFFF !important;
+        box-sizing: border-box !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="ticker-wrap">
+  <!-- Running Text Announcement Ticker -->
+  <div class="ticker-wrap no-print">
     <div class="ticker-move" id="runningTextDisplay">
       <i class="fa-solid fa-bullhorn"></i> PENGUMUMAN RESMI PILKETOS SMAGA: Gunakan hak suaramu dengan cerdas, jujur, dan berintegritas demi kemajuan SMAN 3 Makassar tercinta!
     </div>
   </div>
 
-  <header class="main-header">
+  <!-- Main Header Navigation -->
+  <header class="main-header no-print">
     <div class="header-container">
       <div class="brand" onclick="switchMainView('landing')">
         <div class="brand-logo">3</div>
@@ -743,6 +808,11 @@
       </nav>
 
       <div class="nav-actions">
+        <!-- PWA Header Install Button (Fallback Manual) -->
+        <button id="btnHeaderPwaInstall" class="btn btn-lime" style="display: none; padding: 6px 12px; font-size: 11px;" onclick="triggerPwaPrompt()">
+          <i class="fa-solid fa-download"></i> Pasang App
+        </button>
+
         <span id="digitalClockHeader" class="badge" style="background: #FFF; font-family: 'Space Mono', monospace;">
           <i class="fa-regular fa-clock"></i> <span id="clockDisplayTime">00:00:00 WITA</span>
         </span>
@@ -760,7 +830,7 @@
     </div>
   </header>
 
-  <div class="container">
+  <div class="container no-print">
     
     <!-- 0. VIEW LANDING PAGE (ANTARMUKA UTAMA) -->
     <section id="viewLandingPage" class="view-section active">
@@ -1307,7 +1377,7 @@
   </div>
 
   <!-- 1. Modal Detail Paslon & Proker -->
-  <div id="modalDetailPaslon" class="modal-backdrop">
+  <div id="modalDetailPaslon" class="modal-backdrop no-print">
     <div class="modal-window">
       <div class="modal-header">
         <h4 id="modalDetailTitle" class="modal-title">Detail Paslon</h4>
@@ -1323,7 +1393,7 @@
   </div>
 
   <!-- 2. Modal Head-to-Head Comparison -->
-  <div id="modalHeadToHead" class="modal-backdrop">
+  <div id="modalHeadToHead" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 900px;">
       <div class="modal-header" style="background: var(--violet);">
         <h4 class="modal-title" style="color: #000;">Komparasi Paslon (Head-to-Head)</h4>
@@ -1351,7 +1421,7 @@
   </div>
 
   <!-- 3. Modal Konfirmasi Coblos Dua Langkah -->
-  <div id="modalConfirmVote" class="modal-backdrop">
+  <div id="modalConfirmVote" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 480px;">
       <div class="modal-header" style="background: var(--lime);">
         <h4 class="modal-title">Konfirmasi Pencoblosan</h4>
@@ -1379,7 +1449,7 @@
   </div>
 
   <!-- 4. Modal E-Bukti Pencoblosan Digital -->
-  <div id="modalReceiptVote" class="modal-backdrop">
+  <div id="modalReceiptVote" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 480px;">
       <div class="modal-header" style="background: var(--yellow);">
         <h4 class="modal-title">E-Bukti Pencoblosan</h4>
@@ -1387,8 +1457,8 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="modal-body printable-section" id="receiptPrintArea">
-        <div style="border: var(--border-thick); padding: 20px; border-radius: 8px; background: #FFFDF9; text-align: center;">
+      <div class="modal-body" id="receiptModalBody">
+        <div id="receiptCardToPrint" style="border: var(--border-thick); padding: 20px; border-radius: 8px; background: #FFFDF9; text-align: center;">
           <div style="font-weight: 900; font-size: 14px; text-transform: uppercase;">SMAN 3 MAKASSAR</div>
           <div style="font-size: 12px; font-weight: 700; color: #666; margin-bottom: 12px;">PEMILIHAN KETUA OSIS 2026/2027</div>
 
@@ -1406,23 +1476,26 @@
             <div>Status Suara : <span class="badge" style="background: var(--lime);">SAH TERCATAT</span></div>
           </div>
           <p style="font-size: 11px; font-weight: 600; color: #888; margin-top: 16px;">
-            Simpan atau unduh bukti ini sebagai tanda sah partisipasi demokrasi sekolah Anda.
+            Simpan bukti ini sebagai tanda sah partisipasi demokrasi sekolah Anda.
           </p>
         </div>
       </div>
-      <div class="modal-footer" style="justify-content: center;">
+      <div class="modal-footer" style="justify-content: center; gap: 8px;">
         <button class="btn btn-cyan" onclick="printReceiptDirectly()">
-          <i class="fa-solid fa-download"></i> Unduh Bukti Coblos
+          <i class="fa-solid fa-print"></i> Cetak Bukti (Anti-Blank)
+        </button>
+        <button class="btn btn-lime" onclick="downloadReceiptAsPng()">
+          <i class="fa-solid fa-image"></i> Unduh Gambar PNG
         </button>
         <button class="btn btn-yellow" onclick="closeModal('modalReceiptVote')">
-          <i class="fa-solid fa-circle-check"></i> Selesai & Tutup
+          <i class="fa-solid fa-circle-check"></i> Selesai
         </button>
       </div>
     </div>
   </div>
 
   <!-- 5. Modal Cetak Berita Acara Resmi -->
-  <div id="modalBeritaAcara" class="modal-backdrop">
+  <div id="modalBeritaAcara" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 850px;">
       <div class="modal-header" style="background: var(--cyan);">
         <h4 class="modal-title">Berita Acara Rekapitulasi Suara</h4>
@@ -1430,8 +1503,8 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="modal-body printable-section" id="beritaAcaraPrintArea">
-        <div style="border: 2px solid #000; padding: 24px; background: #fff; line-height: 1.6;">
+      <div class="modal-body" id="beritaAcaraModalBody">
+        <div id="beritaAcaraContentWrapper" style="border: 2px solid #000; padding: 24px; background: #fff; line-height: 1.6;">
           <div style="text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 16px;">
             <h3 style="font-size: 18px; font-weight: 900; text-transform: uppercase;">PEMERINTAH PROVINSI SULAWESI SELATAN</h3>
             <h2 style="font-size: 20px; font-weight: 900;">KOMISI PEMILIHAN OSIS SMAN 3 MAKASSAR</h2>
@@ -1482,7 +1555,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-yellow" onclick="window.print()">
+        <button class="btn btn-yellow" onclick="printBeritaAcaraDirectly()">
           <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
         </button>
         <button class="btn btn-dark" onclick="closeModal('modalBeritaAcara')">Tutup</button>
@@ -1491,7 +1564,7 @@
   </div>
 
   <!-- 6. Modal Cetak Lembar Token DPT -->
-  <div id="modalPrintToken" class="modal-backdrop">
+  <div id="modalPrintToken" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 900px;">
       <div class="modal-header" style="background: var(--violet);">
         <h4 class="modal-title">Cetak Kartu Akses Token Pemilih</h4>
@@ -1508,12 +1581,12 @@
             <option value="XI">Kelas XI</option>
             <option value="XII">Kelas XII</option>
           </select>
-          <button class="btn btn-yellow" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> Cetak Lembar Kartu (Print)
+          <button class="btn btn-yellow" onclick="printVoterCardsDirectly()">
+            <i class="fa-solid fa-print"></i> Cetak Lembar Kartu
           </button>
         </div>
 
-        <div class="printable-section">
+        <div>
           <div id="cardsPrintContainer" class="cards-print-grid"></div>
         </div>
       </div>
@@ -1524,7 +1597,7 @@
   </div>
 
   <!-- 7. Modal Kelola Data Paslon (Tambah / Edit dengan Google Drive Upload) -->
-  <div id="modalManageCandidate" class="modal-backdrop">
+  <div id="modalManageCandidate" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 580px;">
       <div class="modal-header" style="background: var(--orange); color: #fff;">
         <h4 id="modalCandFormTitle" class="modal-title">Form Paslon & Google Drive</h4>
@@ -1593,7 +1666,7 @@
   </div>
 
   <!-- 8. Modal Peringatan Keamanan DevTools Neubrutalism -->
-  <div id="modalSecurityWarning" class="modal-backdrop">
+  <div id="modalSecurityWarning" class="modal-backdrop no-print">
     <div class="modal-window" style="max-width: 460px;">
       <div class="modal-header" style="background: var(--pink); color: #fff;">
         <h4 class="modal-title"><i class="fa-solid fa-triangle-exclamation"></i> Proteksi Keamanan</h4>
@@ -1621,8 +1694,29 @@
     </div>
   </div>
 
+  <!-- Floating In-App PWA Installation Prompt Banner -->
+  <div id="pwaInstallBanner" class="pwa-install-banner no-print">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="brand-logo" style="width: 40px; height: 40px; font-size: 18px; flex-shrink: 0;">3</div>
+      <div>
+        <h4 style="font-size: 14px; font-weight: 900; line-height: 1.2;">Pasang Aplikasi OSIS di HP Kamu!</h4>
+        <p style="font-size: 11px; font-weight: 700; color: #333; margin-top: 2px;">
+          Akses bilik suara lebih cepat, ringan, dan fullscreen langsung dari layar beranda HP.
+        </p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+      <button class="btn btn-dark" style="padding: 8px 14px; font-size: 12px;" onclick="triggerPwaPrompt()">
+        <i class="fa-solid fa-download"></i> Pasang Sekarang
+      </button>
+      <button class="btn btn-pink" style="padding: 8px 10px; font-size: 12px;" onclick="dismissPwaBanner()" title="Tutup">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- Footer Neubrutalism -->
-  <footer class="main-footer">
+  <footer class="main-footer no-print">
     <div class="footer-container">
       <div>
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
@@ -1645,7 +1739,7 @@
         <h5 style="font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px;">Status Sistem</h5>
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <span class="badge" style="background: var(--lime); width: fit-content;">
-            <i class="fa-solid fa-signal"></i> SERVER ONLINE • DUAL-MODE READY
+            <i class="fa-solid fa-signal"></i> SERVER ONLINE • PWA READY
           </span>
           <span style="font-size: 11px; font-weight: 700; color: #777;">
             &copy; 2026 Komisi Pemilihan OSIS SMAN 3 Makassar. Seluruh hak cipta dilindungi.
@@ -1656,14 +1750,19 @@
   </footer>
 
   <!-- Toast Notification Area -->
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toastContainer" class="toast-container no-print"></div>
+
+  <!-- Dedicated Isolated Print Engine Container (Anti-Blank White Guaranteed) -->
+  <div id="print-container" class="print-only"></div>
 
   <script>
     /**
      * Konfigurasi URL Deployment Dual-Mode (Vercel, GitHub Pages, & Google Apps Script).
      * Jika di-hosting di Vercel atau GitHub Pages, ganti string di bawah dengan URL Deployment Web App Exec dari Apps Script Anda!
      */
-    var GAS_API_URL = "https://script.google.com/macros/s/AKfycbzG-WjY-bsx5I12ynk1_6ilclVM4Pli37vmpytqeaeJkESCkQqX5D9IZkBzaM6vCmcC/exec";
+    var GAS_API_URL = "URL_WEB_APP_EXEC_DISINI";
+
+    var deferredPrompt = null;
 
     var state = {
       isGoogle: (typeof google !== 'undefined' && google.script && google.script.run),
@@ -2015,7 +2114,65 @@
       startLiveDigitalClock();
       loadLandingPageData();
       checkPersistentAdminSession();
+      initPwaInstallEngine();
     });
+
+    /**
+     * Engine PWA: Pendaftaran Service Worker & Penanganan beforeinstallprompt
+     */
+    function initPwaInstallEngine() {
+      // 1. Registrasi Service Worker mandiri via Blob URL
+      if ('serviceWorker' in navigator) {
+        var swCode = "self.addEventListener('install', function(e) { self.skipWaiting(); });" +
+                     "self.addEventListener('activate', function(e) { e.waitUntil(self.clients.claim()); });" +
+                     "self.addEventListener('fetch', function(e) { return; });";
+        try {
+          var blob = new Blob([swCode], { type: 'application/javascript' });
+          var swUrl = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(swUrl).catch(function() {});
+        } catch (e) {}
+      }
+
+      // 2. Intersepsi beforeinstallprompt
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        var banner = document.getElementById('pwaInstallBanner');
+        var btnHeader = document.getElementById('btnHeaderPwaInstall');
+        if (banner) banner.style.display = 'flex';
+        if (btnHeader) btnHeader.style.display = 'inline-flex';
+      });
+
+      // 3. Deteksi jika aplikasi telah terpasang
+      window.addEventListener('appinstalled', function() {
+        deferredPrompt = null;
+        dismissPwaBanner();
+        var btnHeader = document.getElementById('btnHeaderPwaInstall');
+        if (btnHeader) btnHeader.style.display = 'none';
+        showToast('Aplikasi Pilketos Smaga berhasil dipasang!', 'success');
+      });
+    }
+
+    function triggerPwaPrompt() {
+      if (!deferredPrompt) {
+        showToast('Buka menu browser Anda lalu pilih "Tambahkan ke Layar Utama".', 'info');
+        return;
+      }
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(choiceResult) {
+        if (choiceResult.outcome === 'accepted') {
+          showToast('Memasang aplikasi ke perangkat...', 'success');
+        }
+        deferredPrompt = null;
+        dismissPwaBanner();
+      });
+    }
+
+    function dismissPwaBanner() {
+      var banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'none';
+    }
 
     function startLiveDigitalClock() {
       var clockEl = document.getElementById('clockDisplayTime');
@@ -2457,8 +2614,157 @@
       });
     }
 
+    /**
+     * Mesin Cetak Anti-Blank White Terisolasi untuk E-Bukti Pencoblosan
+     */
     function printReceiptDirectly() {
-      window.print();
+      var printContainer = document.getElementById('print-container');
+      var receiptHtml = document.getElementById('receiptCardToPrint').innerHTML;
+      
+      printContainer.innerHTML = '' +
+        '<div style="max-width: 480px; margin: 0 auto; border: 3px solid #000; padding: 24px; border-radius: 8px; background: #FFFDF9; text-align: center;">' +
+          receiptHtml +
+        '</div>';
+      
+      // Jeda 250ms untuk memastikan font dan barcode selesai di-render sempurna
+      setTimeout(function() {
+        window.print();
+      }, 250);
+    }
+
+    /**
+     * Unduh Bukti Coblos sebagai File Gambar PNG langsung dari Canvas (Anti-Gagal)
+     */
+    function downloadReceiptAsPng() {
+      var trxId = document.getElementById('receiptTrxId').innerText || 'VOTE-0001';
+      var nisn = document.getElementById('receiptNisn').innerText || '-';
+      var nama = document.getElementById('receiptNama').innerText || '-';
+      var waktu = document.getElementById('receiptWaktu').innerText || '-';
+
+      var canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 760;
+      var ctx = canvas.getContext('2d');
+
+      // Latar belakang
+      ctx.fillStyle = '#FFFDF9';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Border tebal
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      // Header Sekolah
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 22px Plus Jakarta Sans, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('SMAN 3 MAKASSAR', canvas.width / 2, 70);
+
+      ctx.font = 'bold 15px Plus Jakarta Sans, sans-serif';
+      ctx.fillStyle = '#555555';
+      ctx.fillText('PEMILIHAN KETUA OSIS 2026/2027', canvas.width / 2, 98);
+
+      // Stempel Hijau SUDAH MEMILIH
+      ctx.save();
+      ctx.translate(canvas.width / 2, 160);
+      ctx.rotate(-6 * Math.PI / 180);
+      ctx.strokeStyle = '#00A86B';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-160, -28, 320, 56);
+      ctx.fillStyle = '#00A86B';
+      ctx.font = 'bold 24px Plus Jakarta Sans, sans-serif';
+      ctx.fillText('SUDAH MEMILIH', 0, 8);
+      ctx.restore();
+
+      // Barcode simulasi
+      ctx.fillStyle = '#000000';
+      var barY = 220;
+      var barH = 50;
+      for (var x = 60; x < canvas.width - 60; x += 6) {
+        var w = (x % 12 === 0) ? 3 : 1.5;
+        ctx.fillRect(x, barY, w, barH);
+      }
+
+      // Garis pembatas
+      ctx.beginPath();
+      ctx.moveTo(50, 300);
+      ctx.lineTo(canvas.width - 50, 300);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#000000';
+      ctx.stroke();
+
+      // Informasi Pemilih
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 16px Plus Jakarta Sans, sans-serif';
+
+      var startY = 340;
+      var lineSpacing = 42;
+
+      ctx.fillText('ID Transaksi', 60, startY);
+      ctx.font = 'bold 17px Space Mono, monospace';
+      ctx.fillText(': ' + trxId, 220, startY);
+
+      ctx.font = 'bold 16px Plus Jakarta Sans, sans-serif';
+      ctx.fillText('NISN Pemilih', 60, startY + lineSpacing);
+      ctx.fillText(': ' + nisn, 220, startY + lineSpacing);
+
+      ctx.fillText('Nama Pemilih', 60, startY + lineSpacing * 2);
+      ctx.fillText(': ' + nama, 220, startY + lineSpacing * 2);
+
+      ctx.fillText('Waktu Coblos', 60, startY + lineSpacing * 3);
+      ctx.fillText(': ' + waktu, 220, startY + lineSpacing * 3);
+
+      ctx.fillText('Status Suara', 60, startY + lineSpacing * 4);
+      ctx.fillStyle = '#00A86B';
+      ctx.fillText(': SAH TERCATAT', 220, startY + lineSpacing * 4);
+
+      // Footer Bukti
+      ctx.fillStyle = '#888888';
+      ctx.font = 'italic 12px Plus Jakarta Sans, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Dokumen ini adalah bukti digital resmi dari E-Pilketos SMAN 3 Makassar.', canvas.width / 2, 640);
+      ctx.fillText('Simpan gambar ini sebagai arsip pemilihan Anda.', canvas.width / 2, 665);
+
+      // Unduh file PNG
+      var imageUri = canvas.toDataURL('image/png');
+      var link = document.createElement('a');
+      link.download = 'Bukti_Coblos_' + trxId + '_' + nisn + '.png';
+      link.href = imageUri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('E-Bukti berhasil diunduh sebagai gambar PNG.', 'success');
+    }
+
+    function printBeritaAcaraDirectly() {
+      var printContainer = document.getElementById('print-container');
+      var contentHtml = document.getElementById('beritaAcaraContentWrapper').innerHTML;
+      
+      printContainer.innerHTML = '' +
+        '<div style="max-width: 800px; margin: 0 auto; border: 2px solid #000; padding: 24px; background: #FFF;">' +
+          contentHtml +
+        '</div>';
+      
+      setTimeout(function() {
+        window.print();
+      }, 250);
+    }
+
+    function printVoterCardsDirectly() {
+      var printContainer = document.getElementById('print-container');
+      var cardsHtml = document.getElementById('cardsPrintContainer').innerHTML;
+
+      printContainer.innerHTML = '' +
+        '<div style="padding: 10px;">' +
+          '<h3 style="text-align:center; font-size: 16px; font-weight: 900; margin-bottom: 14px;">LEMBAR KARTU AKSES TOKEN DPT - SMAN 3 MAKASSAR</h3>' +
+          '<div class="cards-print-grid">' + cardsHtml + '</div>' +
+        '</div>';
+
+      setTimeout(function() {
+        window.print();
+      }, 250);
     }
 
     function renderStudentQuickCountWidget() {

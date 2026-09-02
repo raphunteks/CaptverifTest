@@ -7,15 +7,22 @@
     <!-- Menggunakan font Google 'Public Sans' yang cocok untuk desain bold/brutalism -->
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* === VARIABEL WARNA NEUBRUTALISM === */
+        /* === VARIABEL WARNA & STYLE === */
         :root {
-            --bg-color: #FFDE59; /* Kuning cerah */
-            --card-blue: #38B6FF; /* Biru cerah */
-            --btn-pink: #FF66C4; /* Pink cerah */
-            --link-green: #8CFF9E; /* Hijau cerah */
+            /* Warna Solid */
             --border-color: #000000;
             --shadow-color: #000000;
+            --btn-pink: #FF66C4;
+            --btn-red: #FF3B30;
+            
+            /* Warna Kaca (Glassmorphism) */
+            --glass-white: rgba(255, 255, 255, 0.4);
+            --glass-blue: rgba(56, 182, 255, 0.4);
+            --glass-green: rgba(140, 255, 158, 0.4);
+            
+            /* Efek */
             --border-width: 4px;
+            --glass-blur: blur(16px);
         }
 
         /* === RESET & BASE STYLES === */
@@ -27,12 +34,69 @@
 
         body {
             font-family: 'Public Sans', sans-serif;
-            background-color: var(--bg-color);
             color: var(--border-color);
             line-height: 1.6;
             padding: 20px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8f9fa; /* Fallback color */
+        }
+
+        /* === LIQUID ANIMATED BACKGROUND === */
+        .liquid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-color: #fff9e6; /* Kuning sangat muda */
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.8;
+            animation: float 12s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            background: #FF66C4; /* Pink */
+            width: 45vw;
+            height: 45vw;
+            top: -10%;
+            left: -10%;
+            animation-duration: 15s;
+        }
+
+        .blob-2 {
+            background: #38B6FF; /* Biru */
+            width: 50vw;
+            height: 50vw;
+            bottom: -20%;
+            right: -10%;
+            animation-duration: 18s;
+            animation-direction: alternate-reverse;
+        }
+
+        .blob-3 {
+            background: #FFDE59; /* Kuning */
+            width: 40vw;
+            height: 40vw;
+            top: 30%;
+            left: 30%;
+            animation-duration: 12s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(40px, 60px) scale(1.05); }
         }
 
         .container {
@@ -41,23 +105,32 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
+            position: relative;
+            z-index: 1; /* Berada di atas background */
+        }
+
+        /* === GLOBAL NEUBRUTALISM X GLASSMORPHISM CLASS === */
+        .glass-brutal {
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            border-radius: 16px;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur); /* Safari support */
         }
 
         /* === HEADER === */
         header {
             text-align: center;
-            padding: 20px;
-            background-color: var(--card-blue);
-            border: var(--border-width) solid var(--border-color);
-            box-shadow: 8px 8px 0px var(--shadow-color);
-            border-radius: 12px;
+            padding: 25px;
+            background: var(--glass-blue);
         }
 
         header h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #fff; /* Agar teks lebih terbaca di atas kaca */
         }
 
         /* === VIDEO YOUTUBE RESPONSIVE === */
@@ -65,11 +138,12 @@
             position: relative;
             width: 100%;
             padding-bottom: 56.25%; /* Rasio 16:9 */
-            border: var(--border-width) solid var(--border-color);
-            box-shadow: 8px 8px 0px var(--shadow-color);
-            border-radius: 12px;
             background: #000; /* Background hitam saat loading */
             overflow: hidden;
+            /* Glass Brutal di-apply terpisah agar shadow pas */
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            border-radius: 16px;
         }
 
         .video-container iframe {
@@ -83,19 +157,17 @@
 
         /* === FORM TAMBAH LINK === */
         .form-section {
-            background-color: #FFFFFF;
-            padding: 25px;
-            border: var(--border-width) solid var(--border-color);
-            box-shadow: 8px 8px 0px var(--shadow-color);
-            border-radius: 12px;
+            background: var(--glass-white);
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
         .form-section h2 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 900;
+            text-shadow: 1px 1px 0px #fff;
         }
 
         .input-group {
@@ -106,13 +178,13 @@
 
         input {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             font-size: 1rem;
             font-family: inherit;
             font-weight: 700;
-            background-color: #f0f0f0;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi transparan putih */
             border: 3px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             outline: none;
             transition: all 0.2s ease;
         }
@@ -124,15 +196,15 @@
         }
 
         button.btn-add {
-            padding: 15px;
+            padding: 18px;
             font-size: 1.2rem;
             font-weight: 900;
             font-family: inherit;
-            background-color: var(--btn-pink);
+            background-color: var(--btn-pink); /* Warna solid brutalism */
             color: var(--border-color);
             border: var(--border-width) solid var(--border-color);
             box-shadow: 6px 6px 0px var(--shadow-color);
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.1s ease;
@@ -147,16 +219,14 @@
         #links-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
+            padding-bottom: 50px;
         }
 
         /* Card baru untuk Video Dinamis */
         .dynamic-video-card {
-            background-color: var(--link-green);
+            background: var(--glass-green);
             padding: 20px;
-            border: var(--border-width) solid var(--border-color);
-            box-shadow: 6px 6px 0px var(--shadow-color);
-            border-radius: 12px;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -165,7 +235,7 @@
 
         .dynamic-video-card:hover {
             transform: translate(-4px, -4px);
-            box-shadow: 10px 10px 0px var(--shadow-color);
+            box-shadow: 12px 12px 0px var(--shadow-color);
         }
 
         .video-header {
@@ -175,18 +245,18 @@
         }
 
         .video-title {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 900;
-            color: var(--border-color);
+            text-shadow: 1px 1px 0px #fff;
         }
 
         .btn-delete {
-            background-color: #FF3B30;
+            background-color: var(--btn-red);
             color: white;
             border: 3px solid var(--border-color);
             box-shadow: 4px 4px 0px var(--shadow-color);
-            border-radius: 8px;
-            padding: 8px 15px;
+            border-radius: 10px;
+            padding: 10px 18px;
             font-size: 1rem;
             font-weight: 900;
             cursor: pointer;
@@ -209,17 +279,31 @@
             }
             button.btn-add {
                 align-self: flex-start;
-                padding: 15px 30px;
+                padding: 18px 35px;
             }
+        }
+        
+        /* Mobile Small Adjustments */
+        @media (max-width: 480px) {
+            header h1 { font-size: 1.8rem; }
+            .blob { filter: blur(40px); }
+            .video-title { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
+    
+    <!-- Latar Belakang Liquid -->
+    <div class="liquid-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
     <div class="container">
         <!-- Bagian Header -->
-        <header>
-            <h1>🔥 My Zone 🔥</h1>
+        <header class="glass-brutal">
+            <h1>✨ My Zone ✨</h1>
         </header>
 
         <!-- Bagian Video YouTube Utama -->
@@ -229,7 +313,7 @@
         </div>
 
         <!-- Bagian Form Tambah Video -->
-        <div class="form-section">
+        <div class="form-section glass-brutal">
             <h2>➕ Tambah Video YouTube Lainnya</h2>
             <form id="add-video-form">
                 <div class="input-group">
@@ -275,9 +359,9 @@
                 const videos = getVideos();
                 
                 videos.forEach((video, index) => {
-                    // Membuat bungkus card
+                    // Membuat bungkus card dengan style kombinasi Glassmorphism x Neubrutalism
                     const card = document.createElement('div');
-                    card.className = 'dynamic-video-card';
+                    card.className = 'dynamic-video-card glass-brutal';
                     
                     // Bagian Header (Judul & Tombol Hapus)
                     const headerDiv = document.createElement('div');

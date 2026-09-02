@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Awesome Links</title>
-    <!-- Menggunakan font Google 'Public Sans' yang cocok untuk desain bold/brutalism -->
+    <title>My Awesome Links - Pro Edition</title>
+    <!-- Menggunakan font Google 'Public Sans' -->
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
         /* === VARIABEL WARNA & STYLE === */
         :root {
             /* Warna Solid */
-            --border-color: #000000;
-            --shadow-color: #000000;
+            --border-color: #111111;
+            --shadow-color: #111111;
             --btn-pink: #FF66C4;
             --btn-red: #FF3B30;
+            --btn-yellow: #FFDE59;
             
             /* Warna Kaca (Glassmorphism) */
-            --glass-white: rgba(255, 255, 255, 0.4);
-            --glass-blue: rgba(56, 182, 255, 0.4);
-            --glass-green: rgba(140, 255, 158, 0.4);
+            --glass-white: rgba(255, 255, 255, 0.45);
+            --glass-blue: rgba(56, 182, 255, 0.45);
+            --glass-green: rgba(140, 255, 158, 0.45);
+            --glass-orange: rgba(255, 145, 77, 0.45);
             
-            /* Efek */
+            /* Efek & Ukuran */
             --border-width: 4px;
-            --glass-blur: blur(16px);
+            --glass-blur: blur(20px);
+            --transition-speed: 0.3s;
         }
 
         /* === RESET & BASE STYLES === */
@@ -41,10 +44,27 @@
             justify-content: center;
             min-height: 100vh;
             overflow-x: hidden;
-            background-color: #f8f9fa; /* Fallback color */
+            background-color: #f8f9fa; /* Fallback */
         }
 
-        /* === LIQUID ANIMATED BACKGROUND === */
+        /* CUSTOM SCROLLBAR (Saran #5) */
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff9e6;
+            border-left: var(--border-width) solid var(--border-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--btn-pink);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #38B6FF;
+        }
+
+        /* === LIQUID ANIMATED BACKGROUND (Saran #4) === */
         .liquid-bg {
             position: fixed;
             top: 0;
@@ -52,61 +72,58 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            background-color: #fff9e6; /* Kuning sangat muda */
+            background-color: #fffaeb;
             overflow: hidden;
         }
 
         .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.8;
-            animation: float 12s infinite alternate ease-in-out;
+            filter: blur(80px); /* Blur super tinggi untuk efek cair */
+            opacity: 0.85;
+            animation: float-blob 15s infinite alternate ease-in-out;
         }
 
-        .blob-1 {
-            background: #FF66C4; /* Pink */
-            width: 45vw;
-            height: 45vw;
-            top: -10%;
-            left: -10%;
-            animation-duration: 15s;
-        }
+        .blob-1 { background: #FF66C4; width: 45vw; height: 45vw; top: -10%; left: -10%; animation-duration: 18s; }
+        .blob-2 { background: #38B6FF; width: 50vw; height: 50vw; bottom: -20%; right: -10%; animation-duration: 22s; animation-direction: alternate-reverse; }
+        .blob-3 { background: #FFDE59; width: 40vw; height: 40vw; top: 30%; left: 30%; animation-duration: 15s; }
+        .blob-4 { background: #B28DFF; width: 35vw; height: 35vw; top: 60%; left: -5%; animation-duration: 20s; } /* Blob Ungu baru */
+        .blob-5 { background: #FF914D; width: 30vw; height: 30vw; top: -5%; right: 20%; animation-duration: 17s; animation-direction: alternate-reverse; } /* Blob Oranye baru */
 
-        .blob-2 {
-            background: #38B6FF; /* Biru */
-            width: 50vw;
-            height: 50vw;
-            bottom: -20%;
-            right: -10%;
-            animation-duration: 18s;
-            animation-direction: alternate-reverse;
-        }
-
-        .blob-3 {
-            background: #FFDE59; /* Kuning */
-            width: 40vw;
-            height: 40vw;
-            top: 30%;
-            left: 30%;
-            animation-duration: 12s;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(40px, 60px) scale(1.05); }
+        @keyframes float-blob {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(50px, -50px) scale(1.2) rotate(10deg); }
+            66% { transform: translate(-30px, 30px) scale(0.8) rotate(-10deg); }
+            100% { transform: translate(60px, 80px) scale(1.1) rotate(5deg); }
         }
 
         .container {
             width: 100%;
-            max-width: 768px; /* Ukuran max untuk Desktop/Tablet */
+            max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 35px;
             position: relative;
-            z-index: 1; /* Berada di atas background */
+            z-index: 1;
+            padding-bottom: 60px;
+        }
+
+        /* Animasi Masuk (Saran #6) */
+        .animate-pop-in {
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: translateY(40px) scale(0.9);
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.5s; }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         /* === GLOBAL NEUBRUTALISM X GLASSMORPHISM CLASS === */
@@ -115,22 +132,29 @@
             box-shadow: 8px 8px 0px var(--shadow-color);
             border-radius: 16px;
             backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur); /* Safari support */
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         /* === HEADER === */
         header {
             text-align: center;
-            padding: 25px;
+            padding: 30px;
             background: var(--glass-blue);
+            animation: float-header 4s ease-in-out infinite; /* (Saran #7) */
+        }
+
+        @keyframes float-header {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0px #fff; /* Agar teks lebih terbaca di atas kaca */
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 0px #fff; /* (Saran #10) Kontras Teks */
         }
 
         /* === VIDEO YOUTUBE RESPONSIVE === */
@@ -138,12 +162,18 @@
             position: relative;
             width: 100%;
             padding-bottom: 56.25%; /* Rasio 16:9 */
-            background: #000; /* Background hitam saat loading */
+            background: #000;
             overflow: hidden;
-            /* Glass Brutal di-apply terpisah agar shadow pas */
             border: var(--border-width) solid var(--border-color);
-            box-shadow: 8px 8px 0px var(--shadow-color);
-            border-radius: 16px;
+            box-shadow: 10px 10px 0px var(--shadow-color);
+            border-radius: 20px;
+            transition: transform var(--transition-speed);
+        }
+
+        /* Hover Expanding pada Video Utama (Saran #1) */
+        .video-wrapper:hover .video-container {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 15px 15px 0px var(--shadow-color);
         }
 
         .video-container iframe {
@@ -158,60 +188,74 @@
         /* === FORM TAMBAH LINK === */
         .form-section {
             background: var(--glass-white);
-            padding: 30px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
+        }
+
+        .form-section:hover {
+            box-shadow: 12px 12px 0px var(--shadow-color);
+            transform: translateY(-4px); /* Hover Expanding (Saran #1) */
         }
 
         .form-section h2 {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 900;
-            text-shadow: 1px 1px 0px #fff;
+            text-shadow: 2px 2px 0px #fff;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
         input {
             width: 100%;
-            padding: 18px;
-            font-size: 1rem;
+            padding: 20px;
+            font-size: 1.1rem;
             font-family: inherit;
             font-weight: 700;
-            background-color: rgba(255, 255, 255, 0.7); /* Semi transparan putih */
+            background-color: rgba(255, 255, 255, 0.6);
             border: 3px solid var(--border-color);
             border-radius: 12px;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all var(--transition-speed) ease;
         }
 
+        /* Extreme Focus States (Saran #8) */
         input:focus {
             background-color: #fff;
-            box-shadow: 4px 4px 0px var(--shadow-color);
-            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+            transform: translate(-3px, -3px) scale(1.02); /* Expanding saat diketik */
+            border-color: #38B6FF; /* Highlight biru saat aktif */
         }
 
         button.btn-add {
-            padding: 18px;
-            font-size: 1.2rem;
+            padding: 20px;
+            font-size: 1.3rem;
             font-weight: 900;
             font-family: inherit;
-            background-color: var(--btn-pink); /* Warna solid brutalism */
+            background-color: var(--btn-pink);
             color: var(--border-color);
             border: var(--border-width) solid var(--border-color);
-            box-shadow: 6px 6px 0px var(--shadow-color);
-            border-radius: 12px;
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            border-radius: 14px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.1s ease;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Hover Expanding Button (Saran #2) */
+        button.btn-add:hover {
+            transform: translate(-4px, -4px) scale(1.03);
+            box-shadow: 12px 12px 0px var(--shadow-color);
+            background-color: #ff7cd0; /* sedikit lebih terang */
         }
 
         button.btn-add:active {
-            transform: translate(6px, 6px);
+            transform: translate(8px, 8px) scale(0.98);
             box-shadow: 0px 0px 0px var(--shadow-color);
         }
 
@@ -219,58 +263,109 @@
         #links-container {
             display: flex;
             flex-direction: column;
-            gap: 25px;
-            padding-bottom: 50px;
+            gap: 30px;
         }
 
-        /* Card baru untuk Video Dinamis */
+        /* (Saran #3) Empty State UI */
+        .empty-state {
+            background: var(--glass-orange);
+            padding: 40px;
+            text-align: center;
+            border: var(--border-width) dashed var(--border-color);
+            border-radius: 16px;
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            backdrop-filter: var(--glass-blur);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
         .dynamic-video-card {
             background: var(--glass-green);
-            padding: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            transition: all 0.2s ease;
+            gap: 20px;
+            animation: popIn 0.5s ease-out forwards;
         }
 
+        /* (Saran #1) Hover Expanding Card Dinamis */
         .dynamic-video-card:hover {
-            transform: translate(-4px, -4px);
-            box-shadow: 12px 12px 0px var(--shadow-color);
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 15px 15px 0px var(--shadow-color);
+            background: rgba(140, 255, 158, 0.6); /* Sedikit lebih solid saat dihover */
         }
 
         .video-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .video-title {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 900;
-            text-shadow: 1px 1px 0px #fff;
+            text-shadow: 2px 2px 0px #fff;
+            flex: 1;
         }
 
+        /* (Saran #9) Interactive Delete Button */
         .btn-delete {
             background-color: var(--btn-red);
             color: white;
             border: 3px solid var(--border-color);
-            box-shadow: 4px 4px 0px var(--shadow-color);
+            box-shadow: 5px 5px 0px var(--shadow-color);
             border-radius: 10px;
-            padding: 10px 18px;
-            font-size: 1rem;
+            padding: 12px 25px;
+            font-size: 1.1rem;
             font-weight: 900;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            transform: translate(-3px, -3px) scale(1.05);
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            background-color: #ff5247;
         }
 
         .btn-delete:active {
-            transform: translate(4px, 4px);
+            transform: translate(5px, 5px) scale(0.95);
             box-shadow: 0px 0px 0px var(--shadow-color);
         }
 
-        /* === MEDIA QUERIES (RESPONSIVE) === */
-        /* Tablet & Desktop */
-        @media (min-width: 600px) {
+        /* === CUSTOM TOAST NOTIFICATION (Saran #2) === */
+        #custom-toast {
+            position: fixed;
+            top: -100px; /* Sembunyi di atas layar */
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--btn-yellow);
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--shadow-color);
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--border-color);
+            z-index: 9999;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #custom-toast.show {
+            top: 30px; /* Meluncur ke bawah */
+        }
+
+        /* === MEDIA QUERIES === */
+        @media (min-width: 768px) {
             .input-group {
                 flex-direction: row;
             }
@@ -279,15 +374,15 @@
             }
             button.btn-add {
                 align-self: flex-start;
-                padding: 18px 35px;
+                padding: 20px 45px;
             }
         }
         
-        /* Mobile Small Adjustments */
         @media (max-width: 480px) {
-            header h1 { font-size: 1.8rem; }
-            .blob { filter: blur(40px); }
-            .video-title { font-size: 1.1rem; }
+            header h1 { font-size: 2rem; }
+            .form-section { padding: 20px; }
+            .video-title { font-size: 1.3rem; }
+            button.btn-add { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -298,28 +393,38 @@
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+    </div>
+
+    <!-- Custom Toast Notification (Saran #2) -->
+    <div id="custom-toast">
+        <span id="toast-icon">⚠️</span>
+        <span id="toast-message">Pesan disini</span>
     </div>
 
     <div class="container">
         <!-- Bagian Header -->
-        <header class="glass-brutal">
-            <h1>✨ My Zone ✨</h1>
+        <header class="glass-brutal animate-pop-in delay-1">
+            <h1>✨ My Space ✨</h1>
         </header>
 
         <!-- Bagian Video YouTube Utama -->
-        <div class="video-container">
-            <!-- Iframe menggunakan youtube-nocookie.com untuk menghindari error di layar pratinjau -->
-            <iframe src="https://www.youtube-nocookie.com/embed/7TY11F_8_Go" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <div class="video-wrapper animate-pop-in delay-2">
+            <div class="video-container">
+                <!-- Iframe menggunakan youtube-nocookie.com -->
+                <iframe src="https://www.youtube-nocookie.com/embed/7TY11F_8_Go" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
         </div>
 
         <!-- Bagian Form Tambah Video -->
-        <div class="form-section glass-brutal">
+        <div class="form-section glass-brutal animate-pop-in delay-3">
             <h2>➕ Tambah Video YouTube Lainnya</h2>
             <form id="add-video-form">
                 <div class="input-group">
-                    <input type="text" id="video-title" placeholder="Judul (Cth: Vlog Bali)" required>
-                    <!-- Mengubah tipe input ke text agar bisa menampung kode <iframe> -->
-                    <input type="text" id="video-embed" placeholder="Paste kode <iframe ...> dari YouTube di sini" required>
+                    <input type="text" id="video-title" placeholder="Judul (Cth: Vlog Bali)" required autocomplete="off">
+                    <!-- Tipe text agar bisa menampung kode <iframe ...> -->
+                    <input type="text" id="video-embed" placeholder="Paste kode <iframe ...> dari YouTube di sini" required autocomplete="off">
                 </div>
                 <button type="submit" class="btn-add">Tambahkan Video!</button>
             </form>
@@ -327,43 +432,68 @@
 
         <!-- Bagian Daftar Video Dinamis -->
         <div id="links-container">
-            <!-- Video-video tambahan akan muncul di sini secara dinamis -->
+            <!-- Video-video tambahan akan di-render via JS di sini -->
         </div>
     </div>
 
-    <!-- === JAVASCRIPT === -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('add-video-form');
             const linksContainer = document.getElementById('links-container');
             const titleInput = document.getElementById('video-title');
             const embedInput = document.getElementById('video-embed');
+            
+            // Elemen Toast (Saran #2)
+            const toastEl = document.getElementById('custom-toast');
+            const toastMsg = document.getElementById('toast-message');
 
-            // Kunci untuk menyimpan data di LocalStorage browser
-            const STORAGE_KEY = 'neubrutalism_videos';
+            const STORAGE_KEY = 'neubrutalism_videos_pro';
 
-            // 1. Mengambil data video dari LocalStorage
+            // Fungsi Memunculkan Toast
+            const showToast = (message, isSuccess = false) => {
+                toastMsg.textContent = message;
+                document.getElementById('toast-icon').textContent = isSuccess ? '✅' : '⚠️';
+                toastEl.style.backgroundColor = isSuccess ? 'var(--glass-green)' : 'var(--btn-yellow)';
+                
+                toastEl.classList.add('show');
+                
+                // Hilangkan setelah 3 detik
+                setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 3000);
+            };
+
+            // 1. Ambil data
             const getVideos = () => {
                 const videos = localStorage.getItem(STORAGE_KEY);
                 return videos ? JSON.parse(videos) : [];
             };
 
-            // 2. Menyimpan data video ke LocalStorage
+            // 2. Simpan data
             const saveVideos = (videos) => {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
             };
 
-            // 3. Menampilkan daftar video ke layar (Render UI)
+            // 3. Render UI ke layar
             const renderVideos = () => {
-                linksContainer.innerHTML = ''; // Kosongkan kontainer dulu
+                linksContainer.innerHTML = ''; 
                 const videos = getVideos();
                 
+                // (Saran #3) Handling Empty State jika tidak ada video
+                if (videos.length === 0) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-state glass-brutal';
+                    emptyDiv.innerHTML = `<h3>🚀 Area Kosong! Ayo paste kode Iframe video favoritmu di atas!</h3>`;
+                    linksContainer.appendChild(emptyDiv);
+                    return; // Stop render lebih lanjut
+                }
+                
+                // Jika ada video, render card
                 videos.forEach((video, index) => {
-                    // Membuat bungkus card dengan style kombinasi Glassmorphism x Neubrutalism
                     const card = document.createElement('div');
                     card.className = 'dynamic-video-card glass-brutal';
                     
-                    // Bagian Header (Judul & Tombol Hapus)
+                    // Header Card
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'video-header';
 
@@ -373,18 +503,18 @@
 
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-delete';
-                    deleteBtn.textContent = 'HAPUS';
+                    deleteBtn.textContent = 'HAPUS 🗑️';
                     deleteBtn.onclick = () => deleteVideo(index);
 
                     headerDiv.appendChild(titleEl);
                     headerDiv.appendChild(deleteBtn);
 
-                    // Bagian Kontainer Video (Responsif 16:9)
+                    // Wadah iframe
                     const vidContainer = document.createElement('div');
                     vidContainer.className = 'video-container';
 
                     const iframeEl = document.createElement('iframe');
-                    iframeEl.src = video.src; // Memasukkan URL src yang sudah diekstrak
+                    iframeEl.src = video.src; 
                     iframeEl.title = video.title;
                     iframeEl.frameBorder = '0';
                     iframeEl.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -392,21 +522,23 @@
 
                     vidContainer.appendChild(iframeEl);
 
-                    // Memasukkan elemen ke dalam card, lalu ke layar
+                    // Susun elemen
                     card.appendChild(headerDiv);
                     card.appendChild(vidContainer);
-                    linksContainer.appendChild(card);
+                    
+                    // Supaya card baru muncul dari urutan paling atas
+                    linksContainer.insertBefore(card, linksContainer.firstChild);
                 });
             };
 
-            // 4. Aksi saat form disubmit (Menambah Video)
+            // 4. Submit Form
             form.addEventListener('submit', (e) => {
-                e.preventDefault(); // Mencegah halaman me-refresh
+                e.preventDefault();
                 
                 const newTitle = titleInput.value.trim();
                 const embedCode = embedInput.value.trim();
 
-                // Mengekstrak URL "src" dari kode <iframe> yang di-paste oleh user
+                // Ekstrak tag Iframe
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = embedCode;
                 const iframeTag = tempDiv.querySelector('iframe');
@@ -416,13 +548,14 @@
                 if (iframeTag && iframeTag.src) {
                     extractedSrc = iframeTag.src;
                     
-                    // (Opsional) Mengubah youtube.com ke youtube-nocookie.com agar pratinjau aman
+                    // Bypass keamanan pratinjau
                     if(extractedSrc.includes('youtube.com')) {
                         extractedSrc = extractedSrc.replace('youtube.com', 'youtube-nocookie.com');
                     }
                 } else {
-                    alert('Mohon paste kode <iframe ...> yang valid dari fitur "Semartkan / Embed" YouTube!');
-                    return; // Hentikan eksekusi jika tidak valid
+                    // Panggil Custom Toast (Saran #2) bukan Alert bawaan
+                    showToast('Gagal! Pastikan kamu mem-paste kode <iframe ...> yang benar dari YouTube.');
+                    return; 
                 }
 
                 if(newTitle && extractedSrc) {
@@ -430,24 +563,30 @@
                     videos.push({ title: newTitle, src: extractedSrc });
                     saveVideos(videos);
                     
-                    // Kosongkan inputan form
                     titleInput.value = '';
                     embedInput.value = '';
                     
-                    // Update tampilan
                     renderVideos();
+                    showToast(`Berhasil menambahkan "${newTitle}"!`, true);
+                    
+                    // Auto scroll sedikit ke bawah agar user melihat card baru
+                    setTimeout(() => {
+                        window.scrollBy({ top: 200, behavior: 'smooth' });
+                    }, 100);
                 }
             });
 
-            // 5. Fungsi menghapus video berdasarkan urutan (index)
+            // 5. Delete Video
             const deleteVideo = (index) => {
                 const videos = getVideos();
-                videos.splice(index, 1); // Hapus 1 item dari array
-                saveVideos(videos); // Simpan kembali array yang baru
-                renderVideos(); // Update tampilan
+                const deletedTitle = videos[index].title;
+                videos.splice(index, 1); 
+                saveVideos(videos); 
+                renderVideos(); 
+                showToast(`Video "${deletedTitle}" telah dihapus.`);
             };
 
-            // Render daftar video saat halaman pertama kali dimuat
+            // Inisialisasi awal
             renderVideos();
         });
     </script>

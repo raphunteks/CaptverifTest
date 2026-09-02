@@ -1,0 +1,60 @@
+{
+"name": "E-Pilketos SMAN 3 Makassar",
+"short_name": "Pilketos Smaga",
+"description": "Aplikasi Pemilihan Elektronik Ketua dan Wakil Ketua OSIS SMAN 3 Makassar Periode 2026/2027 Berintegritas, Jujur, dan Adil.",
+"start_url": "./",
+"scope": "./",
+"display": "standalone",
+"orientation": "portrait-primary",
+"background_color": "#FDFBF7",
+"theme_color": "#FFE600",
+"lang": "id",
+"dir": "ltr",
+"categories": [
+"education",
+"productivity",
+"government"
+],
+"icons": [
+{
+"src": "https://cdn-icons-png.flaticon.com/512/2231/2231649.png",
+"sizes": "192x192",
+"type": "image/png",
+"purpose": "any maskable"
+},
+{
+"src": "https://cdn-icons-png.flaticon.com/512/2231/2231649.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
+}
+],
+"shortcuts": [
+{
+"name": "Bilik Suara Siswa",
+"short_name": "Bilik Siswa",
+"description": "Masuk langsung ke bilik pemungutan suara siswa",
+"url": "./#viewSiswaLogin",
+"icons": [
+{
+"src": "https://cdn-icons-png.flaticon.com/512/2231/2231649.png",
+"sizes": "192x192",
+"type": "image/png"
+}
+]
+},
+{
+"name": "Portal Panitia",
+"short_name": "Admin Pemilu",
+"description": "Buka dashboard kendali komisi pemilihan",
+"url": "./#viewAdminLogin",
+"icons": [
+{
+"src": "https://cdn-icons-png.flaticon.com/512/2231/2231649.png",
+"sizes": "192x192",
+"type": "image/png"
+}
+]
+}
+]
+}

@@ -8,12 +8,12 @@
   <meta name="theme-color" content="#FFE600">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Pilketos Smaga">
+  <meta name="apple-mobile-web-app-title" content="OSIS SMAN3">
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2231/2231649.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2231/2231649.png">
   
-  <!-- Web App Manifest (Data URI for universal PWA installability across Vercel & Apps Script) -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22E-Pilketos%20SMAN%203%20Makassar%22%2C%22short_name%22%3A%22Pilketos%20Smaga%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FDFBF7%22%2C%22theme_color%22%3A%22%23FFE600%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2231%2F2231649.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+  <!-- Web App Manifest (Data URI for universal PWA installability across Vercel, GitHub & Apps Script) -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Pemilu%20OSIS%20SMAN%203%20Makassar%22%2C%22short_name%22%3A%22OSIS%20SMAN3%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22background_color%22%3A%22%23FDFBF7%22%2C%22theme_color%22%3A%22%23FFE600%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2231%2F2231649.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2231%2F2231649.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 
   <!-- Google Fonts: Plus Jakarta Sans & Space Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -808,9 +808,9 @@
       </nav>
 
       <div class="nav-actions">
-        <!-- PWA Header Install Button (Fallback Manual) -->
-        <button id="btnHeaderPwaInstall" class="btn btn-lime" style="display: none; padding: 6px 12px; font-size: 11px;" onclick="triggerPwaPrompt()">
-          <i class="fa-solid fa-download"></i> Pasang App
+        <!-- PWA Header Dynamic Install Button (Auto-Detect Android/Desktop vs iOS Safari) -->
+        <button id="btnHeaderPwaInstall" class="btn btn-lime" style="display: none; padding: 6px 12px; font-size: 11px;" onclick="handlePwaButtonClick()">
+          <i id="headerPwaIcon" class="fa-solid fa-download"></i> <span id="headerPwaText">Pasang App</span>
         </button>
 
         <span id="digitalClockHeader" class="badge" style="background: #FFF; font-family: 'Space Mono', monospace;">
@@ -1694,20 +1694,72 @@
     </div>
   </div>
 
-  <!-- Floating In-App PWA Installation Prompt Banner -->
+  <!-- 9. Modal Petunjuk Instalasi iOS Safari Neubrutalism -->
+  <div id="modalIosInstallGuide" class="modal-backdrop no-print">
+    <div class="modal-window" style="max-width: 480px;">
+      <div class="modal-header" style="background: var(--lime);">
+        <h4 class="modal-title"><i class="fa-brands fa-apple"></i> Pasang di iPhone / iPad</h4>
+        <button class="btn btn-pink" style="padding: 4px 10px;" onclick="closeModal('modalIosInstallGuide')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="display: inline-block; background: var(--yellow); border: var(--border-thick); border-radius: 50%; width: 56px; height: 56px; line-height: 50px; font-size: 26px; box-shadow: var(--shadow-sm);">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 900; margin-top: 10px;">3 Langkah Pasang di Safari</h3>
+          <p style="font-size: 12px; font-weight: 600; color: #555;">Nikmati bilik suara layar penuh tanpa bilah peramban.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Langkah 1 -->
+          <div style="display: flex; align-items: flex-start; gap: 12px; background: #FAFAFA; border: var(--border-thin); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--yellow); border: var(--border-thin); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0;">1</div>
+            <div style="font-size: 13px; font-weight: 700; color: #222;">
+              Ketuk tombol <strong>Share</strong> (<i class="fa-solid fa-arrow-up-from-bracket" style="color: #007AFF;"></i> ikon kotak panah ke atas) di bilah alat bawah Safari.
+            </div>
+          </div>
+
+          <!-- Langkah 2 -->
+          <div style="display: flex; align-items: flex-start; gap: 12px; background: #FAFAFA; border: var(--border-thin); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--cyan); border: var(--border-thin); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0;">2</div>
+            <div style="font-size: 13px; font-weight: 700; color: #222;">
+              Gulir menu ke bawah lalu ketuk <strong>"Tambah ke Layar Utama"</strong> (<em>Add to Home Screen</em> <i class="fa-regular fa-square-plus"></i>).
+            </div>
+          </div>
+
+          <!-- Langkah 3 -->
+          <div style="display: flex; align-items: flex-start; gap: 12px; background: #FAFAFA; border: var(--border-thin); border-radius: 8px; padding: 12px;">
+            <div style="background: var(--lime); border: var(--border-thin); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0;">3</div>
+            <div style="font-size: 13px; font-weight: 700; color: #222;">
+              Ketuk <strong>"Tambah"</strong> (<em>Add</em>) di pojok kanan atas. Ikon <strong>OSIS SMAN3</strong> akan terpasang di layar utama HP Anda!
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button class="btn btn-yellow" style="width: 100%; padding: 12px; font-size: 14px;" onclick="closeModal('modalIosInstallGuide')">
+          <i class="fa-solid fa-circle-check"></i> Mengerti & Buka Safari
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating In-App PWA Installation Prompt Banner (Adaptive Android vs iOS Safari) -->
   <div id="pwaInstallBanner" class="pwa-install-banner no-print">
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="brand-logo" style="width: 40px; height: 40px; font-size: 18px; flex-shrink: 0;">3</div>
       <div>
-        <h4 style="font-size: 14px; font-weight: 900; line-height: 1.2;">Pasang Aplikasi OSIS di HP Kamu!</h4>
-        <p style="font-size: 11px; font-weight: 700; color: #333; margin-top: 2px;">
+        <h4 id="pwaBannerTitle" style="font-size: 14px; font-weight: 900; line-height: 1.2;">Pasang Aplikasi OSIS di HP Kamu!</h4>
+        <p id="pwaBannerDesc" style="font-size: 11px; font-weight: 700; color: #333; margin-top: 2px;">
           Akses bilik suara lebih cepat, ringan, dan fullscreen langsung dari layar beranda HP.
         </p>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-      <button class="btn btn-dark" style="padding: 8px 14px; font-size: 12px;" onclick="triggerPwaPrompt()">
-        <i class="fa-solid fa-download"></i> Pasang Sekarang
+      <button id="pwaBannerActionBtn" class="btn btn-dark" style="padding: 8px 14px; font-size: 12px;" onclick="handlePwaButtonClick()">
+        <i id="pwaBannerActionIcon" class="fa-solid fa-download"></i> <span id="pwaBannerActionText">Pasang Sekarang</span>
       </button>
       <button class="btn btn-pink" style="padding: 8px 10px; font-size: 12px;" onclick="dismissPwaBanner()" title="Tutup">
         <i class="fa-solid fa-xmark"></i>
@@ -2118,10 +2170,18 @@
     });
 
     /**
-     * Engine PWA: Pendaftaran Service Worker & Penanganan beforeinstallprompt
+     * Engine PWA: Deteksi Otomatis Perangkat (Android/Desktop vs iOS Safari),
+     * Penanganan beforeinstallprompt, dan Modal Petunjuk Khusus iOS.
      */
+    var isIosDevice = false;
+    var isStandaloneApp = false;
+
     function initPwaInstallEngine() {
-      // 1. Registrasi Service Worker mandiri via Blob URL
+      // 1. Deteksi platform iOS & Status Standalone (PWA sudah terpasang)
+      isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      isStandaloneApp = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+      // 2. Registrasi Service Worker mandiri via Blob URL
       if ('serviceWorker' in navigator) {
         var swCode = "self.addEventListener('install', function(e) { self.skipWaiting(); });" +
                      "self.addEventListener('activate', function(e) { e.waitUntil(self.clients.claim()); });" +
@@ -2133,30 +2193,75 @@
         } catch (e) {}
       }
 
-      // 2. Intersepsi beforeinstallprompt
+      // 3. Konfigurasi Khusus iOS Safari jika belum terpasang sebagai Web App Standalone
+      if (isIosDevice && !isStandaloneApp) {
+        var banner = document.getElementById('pwaInstallBanner');
+        var btnHeader = document.getElementById('btnHeaderPwaInstall');
+        var headerText = document.getElementById('headerPwaText');
+        var headerIcon = document.getElementById('headerPwaIcon');
+        var bannerTitle = document.getElementById('pwaBannerTitle');
+        var bannerDesc = document.getElementById('pwaBannerDesc');
+        var bannerActionText = document.getElementById('pwaBannerActionText');
+        var bannerActionIcon = document.getElementById('pwaBannerActionIcon');
+
+        if (headerText) headerText.innerText = 'Pasang di iPhone/iPad';
+        if (headerIcon) headerIcon.className = 'fa-brands fa-apple';
+        if (btnHeader) btnHeader.style.display = 'inline-flex';
+
+        if (bannerTitle) bannerTitle.innerText = 'Pasang Aplikasi di iPhone/iPad Kamu!';
+        if (bannerDesc) bannerDesc.innerText = 'Nikmati bilik suara responsif dan fullscreen langsung dari layar utama Safari iOS.';
+        if (bannerActionText) bannerActionText.innerText = 'Petunjuk Pasang';
+        if (bannerActionIcon) bannerActionIcon.className = 'fa-brands fa-apple';
+        if (banner) banner.style.display = 'flex';
+        return;
+      }
+
+      // 4. Intersepsi beforeinstallprompt untuk Android / Chromium / Edge Desktop
       window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
         
         var banner = document.getElementById('pwaInstallBanner');
         var btnHeader = document.getElementById('btnHeaderPwaInstall');
+        var headerText = document.getElementById('headerPwaText');
+        var headerIcon = document.getElementById('headerPwaIcon');
+        var bannerActionText = document.getElementById('pwaBannerActionText');
+        var bannerActionIcon = document.getElementById('pwaBannerActionIcon');
+
+        if (headerText) headerText.innerText = 'Pasang App';
+        if (headerIcon) headerIcon.className = 'fa-solid fa-download';
+        if (bannerActionText) bannerActionText.innerText = 'Pasang Sekarang';
+        if (bannerActionIcon) bannerActionIcon.className = 'fa-solid fa-download';
+
         if (banner) banner.style.display = 'flex';
         if (btnHeader) btnHeader.style.display = 'inline-flex';
       });
 
-      // 3. Deteksi jika aplikasi telah terpasang
+      // 5. Deteksi saat aplikasi telah terpasang
       window.addEventListener('appinstalled', function() {
         deferredPrompt = null;
         dismissPwaBanner();
         var btnHeader = document.getElementById('btnHeaderPwaInstall');
         if (btnHeader) btnHeader.style.display = 'none';
-        showToast('Aplikasi Pilketos Smaga berhasil dipasang!', 'success');
+        showToast('Aplikasi Pemilu OSIS SMAN 3 Makassar berhasil dipasang!', 'success');
       });
+    }
+
+    function handlePwaButtonClick() {
+      if (isIosDevice && !isStandaloneApp) {
+        openModal('modalIosInstallGuide');
+        return;
+      }
+      triggerPwaPrompt();
     }
 
     function triggerPwaPrompt() {
       if (!deferredPrompt) {
-        showToast('Buka menu browser Anda lalu pilih "Tambahkan ke Layar Utama".', 'info');
+        if (isIosDevice) {
+          openModal('modalIosInstallGuide');
+        } else {
+          showToast('Buka menu browser Anda lalu pilih "Tambahkan ke Layar Utama".', 'info');
+        }
         return;
       }
       deferredPrompt.prompt();

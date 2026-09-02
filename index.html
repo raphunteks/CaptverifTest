@@ -143,39 +143,41 @@
             box-shadow: 0px 0px 0px var(--shadow-color);
         }
 
-        /* === DAFTAR LINK DINAMIS === */
+        /* === DAFTAR VIDEO DINAMIS === */
         #links-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .dynamic-link-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Card baru untuk Video Dinamis */
+        .dynamic-video-card {
             background-color: var(--link-green);
-            padding: 15px 20px;
+            padding: 20px;
             border: var(--border-width) solid var(--border-color);
             box-shadow: 6px 6px 0px var(--shadow-color);
             border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             transition: all 0.2s ease;
         }
 
-        .dynamic-link-card:hover {
+        .dynamic-video-card:hover {
             transform: translate(-4px, -4px);
             box-shadow: 10px 10px 0px var(--shadow-color);
         }
 
-        .link-content {
-            flex-grow: 1;
-            text-decoration: none;
-            color: var(--border-color);
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-title {
             font-size: 1.2rem;
             font-weight: 900;
-            word-break: break-word; /* Mencegah teks meluber di mobile */
-            display: flex;
-            align-items: center;
+            color: var(--border-color);
         }
 
         .btn-delete {
@@ -188,7 +190,6 @@
             font-size: 1rem;
             font-weight: 900;
             cursor: pointer;
-            margin-left: 15px;
             transition: all 0.1s ease;
         }
 
@@ -221,117 +222,149 @@
             <h1>🔥 My Zone 🔥</h1>
         </header>
 
-        <!-- Bagian Video YouTube -->
+        <!-- Bagian Video YouTube Utama -->
         <div class="video-container">
             <!-- Iframe menggunakan youtube-nocookie.com untuk menghindari error di layar pratinjau -->
             <iframe src="https://www.youtube-nocookie.com/embed/7TY11F_8_Go" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
 
-        <!-- Bagian Form Tambah Link -->
+        <!-- Bagian Form Tambah Video -->
         <div class="form-section">
-            <h2>➕ Tambah Link Baru</h2>
-            <form id="add-link-form">
+            <h2>➕ Tambah Video YouTube Lainnya</h2>
+            <form id="add-video-form">
                 <div class="input-group">
-                    <input type="text" id="link-title" placeholder="Nama Link (Contoh: Instagram)" required>
-                    <input type="url" id="link-url" placeholder="URL (Contoh: https://instagram.com/)" required>
+                    <input type="text" id="video-title" placeholder="Judul (Cth: Vlog Bali)" required>
+                    <!-- Mengubah tipe input ke text agar bisa menampung kode <iframe> -->
+                    <input type="text" id="video-embed" placeholder="Paste kode <iframe ...> dari YouTube di sini" required>
                 </div>
-                <button type="submit" class="btn-add">Tambahkan!</button>
+                <button type="submit" class="btn-add">Tambahkan Video!</button>
             </form>
         </div>
 
-        <!-- Bagian Daftar Link -->
+        <!-- Bagian Daftar Video Dinamis -->
         <div id="links-container">
-            <!-- Link yang ditambahkan akan muncul di sini secara dinamis -->
+            <!-- Video-video tambahan akan muncul di sini secara dinamis -->
         </div>
     </div>
 
     <!-- === JAVASCRIPT === -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('add-link-form');
+            const form = document.getElementById('add-video-form');
             const linksContainer = document.getElementById('links-container');
-            const titleInput = document.getElementById('link-title');
-            const urlInput = document.getElementById('link-url');
+            const titleInput = document.getElementById('video-title');
+            const embedInput = document.getElementById('video-embed');
 
             // Kunci untuk menyimpan data di LocalStorage browser
-            const STORAGE_KEY = 'neubrutalism_links';
+            const STORAGE_KEY = 'neubrutalism_videos';
 
-            // 1. Mengambil data link dari LocalStorage
-            const getLinks = () => {
-                const links = localStorage.getItem(STORAGE_KEY);
-                return links ? JSON.parse(links) : [];
+            // 1. Mengambil data video dari LocalStorage
+            const getVideos = () => {
+                const videos = localStorage.getItem(STORAGE_KEY);
+                return videos ? JSON.parse(videos) : [];
             };
 
-            // 2. Menyimpan data link ke LocalStorage
-            const saveLinks = (links) => {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+            // 2. Menyimpan data video ke LocalStorage
+            const saveVideos = (videos) => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
             };
 
-            // 3. Menampilkan daftar link ke layar (Render UI)
-            const renderLinks = () => {
+            // 3. Menampilkan daftar video ke layar (Render UI)
+            const renderVideos = () => {
                 linksContainer.innerHTML = ''; // Kosongkan kontainer dulu
-                const links = getLinks();
+                const videos = getVideos();
                 
-                links.forEach((link, index) => {
+                videos.forEach((video, index) => {
                     // Membuat bungkus card
                     const card = document.createElement('div');
-                    card.className = 'dynamic-link-card';
+                    card.className = 'dynamic-video-card';
                     
-                    // Membuat elemen teks link (Bisa di-klik)
-                    const linkEl = document.createElement('a');
-                    linkEl.href = link.url;
-                    linkEl.target = '_blank'; // Membuka link di tab baru
-                    linkEl.className = 'link-content';
-                    linkEl.textContent = link.title;
-                    
-                    // Membuat tombol hapus
+                    // Bagian Header (Judul & Tombol Hapus)
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'video-header';
+
+                    const titleEl = document.createElement('h3');
+                    titleEl.className = 'video-title';
+                    titleEl.textContent = video.title;
+
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-delete';
                     deleteBtn.textContent = 'HAPUS';
-                    
-                    // Aksi saat tombol hapus diklik
-                    deleteBtn.onclick = () => {
-                        deleteLink(index);
-                    };
+                    deleteBtn.onclick = () => deleteVideo(index);
+
+                    headerDiv.appendChild(titleEl);
+                    headerDiv.appendChild(deleteBtn);
+
+                    // Bagian Kontainer Video (Responsif 16:9)
+                    const vidContainer = document.createElement('div');
+                    vidContainer.className = 'video-container';
+
+                    const iframeEl = document.createElement('iframe');
+                    iframeEl.src = video.src; // Memasukkan URL src yang sudah diekstrak
+                    iframeEl.title = video.title;
+                    iframeEl.frameBorder = '0';
+                    iframeEl.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                    iframeEl.allowFullscreen = true;
+
+                    vidContainer.appendChild(iframeEl);
 
                     // Memasukkan elemen ke dalam card, lalu ke layar
-                    card.appendChild(linkEl);
-                    card.appendChild(deleteBtn);
+                    card.appendChild(headerDiv);
+                    card.appendChild(vidContainer);
                     linksContainer.appendChild(card);
                 });
             };
 
-            // 4. Aksi saat form disubmit (Menambah link)
+            // 4. Aksi saat form disubmit (Menambah Video)
             form.addEventListener('submit', (e) => {
                 e.preventDefault(); // Mencegah halaman me-refresh
                 
                 const newTitle = titleInput.value.trim();
-                let newUrl = urlInput.value.trim();
+                const embedCode = embedInput.value.trim();
 
-                if(newTitle && newUrl) {
-                    const links = getLinks();
-                    links.push({ title: newTitle, url: newUrl });
-                    saveLinks(links);
+                // Mengekstrak URL "src" dari kode <iframe> yang di-paste oleh user
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = embedCode;
+                const iframeTag = tempDiv.querySelector('iframe');
+                
+                let extractedSrc = '';
+
+                if (iframeTag && iframeTag.src) {
+                    extractedSrc = iframeTag.src;
+                    
+                    // (Opsional) Mengubah youtube.com ke youtube-nocookie.com agar pratinjau aman
+                    if(extractedSrc.includes('youtube.com')) {
+                        extractedSrc = extractedSrc.replace('youtube.com', 'youtube-nocookie.com');
+                    }
+                } else {
+                    alert('Mohon paste kode <iframe ...> yang valid dari fitur "Semartkan / Embed" YouTube!');
+                    return; // Hentikan eksekusi jika tidak valid
+                }
+
+                if(newTitle && extractedSrc) {
+                    const videos = getVideos();
+                    videos.push({ title: newTitle, src: extractedSrc });
+                    saveVideos(videos);
                     
                     // Kosongkan inputan form
                     titleInput.value = '';
-                    urlInput.value = '';
+                    embedInput.value = '';
                     
                     // Update tampilan
-                    renderLinks();
+                    renderVideos();
                 }
             });
 
-            // 5. Fungsi menghapus link berdasarkan urutan (index)
-            const deleteLink = (index) => {
-                const links = getLinks();
-                links.splice(index, 1); // Hapus 1 item dari array
-                saveLinks(links); // Simpan kembali array yang baru
-                renderLinks(); // Update tampilan
+            // 5. Fungsi menghapus video berdasarkan urutan (index)
+            const deleteVideo = (index) => {
+                const videos = getVideos();
+                videos.splice(index, 1); // Hapus 1 item dari array
+                saveVideos(videos); // Simpan kembali array yang baru
+                renderVideos(); // Update tampilan
             };
 
-            // Render daftar link saat halaman pertama kali dimuat
-            renderLinks();
+            // Render daftar video saat halaman pertama kali dimuat
+            renderVideos();
         });
     </script>
 </body>

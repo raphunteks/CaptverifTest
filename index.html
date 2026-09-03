@@ -2,18 +2,23 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Instrumen OHQE - Konservasi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instrumen OHQE - Oral Health-Related Quality of Life Scale for Endodontic Patients</title>
+  <meta name="description" content="Instrumen OHQE untuk penilaian kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik. Mendukung Kunjungan 1, 2, dan 3, VAS, MDAS, analisis statistik, dan pengelolaan data penelitian.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#111111">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="https://instrumenohqe.vercel.app/">
   
   <link rel="icon" type="image/png" href="axalogo.png">
   <link rel="apple-touch-icon" href="axalogo.png">
   <link rel="shortcut icon" href="axalogo.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.2/dist/chartjs-plugin-annotation.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.2/dist/chartjs-plugin-annotation.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 
   <style>
     /* AXA XYZ THEME: Dark Glassmorphism Premium */
@@ -138,9 +143,1587 @@
     .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
     .toggle-label { width: 3.5rem; height: 1.75rem; background-color: rgba(255,255,255,0.1); border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; border: 1px solid rgba(255,255,255,0.2); display: inline-block; }
     .toggle-label:after { content: ''; position: absolute; top: 2px; left: 2px; width: 1.35rem; height: 1.35rem; background-color: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+
+    /* =========================================================
+       PERFORMANCE + ACCESSIBILITY HARDENING LAYER
+       Additive only: existing classes, IDs and JavaScript remain intact.
+       ========================================================= */
+    html { scroll-behavior: auto; text-rendering: optimizeLegibility; }
+    *, *::before, *::after { box-sizing: border-box; }
+    img, svg, iframe, canvas { max-width: 100%; }
+    img { height: auto; }
+    button, input, select, textarea { font: inherit; }
+    button, [role="button"], input[type="button"], input[type="submit"], input[type="file"]::file-selector-button { min-height: 44px; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid #ffde00 !important;
+      outline-offset: 3px !important;
+    }
+    .glass-card {
+      contain: layout paint;
+      content-visibility: auto;
+      contain-intrinsic-size: 700px;
+    }
+    #loader { contain: strict; }
+    #app-container, #admin-container, #rontgen-dashboard-container { isolation: isolate; }
+    .step-content { will-change: opacity, transform; }
+    .overflow-x-auto { overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+    .spss-table-container { contain: layout paint; }
+    .spss-wrapper { contain: content; }
+    @media (max-width: 640px) {
+      body { padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+      .glass-card { border-width: 2px; }
+      .radio-group label { min-height: 52px; }
+      .vas-item { min-width: 44px; min-height: 44px; }
+      .face-svg { width: 34px; height: 34px; }
+      .face-num { width: 32px; height: 32px; }
+      input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select, textarea { min-height: 48px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media (forced-colors: active) {
+      button, input, select, textarea, .radio-group label { border: 2px solid CanvasText !important; }
+      :focus-visible { outline: 3px solid Highlight !important; }
+    }
+    @media print {
+      #loader, #custom-alert, #custom-confirm, #preview-modal { display: none !important; }
+      body { background: #fff !important; color: #111 !important; }
+      .glass-card { box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+    }
   </style>
+
+<style id="neubrutalism-super-upgrade">
+:root{
+  --nb-ink:#111111;--nb-paper:#fffdf5;--nb-yellow:#ffe66d;--nb-pink:#ff6fb5;--nb-blue:#63d5ff;
+  --nb-lime:#b8f34a;--nb-purple:#b69cff;--nb-orange:#ff9f43;--nb-red:#ff5b5b;--nb-white:#ffffff;
+  --nb-border:3px solid var(--nb-ink);--nb-shadow:7px 7px 0 var(--nb-ink);--nb-shadow-sm:4px 4px 0 var(--nb-ink);
+  --nb-radius:18px;--nb-radius-sm:12px;
+}
+html{background:var(--nb-paper);scroll-behavior:smooth}
+body{
+  background:var(--nb-paper)!important;color:var(--nb-ink)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  background-image:linear-gradient(135deg,rgba(255,230,109,.22) 0 10%,transparent 10% 100%),radial-gradient(circle at 90% 8%,rgba(182,156,255,.2),transparent 25%),radial-gradient(circle at 5% 85%,rgba(99,213,255,.2),transparent 25%)!important;
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;z-index:-1;background-image:radial-gradient(var(--nb-ink) .7px,transparent .7px);background-size:12px 12px}
+.glass-card{
+ background:rgba(255,255,255,.96)!important;color:var(--nb-ink)!important;border:var(--nb-border)!important;border-radius:var(--nb-radius)!important;
+ box-shadow:var(--nb-shadow)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:10
+}
+.glass-card:after{content:"";position:absolute;inset:6px;border:2px dashed rgba(17,17,17,.12);border-radius:12px;pointer-events:none}
+.text-neon{color:var(--nb-ink)!important;text-shadow:none!important;background:var(--nb-lime);border:2px solid var(--nb-ink);padding:.08em .28em;border-radius:7px;box-shadow:3px 3px 0 var(--nb-ink)}
+.border-neon{border-color:var(--nb-ink)!important;box-shadow:var(--nb-shadow-sm)!important}
+.btn-neon{
+ background:var(--nb-lime)!important;color:var(--nb-ink)!important;border:var(--nb-border)!important;border-radius:12px!important;box-shadow:var(--nb-shadow-sm)!important;
+ transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease!important;min-height:48px
+}
+.btn-neon:hover:not(:disabled){background:var(--nb-yellow)!important;transform:translate(-2px,-2px)!important;box-shadow:9px 9px 0 var(--nb-ink)!important}
+.btn-neon:active:not(:disabled){transform:translate(3px,3px)!important;box-shadow:2px 2px 0 var(--nb-ink)!important}
+button:not(:disabled),input[type=button],input[type=submit],input[type=reset],label[for]{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,label:focus-visible{outline:4px solid var(--nb-blue)!important;outline-offset:3px!important}
+input[type="text"],input[type="number"],input[type="tel"],input[type="password"],select,textarea{
+ background:var(--nb-white)!important;color:var(--nb-ink)!important;border:var(--nb-border)!important;border-radius:12px!important;box-shadow:var(--nb-shadow-sm)!important;min-height:50px;transition:box-shadow .12s ease,transform .12s ease,border-color .12s ease!important
+}
+input:focus,select:focus,textarea:focus{border-color:var(--nb-ink)!important;box-shadow:5px 5px 0 var(--nb-blue)!important;transform:translate(-1px,-1px)}
+input::placeholder,textarea::placeholder{color:#666!important;opacity:1}
+select option{background:#fff;color:#111}
+.radio-group label{
+ background:var(--nb-white)!important;color:var(--nb-ink)!important;border:var(--nb-border)!important;border-radius:12px!important;box-shadow:var(--nb-shadow-sm)!important;min-height:64px!important;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease!important
+}
+.radio-group label:hover{background:var(--nb-yellow)!important;transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--nb-ink)!important}
+.radio-group input[type="radio"]:checked+label{background:var(--nb-pink)!important;color:var(--nb-ink)!important;border-color:var(--nb-ink)!important;box-shadow:2px 2px 0 var(--nb-ink)!important;transform:translate(2px,2px) scale(.99)!important}
+.radio-group label span.num{font-weight:900;color:inherit}
+.vas-item{gap:7px}.face-svg{stroke:var(--nb-ink)!important;filter:none!important}.face-num{border:var(--nb-border)!important;background:var(--nb-white)!important;color:var(--nb-ink)!important;box-shadow:var(--nb-shadow-sm)!important}
+.vas-item input[type=radio]:checked+.face-icon .face-svg{stroke:var(--nb-ink)!important;filter:none!important;transform:scale(1.08)}
+.vas-item input[type=radio]:checked~.face-num{background:var(--nb-yellow)!important;color:var(--nb-ink)!important;border-color:var(--nb-ink)!important;box-shadow:2px 2px 0 var(--nb-ink)!important}
+.step-content{will-change:auto;transition:opacity .18s ease,transform .18s ease!important}
+.step-content.active{opacity:1}
+#loader{background:var(--nb-yellow)!important;color:var(--nb-ink)!important;transition:opacity .2s ease!important}
+.spinner{border:4px solid rgba(17,17,17,.18)!important;border-top-color:var(--nb-ink)!important}
+#loader .text-neon{background:var(--nb-white)!important}
+#gate-container{background:var(--nb-white)!important}
+#gate-container button{background:var(--nb-yellow)!important;color:var(--nb-ink)!important;border:var(--nb-border)!important;border-radius:12px!important;box-shadow:var(--nb-shadow-sm)!important;min-height:54px;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease!important}
+#gate-container button:hover{background:var(--nb-pink)!important;transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--nb-ink)!important}
+#gate-container button:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--nb-ink)!important}
+#app-container{background:rgba(255,255,255,.97)!important}
+#progress-container>div:nth-child(3){background:#111!important;border:2px solid #111!important;height:15px!important;box-shadow:4px 4px 0 #111}
+#progress-bar{background:var(--nb-pink)!important;box-shadow:none!important}
+#progress-percentage{background:var(--nb-yellow);color:#111!important;border:2px solid #111;padding:2px 7px;border-radius:6px}
+#kunjungan-title{background:var(--nb-blue)!important;color:#111!important;border:2px solid #111!important;box-shadow:3px 3px 0 #111!important}
+#nav-buttons{border-color:#111!important}
+#btn-prev{background:var(--nb-white)!important;color:#111!important;border:var(--nb-border)!important;border-radius:12px!important;box-shadow:var(--nb-shadow-sm)!important;min-height:48px}
+#btn-prev:hover{background:var(--nb-blue)!important}
+#btn-submit{background:var(--nb-pink)!important}
+#custom-alert,#custom-confirm,#preview-modal{background:rgba(17,17,17,.82)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#custom-alert>div,#custom-confirm>div,#preview-modal>div{background:var(--nb-white)!important;border:var(--nb-border)!important;box-shadow:10px 10px 0 var(--nb-pink)!important}
+#custom-alert button,#custom-confirm button{border:var(--nb-border)!important;border-radius:10px!important;box-shadow:var(--nb-shadow-sm)!important;min-height:48px}
+#admin-container,#rontgen-dashboard-container{background:var(--nb-white)!important;contain:layout paint}
+#admin-container .border-b,#rontgen-dashboard-container .border-b{border-color:#111!important}
+#admin-container [onclick^="switchTab"],#admin-container [onclick^="switchSubTable"]{border:2px solid #111!important;border-radius:10px!important;box-shadow:3px 3px 0 #111!important;background:var(--nb-white)!important;color:#111!important;min-height:44px}
+#admin-container [onclick^="switchTab"]:hover,#admin-container [onclick^="switchSubTable"]:hover{background:var(--nb-yellow)!important}
+#admin-container .overflow-x-auto,#rontgen-dashboard-container .overflow-x-auto{border:var(--nb-border)!important;border-radius:12px!important;background:#fff!important;contain:content}
+#admin-container table,#rontgen-dashboard-container table{border-collapse:separate!important;border-spacing:0!important;background:#fff!important;color:#111!important}
+#admin-container th,#rontgen-dashboard-container th{background:var(--nb-yellow)!important;color:#111!important;border-bottom:var(--nb-border)!important;font-weight:900!important}
+#admin-container td,#rontgen-dashboard-container td{color:#111!important;border-bottom:2px solid #111!important;background:#fff!important}
+#admin-container tbody tr:hover,#rontgen-dashboard-container tbody tr:hover{background:var(--nb-blue)!important}
+.spss-wrapper,.spss-table-container,.chart-box{border:3px solid #111!important;box-shadow:var(--nb-shadow-sm)!important;border-radius:10px!important}
+.spss-wrapper{contain:content}
+.spss-table-container{overflow-x:auto;overscroll-behavior-x:contain}
+#editor-container>div,#tab-websettings>div.bg-gray-800\/50,#tab-gpower .bg-gray-800\/50{background:#fff!important;border:var(--nb-border)!important;border-radius:14px!important;box-shadow:var(--nb-shadow-sm)!important}
+#tab-websettings .toggle-label{border:3px solid #111!important;background:#fff!important;box-shadow:3px 3px 0 #111!important}
+.toggle-checkbox:checked+.toggle-label{background:var(--nb-lime)!important;border-color:#111!important}
+.toggle-label:after{background:#111!important}
+#rontgen-login-container,#login-container{background:var(--nb-white)!important}
+#rontgen-login-container button,#login-container button{border:var(--nb-border)!important;box-shadow:var(--nb-shadow-sm)!important;border-radius:12px!important;min-height:50px}
+footer{color:#111!important}
+footer:before{content:"✦ ";color:var(--nb-pink)}
+/* colorful section accents without changing DOM */
+#step-1 h2,#step-2 h2,#step-3 h2,#step-4 h2,#step-5 h2,#step-6 h2,#step-7 h2{color:#111!important}
+#step-1 .mb-6:first-child{background:#fff0f0!important;border:var(--nb-border)!important;box-shadow:var(--nb-shadow-sm)!important}
+#step-2 .radio-group label:nth-child(3n){background:#e9f9ff!important}.radio-group label:nth-child(4n){background:#fff8c7!important}.radio-group label:nth-child(5n){background:#ffe9f3!important}
+#step-5 .bg-gray-800\/40{background:#eaf9ff!important;border:var(--nb-border)!important;box-shadow:var(--nb-shadow-sm)!important}
+#step-6 .bg-\[rgba\(57\,255\,20\,0\.03\)\]{background:#f5edff!important;border:var(--nb-border)!important;box-shadow:var(--nb-shadow-sm)!important}
+#step-8{background:#fff8c7;border:var(--nb-border);border-radius:16px;box-shadow:var(--nb-shadow);padding-left:16px;padding-right:16px}
+/* avoid expensive global effects */
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+iframe{border:0}
+.hide-scroll{scrollbar-width:none}.hide-scroll::-webkit-scrollbar{display:none}
+@media (max-width:640px){
+ body{padding-left:10px!important;padding-right:10px!important}
+ .glass-card{box-shadow:5px 5px 0 #111!important;border-radius:14px!important}
+ .glass-card:after{display:none}
+ #app-container,#admin-container,#rontgen-dashboard-container{width:100%!important;padding:14px!important}
+ #gate-container{width:100%!important;padding:22px 16px!important;margin-top:12px!important}
+ h1{letter-spacing:-.03em!important}
+ #progress-container{margin-bottom:20px!important}
+ .radio-group{gap:8px!important}
+ .radio-group label{min-height:58px!important;padding:8px!important}
+ #container-vas{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+ .face-svg{width:46px;height:46px}
+ .face-num{width:40px;height:40px}
+ .spss-table{font-size:11px!important}
+ .spss-table th,.spss-table td{padding:6px 8px!important}
+}
+@media (min-width:641px){#app-container{max-width:960px!important}}
+@media (min-width:1024px){#app-container{max-width:1080px!important}#admin-container,#rontgen-dashboard-container{max-width:1280px!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.step-content,.btn-neon,.radio-group label,input,select,textarea{transition:none!important}.spinner{animation:none!important}.animate-spin,.animate-pulse{animation:none!important}}
+@media (forced-colors:active){button,input,select,textarea,.glass-card{forced-color-adjust:auto;box-shadow:none!important}.text-neon{color:CanvasText!important;background:Highlight!important}}
+@media print{body{background:#fff!important;color:#000!important}.glass-card{box-shadow:none!important;border:1px solid #000!important}.no-print{display:none!important}}
+</style>
+
+<style id="ohqe-histogram-render-fix">
+/* ============================================================
+   OHQE HISTOGRAM VISIBILITY FIX
+   Does not change analysis/data logic.
+   ============================================================ */
+.histogram-container{
+  width:100%!important;
+  max-width:720px!important;
+  margin:0 auto 40px auto!important;
+  position:relative!important;
+}
+
+.histogram-container .chart-box{
+  width:100%!important;
+  min-height:340px!important;
+  height:390px!important;
+  padding:16px!important;
+  background:#fff!important;
+  color:#111!important;
+  overflow:hidden!important;
+  position:relative!important;
+  contain:layout paint!important;
+}
+
+.histogram-container canvas{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  min-height:0!important;
+}
+
+@media (max-width:767px){
+  .histogram-container .chart-box{
+    height:340px!important;
+    min-height:340px!important;
+    padding:10px!important;
+  }
+}
+
+@media print{
+  .histogram-container .chart-box{
+    height:360px!important;
+    min-height:360px!important;
+    overflow:visible!important;
+    box-shadow:none!important;
+  }
+}
+</style>
+
+<style id="enterprise-ui-performance">
+/*
+  ================================================================
+  OHQE ENTERPRISE NEUBRUTALISM — UI/UX + CORE WEB VITALS LAYER
+  ================================================================
+  CONTRACT:
+  - Additive UI/UX layer only.
+  - Existing IDs, classes, functions, event handlers, data schema,
+    routing, Google Apps Script, OHQE/VAS/MDAS/SPSS/G*Power,
+    Rontgen and PDF logic are intentionally untouched.
+  - No visual blur, no expensive filter effects, no continuous
+    transform animation, no global will-change.
+*/
+
+/* ---------- 01. DESIGN TOKENS ---------- */
+:root{
+  --ux-ink:#111111;
+  --ux-paper:#fffdf6;
+  --ux-white:#ffffff;
+  --ux-lime:#b9f34a;
+  --ux-yellow:#ffe36e;
+  --ux-pink:#ff72b6;
+  --ux-blue:#62d7ff;
+  --ux-purple:#b69cff;
+  --ux-orange:#ff9b45;
+  --ux-red:#ff6262;
+  --ux-green:#25c76b;
+
+  --ux-border:3px solid var(--ux-ink);
+  --ux-border-2:2px solid var(--ux-ink);
+  --ux-shadow:6px 6px 0 var(--ux-ink);
+  --ux-shadow-sm:4px 4px 0 var(--ux-ink);
+  --ux-shadow-lg:10px 10px 0 var(--ux-ink);
+
+  --ux-radius:18px;
+  --ux-radius-sm:12px;
+  --ux-radius-pill:999px;
+
+  --ux-max:1180px;
+  --ux-touch:44px;
+  --ux-focus:3px solid #175cd3;
+
+  --ux-duration-fast:120ms;
+  --ux-ease:cubic-bezier(.2,.8,.2,1);
+}
+
+/* ---------- 02. BASE / PAINT COST ---------- */
+html{
+  background:var(--ux-paper)!important;
+  color-scheme:light;
+  overflow-x:hidden;
+  scroll-behavior:auto!important;
+}
+
+body{
+  min-width:320px;
+  background:
+    linear-gradient(135deg,rgba(255,227,110,.16),transparent 23%),
+    radial-gradient(circle at 94% 7%,rgba(182,156,255,.18),transparent 24%),
+    radial-gradient(circle at 5% 88%,rgba(98,215,255,.16),transparent 24%),
+    var(--ux-paper)!important;
+  color:var(--ux-ink)!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:auto;
+  overscroll-behavior-x:none;
+}
+
+body::before{
+  opacity:.055!important;
+  background-image:radial-gradient(var(--ux-ink) .65px,transparent .65px)!important;
+  background-size:14px 14px!important;
+  contain:paint;
+}
+
+/* Never pay for blur/glow layers. Hard shadows are the design language. */
+.glass-card,
+#custom-alert>div,
+#custom-confirm>div,
+#preview-modal>div,
+.spss-wrapper,
+.spss-table-container,
+.chart-box{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  filter:none!important;
+}
+
+.glass-card{
+  background:var(--ux-white)!important;
+  border:var(--ux-border)!important;
+  border-radius:var(--ux-radius)!important;
+  box-shadow:var(--ux-shadow)!important;
+}
+
+/* Avoid permanent compositor promotion. */
+.step-content,
+.btn-neon,
+.radio-group label,
+.vas-item,
+.toggle-label{
+  will-change:auto!important;
+}
+
+/* ---------- 03. GLOBAL FOCUS / KEYBOARD ---------- */
+:where(a,button,input,select,textarea,[role="button"],[tabindex]):focus-visible{
+  outline:var(--ux-focus)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 2px var(--ux-white),0 0 0 5px #175cd3!important;
+}
+
+:where(button,a,[role="button"]){
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+
+button,
+input,
+select,
+textarea{
+  max-width:100%;
+}
+
+/* ---------- 04. BUTTON SYSTEM ---------- */
+.btn-neon,
+#gate-container button,
+#login-container button,
+#rontgen-login-container button,
+#btn-next,
+#btn-prev,
+#btn-submit,
+#btn-admin,
+#btn-rontgen,
+#btn-export-pdf,
+#btn-save-questions{
+  min-height:var(--ux-touch)!important;
+  border:var(--ux-border)!important;
+  border-radius:var(--ux-radius-sm)!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+  font-weight:850!important;
+  letter-spacing:.01em;
+  transition:
+    transform var(--ux-duration-fast) var(--ux-ease),
+    box-shadow var(--ux-duration-fast) var(--ux-ease),
+    background-color var(--ux-duration-fast) var(--ux-ease),
+    color var(--ux-duration-fast) var(--ux-ease)!important;
+}
+
+.btn-neon{
+  background:var(--ux-lime)!important;
+  color:var(--ux-ink)!important;
+  border-color:var(--ux-ink)!important;
+  text-shadow:none!important;
+}
+
+@media (hover:hover) and (pointer:fine){
+  .btn-neon:hover:not(:disabled),
+  #gate-container button:hover,
+  #login-container button:hover,
+  #rontgen-login-container button:hover,
+  #btn-next:hover,
+  #btn-prev:hover,
+  #btn-submit:hover,
+  #btn-admin:hover,
+  #btn-rontgen:hover,
+  #btn-export-pdf:hover,
+  #btn-save-questions:hover{
+    transform:translate(-2px,-2px)!important;
+    box-shadow:8px 8px 0 var(--ux-ink)!important;
+  }
+}
+
+.btn-neon:active:not(:disabled),
+#gate-container button:active,
+#login-container button:active,
+#rontgen-login-container button:active,
+#btn-next:active,
+#btn-prev:active,
+#btn-submit:active,
+#btn-admin:active,
+#btn-rontgen:active{
+  transform:translate(3px,3px)!important;
+  box-shadow:2px 2px 0 var(--ux-ink)!important;
+}
+
+/* ---------- 05. FORM UX ---------- */
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+select,
+textarea{
+  min-height:var(--ux-touch)!important;
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  border:var(--ux-border-2)!important;
+  border-radius:var(--ux-radius-sm)!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+  transition:
+    transform var(--ux-duration-fast) var(--ux-ease),
+    box-shadow var(--ux-duration-fast) var(--ux-ease),
+    border-color var(--ux-duration-fast) var(--ux-ease)!important;
+}
+
+textarea{
+  min-height:96px!important;
+  resize:vertical;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#5b5b5b!important;
+  opacity:1;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--ux-ink)!important;
+  box-shadow:5px 5px 0 var(--ux-blue)!important;
+  transform:translate(-1px,-1px);
+}
+
+select option{
+  background:#fff!important;
+  color:#111!important;
+}
+
+input[type="file"]{
+  min-height:var(--ux-touch)!important;
+  color:var(--ux-ink)!important;
+}
+
+input[type="file"]::file-selector-button{
+  min-height:40px;
+  margin-right:10px;
+  padding:.5rem .85rem;
+  border:var(--ux-border-2);
+  border-radius:10px;
+  background:var(--ux-yellow);
+  color:var(--ux-ink);
+  font-weight:850;
+}
+
+/* ---------- 06. RADIO / QUESTION CARDS ---------- */
+.radio-group{
+  gap:8px!important;
+}
+
+.radio-group label{
+  min-height:56px!important;
+  padding:.65rem .45rem!important;
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  border:var(--ux-border-2)!important;
+  border-radius:var(--ux-radius-sm)!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+  transition:
+    transform var(--ux-duration-fast) var(--ux-ease),
+    box-shadow var(--ux-duration-fast) var(--ux-ease),
+    background-color var(--ux-duration-fast) var(--ux-ease)!important;
+}
+
+@media (hover:hover) and (pointer:fine){
+  .radio-group label:hover{
+    background:var(--ux-yellow)!important;
+    transform:translate(-2px,-2px);
+    box-shadow:7px 7px 0 var(--ux-ink)!important;
+  }
+}
+
+.radio-group input[type="radio"]:checked+label{
+  background:var(--ux-pink)!important;
+  color:var(--ux-ink)!important;
+  border-color:var(--ux-ink)!important;
+  box-shadow:2px 2px 0 var(--ux-ink)!important;
+  transform:translate(2px,2px)!important;
+}
+
+.radio-group label span.num{
+  color:inherit!important;
+}
+
+/* Question block accent stripes without pseudo-heavy effects. */
+#step-1 .mb-6:first-child,
+#step-5 .bg-gray-800\/40,
+#step-6 .bg-\[rgba\(57\,255\,20\,0\.03\)\]{
+  border:var(--ux-border)!important;
+  border-radius:var(--ux-radius)!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+}
+
+/* ---------- 07. VAS / WONG-BAKER TOUCH UX ---------- */
+.vas-group{
+  gap:6px!important;
+}
+
+.vas-item{
+  min-width:var(--ux-touch);
+  min-height:var(--ux-touch);
+  padding:4px!important;
+  border:var(--ux-border-2);
+  border-radius:14px;
+  background:var(--ux-white);
+  box-shadow:3px 3px 0 var(--ux-ink);
+  transition:
+    transform var(--ux-duration-fast) var(--ux-ease),
+    box-shadow var(--ux-duration-fast) var(--ux-ease),
+    background-color var(--ux-duration-fast) var(--ux-ease)!important;
+}
+
+.vas-item input[type="radio"]:checked + .face-icon .face-svg{
+  stroke:var(--ux-ink)!important;
+  filter:none!important;
+  transform:scale(1.04)!important;
+}
+
+.vas-item input[type="radio"]:checked ~ .face-num{
+  background:var(--ux-yellow)!important;
+  color:var(--ux-ink)!important;
+  border-color:var(--ux-ink)!important;
+  box-shadow:2px 2px 0 var(--ux-ink)!important;
+}
+
+.face-svg{
+  width:38px!important;
+  height:38px!important;
+  filter:none!important;
+}
+
+.face-num{
+  width:34px!important;
+  height:34px!important;
+  border:var(--ux-border-2)!important;
+  border-radius:10px!important;
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  box-shadow:2px 2px 0 var(--ux-ink)!important;
+}
+
+/* ---------- 08. PROGRESS / VISITATION ---------- */
+#progress-container{
+  contain:layout paint;
+}
+
+#progress-container>div:nth-child(3){
+  background:var(--ux-white)!important;
+  border:var(--ux-border-2)!important;
+  border-radius:var(--ux-radius-pill)!important;
+  box-shadow:3px 3px 0 var(--ux-ink)!important;
+  overflow:hidden;
+}
+
+#progress-bar{
+  background:linear-gradient(90deg,var(--ux-blue),var(--ux-lime),var(--ux-yellow))!important;
+  box-shadow:none!important;
+  border-radius:inherit;
+}
+
+#kunjungan-title{
+  border:var(--ux-border-2)!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+  border-radius:12px!important;
+  background:var(--ux-blue)!important;
+  color:var(--ux-ink)!important;
+}
+
+/* ---------- 09. MODALS / LOADER ---------- */
+#custom-alert,
+#custom-confirm,
+#preview-modal{
+  background:rgba(17,17,17,.76)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+#custom-alert>div,
+#custom-confirm>div,
+#preview-modal>div{
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  border:var(--ux-border)!important;
+  border-radius:var(--ux-radius)!important;
+  box-shadow:var(--ux-shadow-lg)!important;
+}
+
+#loader{
+  background:var(--ux-yellow)!important;
+  color:var(--ux-ink)!important;
+  transition:opacity 160ms ease!important;
+  contain:strict;
+}
+
+.spinner{
+  border-color:rgba(17,17,17,.18)!important;
+  border-top-color:var(--ux-ink)!important;
+  animation:spin .7s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- 10. ADMIN / DASHBOARD ---------- */
+#admin-container{
+  contain:layout style;
+}
+
+#admin-container [onclick^="switchTab"],
+#admin-container [onclick^="switchSubTable"]{
+  min-height:44px!important;
+  border:var(--ux-border-2)!important;
+  border-radius:10px!important;
+  box-shadow:3px 3px 0 var(--ux-ink)!important;
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  font-weight:850!important;
+  transition:transform var(--ux-duration-fast) var(--ux-ease),
+             background-color var(--ux-duration-fast) var(--ux-ease)!important;
+}
+
+@media (hover:hover) and (pointer:fine){
+  #admin-container [onclick^="switchTab"]:hover,
+  #admin-container [onclick^="switchSubTable"]:hover{
+    background:var(--ux-yellow)!important;
+    transform:translate(-2px,-2px);
+  }
+}
+
+.spss-wrapper,
+.spss-table-container,
+.chart-box{
+  background:#fff!important;
+  color:#111!important;
+  border:var(--ux-border)!important;
+  border-radius:12px!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+  contain:layout paint;
+}
+
+.spss-table-container{
+  overflow:auto;
+  overscroll-behavior-inline:contain;
+}
+
+.spss-table{
+  min-width:640px;
+}
+
+.spss-table th{
+  background:#f3f3f3!important;
+}
+
+#editor-container>div,
+#tab-websettings>div.bg-gray-800\/50,
+#tab-gpower .bg-gray-800\/50{
+  background:var(--ux-white)!important;
+  color:var(--ux-ink)!important;
+  border:var(--ux-border)!important;
+  border-radius:14px!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+}
+
+/* ---------- 11. DATA TABLE ENTERPRISE UX ---------- */
+.overflow-x-auto{
+  overflow-x:auto!important;
+  overscroll-behavior-x:contain;
+  scrollbar-gutter:stable;
+  -webkit-overflow-scrolling:touch;
+}
+
+.overflow-x-auto table{
+  min-width:max-content;
+}
+
+.overflow-x-auto thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#fff!important;
+  color:#111!important;
+}
+
+.overflow-x-auto tbody tr{
+  transition:background-color 100ms linear!important;
+}
+
+@media (hover:hover) and (pointer:fine){
+  .overflow-x-auto tbody tr:hover{
+    background:#fff2a8!important;
+  }
+}
+
+/* ---------- 12. RONTGEN ---------- */
+#rontgen-dashboard-container{
+  contain:layout style;
+}
+
+#rontgen-dashboard-container table{
+  min-width:760px;
+}
+
+#rontgen-dashboard-container .overflow-x-auto{
+  border:var(--ux-border)!important;
+  border-radius:12px!important;
+  box-shadow:var(--ux-shadow-sm)!important;
+}
+
+/* ---------- 13. MEDIA / EMBEDS ---------- */
+img{
+  max-width:100%;
+}
+
+iframe{
+  border:var(--ux-border-2)!important;
+  border-radius:12px!important;
+  background:#fff;
+  content-visibility:auto;
+}
+
+canvas{
+  display:block;
+  max-width:100%;
+}
+
+/* ---------- 14. MOBILE FIRST ---------- */
+@media (max-width:767px){
+  body{
+    padding-left:max(8px,env(safe-area-inset-left));
+    padding-right:max(8px,env(safe-area-inset-right));
+  }
+
+  .glass-card{
+    border-width:2px!important;
+    border-radius:14px!important;
+    box-shadow:4px 4px 0 var(--ux-ink)!important;
+  }
+
+  .radio-group{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .radio-group label{
+    min-height:54px!important;
+  }
+
+  .vas-item{
+    min-width:46px;
+    min-height:46px;
+    border-width:2px;
+    box-shadow:2px 2px 0 var(--ux-ink);
+  }
+
+  .face-svg{
+    width:30px!important;
+    height:30px!important;
+  }
+
+  .face-num{
+    width:30px!important;
+    height:30px!important;
+    font-size:.9rem!important;
+  }
+
+  #admin-container [onclick^="switchTab"]{
+    flex:0 0 auto;
+  }
+
+  .spss-wrapper{
+    padding:12px!important;
+  }
+
+  .spss-table-container{
+    padding:8px!important;
+  }
+
+  .spss-table{
+    font-size:11px!important;
+    min-width:620px;
+  }
+
+  #gpowerPlot{
+    min-height:220px;
+  }
+}
+
+/* ---------- 15. TABLET ---------- */
+@media (min-width:768px) and (max-width:1199px){
+  .glass-card{
+    border-radius:16px!important;
+  }
+
+  .radio-group label{
+    min-height:58px!important;
+  }
+}
+
+/* ---------- 16. LARGE DESKTOP ---------- */
+@media (min-width:1200px){
+  #app-container>main,
+  #admin-container>main,
+  #rontgen-dashboard-container>main{
+    max-width:var(--ux-max);
+    margin-inline:auto;
+  }
+}
+
+/* ---------- 17. LOW POWER / REDUCED MOTION ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+
+  .spinner{
+    animation:none!important;
+  }
+}
+
+/* ---------- 18. FORCED COLORS ---------- */
+@media (forced-colors:active){
+  *,
+  *::before,
+  *::after{
+    box-shadow:none!important;
+    text-shadow:none!important;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .radio-group label,
+  .glass-card{
+    border:2px solid CanvasText!important;
+  }
+
+  :focus-visible{
+    outline:3px solid Highlight!important;
+    box-shadow:none!important;
+  }
+}
+
+/* ---------- 19. PRINT ---------- */
+@media print{
+  html,body{
+    background:#fff!important;
+    color:#111!important;
+  }
+
+  body::before,
+  #loader,
+  #custom-alert,
+  #custom-confirm,
+  #preview-modal{
+    display:none!important;
+  }
+
+  .glass-card,
+  .spss-wrapper,
+  .spss-table-container,
+  .chart-box{
+    box-shadow:none!important;
+    border:1px solid #111!important;
+  }
+
+  *{
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+}
+
+/* ---------- 20. SCROLLBAR: LOW COST ---------- */
+*{
+  scrollbar-width:thin;
+  scrollbar-color:#111 transparent;
+}
+
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#111;
+  border:2px solid transparent;
+  background-clip:padding-box;
+  border-radius:999px;
+}
+
+/* ---------- 21. CONTENT CONTAINMENT FOR NON-CRITICAL AREAS ---------- */
+#tab-ohqe,
+#tab-vas,
+#tab-mdas,
+#tab-spss,
+#tab-gpower,
+#tab-settings,
+#tab-websettings{
+  contain:layout style;
+}
+
+#tab-spss .spss-wrapper,
+#tab-spss .spss-table-container,
+#tab-gpower .chart-box{
+  contain:layout paint;
+}
+
+/* ---------- 22. SAFE-AREA + TOUCH ---------- */
+button,
+[role="button"],
+label,
+input,
+select,
+textarea{
+  touch-action:manipulation;
+}
+
+@supports(padding:max(0px)){
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container{
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
+  }
+}
+</style>
+
+
+<style id="visit-availability-enterprise">
+#tab-websettings .toggle-label{width:3.75rem!important;height:2rem!important;border:3px solid #111!important;background:#fff!important;box-shadow:3px 3px 0 #111!important}
+#tab-websettings .toggle-label:after{width:1.5rem!important;height:1.5rem!important;top:2px!important;left:2px!important;background:#111!important;box-shadow:none!important}
+#tab-websettings .toggle-checkbox:checked+.toggle-label{background:#b8f34a!important}
+#tab-websettings .toggle-checkbox:checked+.toggle-label:after{transform:translateX(1.7rem)!important}
+#btn-kunjungan-1,#btn-kunjungan-2,#btn-kunjungan-3{min-height:64px!important;border:3px solid #111!important;box-shadow:6px 6px 0 #111!important;background:#ffe66d!important;color:#111!important;border-radius:14px!important;font-weight:900!important}
+#btn-kunjungan-1:hover,#btn-kunjungan-2:hover,#btn-kunjungan-3:hover{background:#ff6fb5!important}
+#btn-kunjungan-1:active,#btn-kunjungan-2:active,#btn-kunjungan-3:active{transform:translate(3px,3px)!important;box-shadow:2px 2px 0 #111!important}
+#btn-kunjungan-1[disabled],#btn-kunjungan-2[disabled],#btn-kunjungan-3[disabled]{pointer-events:none!important}
+</style>
+
+
+<style id="visit-label-enterprise">
+#tab-websettings .visit-label-input{min-height:44px;box-shadow:3px 3px 0 #111;transition:transform .12s ease,box-shadow .12s ease}
+#tab-websettings .visit-label-input:focus{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #111}
+@media (max-width:640px){#tab-websettings .visit-label-input{font-size:16px}}
+</style>
+<style id="settings-sync-hardening">
+#gate-container{visibility:hidden}
+#gate-container.web-settings-ready{visibility:visible}
+.visit-label-input:disabled{opacity:.65;cursor:wait}
+#visit-access-settings .toggle-label{flex:0 0 auto}
+</style>
+
+<style id="index4-comprehensive-font-contrast">
+/*
+================================================================
+INDEX(4).HTML — COMPREHENSIVE FONT CONTRAST / READABILITY
+================================================================
+Goal:
+- eliminate white/light text disappearing on light backgrounds
+- keep white text on genuinely dark controls/modals
+- strengthen gray text on paper/white/neubrutalist surfaces
+- preserve all existing application logic and DOM structure
+================================================================
+*/
+
+/* ---------- GLOBAL PAPER / LIGHT SURFACES ---------- */
+html,
+body {
+  color: #111111 !important;
+}
+
+.glass-card,
+#gate-container,
+#app-container,
+#admin-container,
+#rontgen-dashboard-container,
+#login-container,
+#rontgen-login-container,
+#editor-container,
+#tab-websettings,
+#tab-gpower,
+#step-1,
+#step-2,
+#step-3,
+#step-4,
+#step-5,
+#step-6,
+#step-7,
+#step-8 {
+  color: #111111 !important;
+}
+
+/* ---------- THE EXACT LANDING-PAGE PROBLEM ---------- */
+#gate-container h1 {
+  color: #111111 !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+#gate-container h1 > span,
+#gate-container h1 .text-neon {
+  color: #111111 !important;
+  background: #b8f34a !important;
+  border: 2px solid #111111 !important;
+  text-shadow: none !important;
+}
+
+#gate-container > p,
+#gate-container .text-gray-300,
+#gate-container .text-gray-400,
+#gate-container .text-gray-500,
+#gate-container .text-gray-600 {
+  color: #374151 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- LIGHT SURFACE + WHITE TEXT ---------- */
+/* This is deliberately scoped to known light UI containers. */
+.glass-card .text-white,
+#gate-container .text-white,
+#app-container .text-white,
+#admin-container .text-white,
+#rontgen-dashboard-container .text-white,
+#login-container .text-white,
+#rontgen-login-container .text-white,
+#editor-container .text-white,
+#tab-websettings .text-white,
+#tab-gpower .text-white,
+#step-1 .text-white,
+#step-2 .text-white,
+#step-3 .text-white,
+#step-4 .text-white,
+#step-5 .text-white,
+#step-6 .text-white,
+#step-7 .text-white,
+#step-8 .text-white {
+  color: #111111 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- LIGHT SURFACE + FAINT GRAY TEXT ---------- */
+.glass-card .text-gray-300,
+.glass-card .text-gray-400,
+.glass-card .text-gray-500,
+#gate-container .text-gray-300,
+#gate-container .text-gray-400,
+#gate-container .text-gray-500,
+#app-container .text-gray-300,
+#app-container .text-gray-400,
+#app-container .text-gray-500,
+#admin-container .text-gray-300,
+#admin-container .text-gray-400,
+#admin-container .text-gray-500,
+#rontgen-dashboard-container .text-gray-300,
+#rontgen-dashboard-container .text-gray-400,
+#rontgen-dashboard-container .text-gray-500,
+#login-container .text-gray-300,
+#login-container .text-gray-400,
+#login-container .text-gray-500,
+#rontgen-login-container .text-gray-300,
+#rontgen-login-container .text-gray-400,
+#rontgen-login-container .text-gray-500 {
+  color: #374151 !important;
+}
+
+/* ---------- LIGHT CARDS / PANELS ---------- */
+.bg-white .text-white,
+.bg-gray-50 .text-white,
+.bg-gray-100 .text-white,
+.bg-yellow-50 .text-white,
+.bg-yellow-100 .text-white,
+.bg-blue-50 .text-white,
+.bg-blue-100 .text-white,
+.bg-green-50 .text-white,
+.bg-green-100 .text-white,
+.bg-purple-50 .text-white,
+.bg-purple-100 .text-white,
+.bg-pink-50 .text-white,
+.bg-pink-100 .text-white,
+.bg-orange-50 .text-white,
+.bg-orange-100 .text-white {
+  color: #111111 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- NEUBRUTALIST BUTTONS ---------- */
+#gate-container button,
+#btn-kunjungan-1,
+#btn-kunjungan-2,
+#btn-kunjungan-3 {
+  color: #111111 !important;
+  text-shadow: none !important;
+}
+
+#gate-container button:hover,
+#btn-kunjungan-1:hover,
+#btn-kunjungan-2:hover,
+#btn-kunjungan-3:hover {
+  color: #111111 !important;
+}
+
+/* ---------- NAV / ICON BUTTONS ON LIGHT SURFACES ---------- */
+#app-container button,
+#admin-container button,
+#rontgen-dashboard-container button,
+#login-container button,
+#rontgen-login-container button {
+  text-shadow: none !important;
+}
+
+/* Explicitly readable text on the common dark utility buttons. */
+#app-container button.bg-gray-800,
+#app-container button.bg-gray-900,
+#admin-container button.bg-gray-800,
+#admin-container button.bg-gray-900,
+#rontgen-dashboard-container button.bg-gray-800,
+#rontgen-dashboard-container button.bg-gray-900,
+#login-container button.bg-gray-800,
+#login-container button.bg-gray-900,
+#rontgen-login-container button.bg-gray-800,
+#rontgen-login-container button.bg-gray-900 {
+  color: #ffffff !important;
+}
+
+/* ---------- FORMS ---------- */
+input,
+select,
+textarea {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+select option {
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+/* ---------- TABLES / SPSS / CHART PANELS ---------- */
+.spss-wrapper,
+.spss-table-container,
+.chart-box {
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+.spss-wrapper *,
+.spss-table-container *,
+.chart-box * {
+  border-color: inherit;
+}
+
+.spss-wrapper .text-white,
+.spss-table-container .text-white,
+.chart-box .text-white,
+.spss-wrapper .text-gray-300,
+.spss-wrapper .text-gray-400,
+.spss-table-container .text-gray-300,
+.spss-table-container .text-gray-400,
+.chart-box .text-gray-300,
+.chart-box .text-gray-400 {
+  color: #111111 !important;
+  text-shadow: none !important;
+}
+
+/* ---------- ADMIN / RONTGEN DATA TABLES ---------- */
+#admin-container table,
+#admin-container th,
+#admin-container td,
+#rontgen-dashboard-container table,
+#rontgen-dashboard-container th,
+#rontgen-dashboard-container td {
+  color: #111111 !important;
+}
+
+#admin-container table .text-white,
+#admin-container table .text-gray-300,
+#admin-container table .text-gray-400,
+#rontgen-dashboard-container table .text-white,
+#rontgen-dashboard-container table .text-gray-300,
+#rontgen-dashboard-container table .text-gray-400 {
+  color: #111111 !important;
+}
+
+/* ---------- LIGHT TOGGLES / SETTINGS ---------- */
+#tab-websettings .toggle-label,
+#tab-websettings .toggle-label span {
+  color: #111111 !important;
+}
+
+#tab-websettings .visit-label-input {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+  background: #ffffff !important;
+}
+
+#tab-websettings .visit-label-input::placeholder {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
+
+/* ---------- FOOTER ---------- */
+footer,
+footer * {
+  color: #111111 !important;
+}
+
+footer a:hover {
+  color: #175cd3 !important;
+}
+
+/* ---------- DARK MODALS: WHITE TEXT IS CORRECT HERE ---------- */
+#custom-alert,
+#custom-confirm,
+#preview-modal {
+  color: #ffffff !important;
+}
+
+#custom-alert > div,
+#custom-confirm > div,
+#preview-modal > div {
+  color: #111111 !important;
+  background: #ffffff !important;
+}
+
+#custom-alert > div .text-white,
+#custom-confirm > div .text-white,
+#preview-modal > div .text-white {
+  color: #111111 !important;
+}
+
+#custom-alert button.bg-gray-800,
+#custom-alert button.bg-gray-700,
+#custom-confirm button.bg-gray-700,
+#custom-confirm button.bg-red-600 {
+  color: #ffffff !important;
+}
+
+/* ---------- LOADER ---------- */
+#loader {
+  color: #111111 !important;
+}
+
+#loader .text-gray-400,
+#loader .text-gray-500 {
+  color: #374151 !important;
+}
+
+/* ---------- ACCESSIBLE LINKS ---------- */
+.glass-card a,
+#gate-container a,
+#app-container a,
+#admin-container a,
+#rontgen-dashboard-container a {
+  text-underline-offset: 2px;
+}
+
+.glass-card a.text-blue-400,
+.glass-card a.text-blue-500,
+.glass-card a.text-blue-600,
+#admin-container a.text-blue-400,
+#admin-container a.text-blue-500,
+#admin-container a.text-blue-600 {
+  color: #175cd3 !important;
+}
+
+/* ---------- SVG ICONS ---------- */
+.glass-card svg,
+#gate-container svg,
+#app-container svg,
+#admin-container svg,
+#rontgen-dashboard-container svg {
+  max-width: 100%;
+}
+
+/* ---------- MOBILE READABILITY ---------- */
+@media (max-width: 767px) {
+  body,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  a,
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  #gate-container h1 {
+    line-height: 1.15 !important;
+  }
+
+  #gate-container > p {
+    color: #374151 !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* ---------- HIGH CONTRAST / FORCED COLORS ---------- */
+@media (forced-colors: active) {
+  body,
+  .glass-card,
+  #gate-container,
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container {
+    color: CanvasText !important;
+    background: Canvas !important;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    color: ButtonText !important;
+    background: ButtonFace !important;
+    border: 2px solid ButtonText !important;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+  }
+}
+
+/* ---------- PRINT ---------- */
+@media print {
+  body,
+  .glass-card,
+  #gate-container,
+  #app-container,
+  #admin-container,
+  #rontgen-dashboard-container {
+    color: #111111 !important;
+    background: #ffffff !important;
+  }
+
+  .text-white,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500 {
+    color: #111111 !important;
+  }
+}
+</style>
+
+  <script src="/protect-devtools.js" defer></script>
+
+<style id="devtools-warning-popup-style">
+/* ============================================================
+   DEVTOOLS WARNING POPUP — NEUBRUTALISM
+   ============================================================ */
+#devtools-warning-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#devtools-warning-popup.hidden {
+  display: none !important;
+}
+
+#devtools-warning-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 11, .72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+#devtools-warning-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 26px;
+  background: #ffffff;
+  color: #111111;
+  border: 4px solid #111111;
+  border-radius: 24px;
+  box-shadow: 10px 10px 0 #111111;
+  animation: devtoolsWarningIn .18s ease-out;
+}
+
+#devtools-warning-icon {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  background: #ff5c5c;
+  color: #111111;
+  border: 4px solid #111111;
+  border-radius: 16px;
+  box-shadow: 5px 5px 0 #111111;
+  font-size: 34px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+#devtools-warning-content {
+  min-width: 0;
+  flex: 1;
+}
+
+#devtools-warning-badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 5px 9px;
+  background: #b8f34a;
+  color: #111111;
+  border: 2px solid #111111;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+#devtools-warning-title {
+  margin: 0;
+  color: #111111 !important;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+#devtools-warning-message {
+  margin: 12px 0 0;
+  color: #1f2937 !important;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+#devtools-warning-detail {
+  margin: 8px 0 18px;
+  color: #4b5563 !important;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#devtools-warning-close {
+  min-height: 46px;
+  padding: 10px 18px;
+  background: #ffe36e;
+  color: #111111 !important;
+  border: 3px solid #111111;
+  border-radius: 12px;
+  box-shadow: 5px 5px 0 #111111;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+#devtools-warning-close:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 #111111;
+}
+
+#devtools-warning-close:active {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 #111111;
+}
+
+#devtools-warning-close:focus-visible {
+  outline: 3px solid #175cd3;
+  outline-offset: 3px;
+}
+
+@keyframes devtoolsWarningIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  #devtools-warning-popup {
+    padding: 14px;
+  }
+
+  #devtools-warning-card {
+    gap: 13px;
+    padding: 20px;
+    border-width: 3px;
+    border-radius: 20px;
+    box-shadow: 7px 7px 0 #111111;
+  }
+
+  #devtools-warning-icon {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+    border-width: 3px;
+    box-shadow: 4px 4px 0 #111111;
+    font-size: 28px;
+  }
+
+  #devtools-warning-message {
+    font-size: 14px;
+  }
+
+  #devtools-warning-close {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #devtools-warning-card {
+    animation: none;
+  }
+
+  #devtools-warning-close {
+    transition: none;
+  }
+}
+</style>
+
+<style id="devtools-warning-body-style">
+body.devtools-warning-open { overflow: hidden !important; }
+</style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
+  <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
 
   <div id="loader">
     <div class="spinner mb-5"></div>
@@ -176,15 +1759,15 @@
   <div id="gate-container" class="glass-card rounded-3xl w-[90%] max-w-md p-8 sm:p-10 hidden mx-auto mt-10 mb-10 text-center shadow-[0_20px_60px_-15px_rgba(57,255,20,0.15)] border border-[rgba(57,255,20,0.3)]">
     <div class="w-24 h-24 mx-auto bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(57,255,20,0.3)] border border-gray-700 relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-[rgba(57,255,20,0.1)] to-transparent"></div>
-      <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" class="w-16 h-16 object-contain relative z-10">
+      <img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="64" height="64" decoding="async" fetchpriority="high" class="w-16 h-16 object-contain relative z-10">
     </div>
     <h1 class="text-3xl font-extrabold text-white tracking-wide mb-1">Instrumen <span class="text-neon">OHQE</span></h1>
-    <p class="text-sm text-gray-400 mb-10 font-medium">Pilih Tahap Kunjungan Responden</p>
+    <p class="text-sm text-gray-400 mb-10 font-medium">Silahkan klik tombol dibawah untuk mengisi Instrumen OHQE (Oral Health-Related Quality of Life Scale for Endodontic Patients).</p>
     
     <div class="space-y-4">
-      <button onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 1</button>
-      <button onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 2</button>
-      <button onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">KUNJUNGAN 3</button>
+      <button id="btn-kunjungan-1" data-visit-button="1" onclick="window.location.href='?page=kunjungan1'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
+      <button id="btn-kunjungan-2" data-visit-button="2" onclick="window.location.href='?page=kunjungan2'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
+      <button id="btn-kunjungan-3" data-visit-button="3" onclick="window.location.href='?page=kunjungan3'" class="w-full py-4 bg-gray-800 hover:bg-[rgba(57,255,20,0.1)] border border-gray-600 hover:border-neon text-white hover:text-neon font-bold rounded-xl transition-all duration-300 tracking-widest shadow-md">MEMUAT...</button>
     </div>
     
     <div class="mt-8 pt-6 border-t border-gray-800 flex justify-center gap-4">
@@ -363,13 +1946,13 @@
          <h3 class="text-white font-bold text-sm sm:text-base md:text-lg flex items-center truncate pr-2"><svg class="w-5 h-5 shrink-0 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Pratinjau Radiografi</h3>
          <button onclick="document.getElementById('preview-modal').classList.add('hidden')" class="p-2 bg-red-600 hover:bg-red-500 rounded-lg text-white transition shadow-lg shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
       </div>
-      <div class="flex-grow w-full bg-gray-800 flex items-center justify-center relative"><div id="preview-loader" class="absolute w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div><iframe id="preview-iframe" class="w-full h-full relative z-10" frameborder="0" allow="autoplay" allowfullscreen onload="document.getElementById('preview-loader').style.display='none'"></iframe></div>
+      <div class="flex-grow w-full bg-gray-800 flex items-center justify-center relative"><div id="preview-loader" class="absolute w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div><iframe title="Pratinjau radiografi pasien" id="preview-iframe" class="w-full h-full relative z-10" frameborder="0" allow="autoplay" allowfullscreen onload="document.getElementById('preview-loader').style.display='none'"></iframe></div>
     </div>
   </div>
 
   <!-- ADMIN LOGIN & DASHBOARD -->
   <div id="login-container" class="glass-card rounded-2xl w-[90%] max-w-sm p-6 sm:p-8 hidden my-auto text-center mx-auto mt-20 shadow-2xl">
-    <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center mb-6"><img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]"></div>
+    <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center mb-6"><img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="96" height="96" decoding="async" class="w-full h-full object-contain rounded-xl drop-shadow-[0_0_15px_rgba(57,255,20,0.6)]" fetchpriority="high"></div>
     <h2 class="text-lg sm:text-xl font-bold text-white tracking-wider mb-6">ADMIN LOGIN</h2>
     <input type="text" id="login-user" placeholder="Username" class="mb-4 text-center w-full p-3.5 rounded-xl text-sm sm:text-base">
     <input type="password" id="login-pass" placeholder="Password" class="mb-6 text-center w-full p-3.5 rounded-xl text-sm sm:text-base">
@@ -379,7 +1962,7 @@
 
   <div id="admin-container" class="glass-card rounded-2xl w-[98%] sm:w-[95%] xl:max-w-7xl p-3 sm:p-6 md:p-8 hidden mt-2 sm:mt-4 mx-auto shadow-2xl">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-700/80 pb-5 gap-4">
-      <div class="flex items-center gap-3 sm:gap-4"><img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" class="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]"><div><h1 class="text-lg sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1><p class="text-[0.65rem] sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p></div></div>
+      <div class="flex items-center gap-3 sm:gap-4"><img src="axalogo.png" alt="Logo" onerror="this.onerror=null; this.src='https://placehold.co/100x100/070a10/39ff14?text=AXA';" width="48" height="48" decoding="async" class="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" fetchpriority="high"><div><h1 class="text-lg sm:text-2xl font-extrabold text-white tracking-wide">ADMIN <span class="text-neon">AXA XYZ</span></h1><p class="text-[0.65rem] sm:text-sm text-gray-400 mt-1">Live Dashboard Data Responden OHQE</p></div></div>
       <div class="flex gap-2 w-full md:w-auto"><button onclick="logout('admin')" class="flex-1 md:flex-none px-4 py-2.5 bg-red-900/40 border border-red-600 rounded-lg hover:bg-red-800 text-xs sm:text-sm text-white font-bold shadow-md">Logout</button><button onclick="window.location.href='?'" class="flex-1 md:flex-none px-4 py-2.5 bg-gray-800/80 border border-gray-600 rounded-lg hover:bg-gray-700 text-xs sm:text-sm text-white font-bold shadow-md">Menu Utama</button></div>
     </div>
     <div class="flex overflow-x-auto space-x-2 border-b border-gray-700 mb-6 pb-1 snap-x hide-scroll">
@@ -444,7 +2027,7 @@
     </div>
     
     <!-- GPOWER TAB -->
-    <div id="tab-gpower" class="hidden"><div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 h-fit shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Input Parameters</h4><div class="space-y-3 sm:space-y-4"><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Power (1-β)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><button onclick="calculateGPower()" class="w-full mt-5 py-3.5 sm:py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors text-sm sm:text-base shadow-lg">Calculate</button></div></div><div class="flex flex-col gap-4 sm:gap-4"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 relative shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Output Parameters</h4><div class="space-y-2 sm:space-y-2" id="gp-output"><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Noncentrality δ</span><span id="out-delta" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center mt-2"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 1</span><span id="out-n1" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 2</span><span id="out-n2" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-xs sm:text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-xl sm:text-2xl">-</span></div></div></div><div class="bg-white p-2 rounded-xl border border-gray-300 w-full shadow-inner" style="min-height: 180px;"><canvas id="gpowerPlot"></canvas></div></div></div></div>
+    <div id="tab-gpower" class="hidden"><div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 h-fit shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Input Parameters</h4><div class="space-y-3 sm:space-y-4"><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Tail(s)</label><select id="gp-tail" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm focus:border-neon outline-none" onchange="calculateGPower()"><option value="1">One</option><option value="2" selected>Two</option></select></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Effect size d</label><input type="number" id="gp-d" value="0.5" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">α err prob</label><input type="number" id="gp-alpha" value="0.05" step="0.01" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Power (1-β)</label><input type="number" id="gp-power" value="0.80" step="0.05" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><div class="flex justify-between items-center"><label class="text-xs sm:text-sm text-gray-300">Ratio N2/N1</label><input type="number" id="gp-ratio" value="1" step="0.1" class="p-2 w-24 sm:w-32 rounded-lg bg-gray-900 text-white border border-gray-600 text-xs sm:text-sm text-center focus:border-neon outline-none" onchange="calculateGPower()"></div><button onclick="calculateGPower()" class="w-full mt-5 py-3.5 sm:py-3 bg-purple-600 hover:bg-purple-500 font-bold rounded-xl text-white transition-colors text-sm sm:text-base shadow-lg">Calculate</button></div></div><div class="flex flex-col gap-4 sm:gap-4"><div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 relative shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Output Parameters</h4><div class="space-y-2 sm:space-y-2" id="gp-output"><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Noncentrality δ</span><span id="out-delta" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Critical t</span><span id="out-tcrit" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Df</span><span id="out-df" class="font-bold text-white text-xs sm:text-sm">-</span></div><div class="flex justify-between items-center mt-2"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 1</span><span id="out-n1" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center"><span class="text-xs sm:text-sm text-gray-400">Sample size grp 2</span><span id="out-n2" class="font-bold text-neon text-base sm:text-lg">-</span></div><div class="flex justify-between items-center pt-2 border-t border-gray-600 mt-2"><span class="text-xs sm:text-sm font-bold text-white">Total sample size</span><span id="out-ntot" class="font-bold text-neon text-xl sm:text-2xl">-</span></div></div></div><div class="bg-white p-2 rounded-xl border border-gray-300 w-full shadow-inner" style="min-height: 180px;"><canvas id="gpowerPlot" role="img" aria-label="Grafik perhitungan G*Power"></canvas></div></div></div></div>
     
     <!-- PENGATURAN TEKS TAB -->
     <div id="tab-settings" class="hidden"><div class="bg-yellow-900/20 border border-yellow-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm"><h3 class="font-bold text-yellow-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2-2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Pengaturan Teks Sistem Master</h3><p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Ubah seluruh teks kuesioner, opsi, dan keterangan dari sini.</p></div><div class="space-y-6 sm:space-y-8" id="editor-container"></div><div class="mt-8 border-t border-gray-700 pt-6 flex justify-end"><button id="btn-save-questions" onclick="saveEditedQuestions()" class="w-full sm:w-auto px-6 py-3.5 bg-neon text-bg-dark hover:bg-white font-bold rounded-lg shadow-lg transition flex items-center justify-center text-sm"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Simpan Seluruh Perubahan ke Database</button></div></div>
@@ -457,7 +2040,64 @@
       </div>
 
       <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700/50 shadow-md max-w-2xl mx-auto space-y-6">
-        <!-- Toggle 1 -->
+                <!-- KONTROL AKSES KUNJUNGAN -->
+        <section id="visit-access-settings" class="mb-6" aria-labelledby="visit-access-title">
+          <div class="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full border-2 border-black bg-yellow-300 text-black font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#111]">Akses Kunjungan</span>
+              <h4 id="visit-access-title" class="mt-3 text-black font-black text-base sm:text-lg">Kontrol Tombol Kunjungan</h4>
+              <p class="mt-1 text-gray-600 text-xs sm:text-sm leading-relaxed">Atur nama dan tombol yang tampil pada halaman awal. Perubahan disimpan langsung ke Database Google Sheets.</p>
+            </div>
+            <span id="visit-settings-status" class="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full border-2 border-black bg-green-200 text-black font-black text-xs" aria-live="polite">
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> 1/3 AKTIF
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-4 rounded-xl border-3 border-black bg-yellow-100 shadow-[4px_4px_0_#111]">
+              <div class="min-w-0">
+                <div class="font-black text-black">Nama Tombol Kunjungan 1</div>
+                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 1 • Maks. 40 karakter</div>
+                <input type="text" id="label-kunjungan-1" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 1">
+                <div class="mt-3 flex items-center justify-between gap-3">
+                  <label for="toggle-kunjungan-1" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 1</label>
+                  <input type="checkbox" id="toggle-kunjungan-1" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 1" onchange="updateWebSettings()">
+                  <label for="toggle-kunjungan-1" class="toggle-label cursor-pointer" aria-hidden="true"></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl border-3 border-black bg-pink-100 shadow-[4px_4px_0_#111]">
+              <div class="min-w-0">
+                <div class="font-black text-black">Nama Tombol Kunjungan 2</div>
+                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 2 • Maks. 40 karakter</div>
+                <input type="text" id="label-kunjungan-2" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 2">
+                <div class="mt-3 flex items-center justify-between gap-3">
+                  <label for="toggle-kunjungan-2" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 2</label>
+                  <input type="checkbox" id="toggle-kunjungan-2" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 2" onchange="updateWebSettings()">
+                  <label for="toggle-kunjungan-2" class="toggle-label cursor-pointer" aria-hidden="true"></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl border-3 border-black bg-blue-100 shadow-[4px_4px_0_#111]">
+              <div class="min-w-0">
+                <div class="font-black text-black">Nama Tombol Kunjungan 3</div>
+                <div class="text-xs text-gray-600 mt-1">Default: Kunjungan 3 • Maks. 40 karakter</div>
+                <input type="text" id="label-kunjungan-3" class="visit-label-input mt-3 w-full p-2.5 rounded-lg border-2 border-black bg-white text-black font-bold text-sm outline-none focus:ring-2 focus:ring-black" value="" maxlength="40" autocomplete="off" aria-label="Nama tombol Kunjungan 3">
+                <div class="mt-3 flex items-center justify-between gap-3">
+                  <label for="toggle-kunjungan-3" class="font-black text-black text-sm cursor-pointer">Aktifkan Kunjungan 3</label>
+                  <input type="checkbox" id="toggle-kunjungan-3" class="sr-only toggle-checkbox" aria-label="Aktifkan Kunjungan 3" onchange="updateWebSettings()">
+                  <label for="toggle-kunjungan-3" class="toggle-label cursor-pointer" aria-hidden="true"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="border-gray-300 mb-5">
+        <!-- Existing Settings -->
+<!-- Toggle 1 -->
         <label class="flex items-center justify-between cursor-pointer group">
           <div class="flex-grow pr-4">
             <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">1. Tombol Admin Panel</h4>
@@ -529,7 +2169,21 @@
     let isUploadingRontgen = false;
     let lastAutoSyncCount = 0;
     
-    let webSettings = { adminPanel: false, syncVAS: false, syncMDAS: false };
+    let webSettings = {
+      adminPanel: false,
+      syncVAS: false,
+      syncMDAS: false,
+      kunjungan1: true,
+      kunjungan2: false,
+      kunjungan3: false,
+      kunjungan1Label: 'Kunjungan 1',
+      kunjungan2Label: 'Kunjungan 2',
+      kunjungan3Label: 'Kunjungan 3'
+    };
+    let webSettingsSaveTimer = null;
+    let webSettingsSaveInFlight = false;
+    let webSettingsSaveQueued = false;
+    let webSettingsLoaded = false;
 
     // --- SISTEM ROUTING GATE MULTI-KUNJUNGAN ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -577,11 +2231,6 @@
         }
       }
 
-      if(kunjunganType === 0) {
-          document.getElementById('loader').style.display = 'none'; 
-          document.getElementById('gate-container').classList.remove('hidden');
-      }
-
       if(GAS_URL) {
         fetch(`${GAS_URL}?action=getQuestions`, { redirect: 'follow' })
         .then(r => r.json()).then(data => {
@@ -589,73 +2238,249 @@
             qFisik = data.qFisik; qPsiko = data.qPsiko; qEkspektasi = data.qEkspektasi;
             if(data.configData) {
                sysConfig = data.configData;
-               // Tarik web settings dari database Google Sheet
+               // Database adalah sumber kebenaran utama untuk Web Settings.
                if(sysConfig.webSettings) {
                    webSettings = sysConfig.webSettings;
-                   applyWebSettingsToDOM(); // Eksekusi UI landing page secara Realtime
                }
             }
           }
+
+          applyWebSettingsToDOM();
+          webSettingsLoaded = true;
+
+          if(kunjunganType === 0) {
+              document.getElementById('loader').style.display = 'none';
+              document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
+          }
+
           if(kunjunganType !== 0) setupFlowAndUI(); // Lanjut jika form
-        }).catch(e => { if(kunjunganType !== 0) alert("Error koneksi sistem."); });
+        }).catch(e => {
+          // Jangan menampilkan label default sebelum database gagal.
+          // Hanya fallback setelah request benar-benar gagal.
+          if(kunjunganType === 0) {
+             webSettingsLoaded = true;
+             applyWebSettingsToDOM();
+             document.getElementById('loader').style.display = 'none';
+             document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
+          } else {
+             alert("Error koneksi sistem.");
+          }
+        });
       } else {
-        if(kunjunganType !== 0) { document.getElementById('loader').style.display = 'none'; document.getElementById('login-container').classList.remove('hidden'); }
+        applyWebSettingsToDOM();
+        webSettingsLoaded = true;
+        if(kunjunganType === 0) {
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('gate-container').classList.add('web-settings-ready'); document.getElementById('gate-container').classList.remove('hidden');
+        } else {
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('login-container').classList.remove('hidden');
+        }
       }
     };
 
     // Fungsi Render Tampilan berdasarkan Settings yang ada
+    function normalizeWebSettingsClient(source) {
+       const incoming = source || {};
+       const cleanBoolean = (value, fallback) => {
+          if(value === true || value === 'true' || value === 1 || value === '1') return true;
+          if(value === false || value === 'false' || value === 0 || value === '0') return false;
+          return fallback;
+       };
+       const cleanLabel = (value, fallback) => {
+          const text = value === null || value === undefined ? '' : String(value).trim().replace(/\s+/g, ' ');
+          return (text ? text.substring(0, 40) : fallback);
+       };
+
+       return {
+          adminPanel: cleanBoolean(incoming.adminPanel, false),
+          syncVAS: cleanBoolean(incoming.syncVAS, false),
+          syncMDAS: cleanBoolean(incoming.syncMDAS, false),
+          kunjungan1: cleanBoolean(incoming.kunjungan1, true),
+          kunjungan2: cleanBoolean(incoming.kunjungan2, false),
+          kunjungan3: cleanBoolean(incoming.kunjungan3, false),
+          kunjungan1Label: cleanLabel(incoming.kunjungan1Label, 'Kunjungan 1'),
+          kunjungan2Label: cleanLabel(incoming.kunjungan2Label, 'Kunjungan 2'),
+          kunjungan3Label: cleanLabel(incoming.kunjungan3Label, 'Kunjungan 3')
+       };
+    }
+
     function applyWebSettingsToDOM() {
+       webSettings = normalizeWebSettingsClient(webSettings);
+
        const adminLink = document.getElementById('link-admin-panel');
        const adminSep = document.getElementById('link-admin-sep');
-       
        if(adminLink && adminSep) {
            adminLink.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
            adminSep.style.display = webSettings.adminPanel ? 'inline-block' : 'none';
        }
-       
-       // Perbarui toggle switch di dashboard admin jika sedang dibuka
-       if(document.getElementById('toggle-admin')) {
-           document.getElementById('toggle-admin').checked = webSettings.adminPanel;
-           document.getElementById('toggle-vas').checked = webSettings.syncVAS;
-           document.getElementById('toggle-mdas').checked = webSettings.syncMDAS;
+
+       const visitButtons = [
+         { id: 'btn-kunjungan-1', enabled: webSettings.kunjungan1, label: webSettings.kunjungan1Label },
+         { id: 'btn-kunjungan-2', enabled: webSettings.kunjungan2, label: webSettings.kunjungan2Label },
+         { id: 'btn-kunjungan-3', enabled: webSettings.kunjungan3, label: webSettings.kunjungan3Label }
+       ];
+
+       visitButtons.forEach(item => {
+         const btn = document.getElementById(item.id);
+         if(btn) {
+           btn.style.display = item.enabled ? '' : 'none';
+           btn.setAttribute('aria-hidden', item.enabled ? 'false' : 'true');
+           btn.disabled = !item.enabled;
+           btn.textContent = item.label;
+           btn.setAttribute('aria-label', item.label);
+         }
+       });
+
+       const visitStatus = document.getElementById('visit-settings-status');
+       if(visitStatus) {
+         const active = [webSettings.kunjungan1, webSettings.kunjungan2, webSettings.kunjungan3].filter(Boolean).length;
+         visitStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> ' + active + '/3 AKTIF';
        }
+
+       const toggleAdmin = document.getElementById('toggle-admin');
+       const toggleVas = document.getElementById('toggle-vas');
+       const toggleMdas = document.getElementById('toggle-mdas');
+       const toggleK1 = document.getElementById('toggle-kunjungan-1');
+       const toggleK2 = document.getElementById('toggle-kunjungan-2');
+       const toggleK3 = document.getElementById('toggle-kunjungan-3');
+       const labelK1 = document.getElementById('label-kunjungan-1');
+       const labelK2 = document.getElementById('label-kunjungan-2');
+       const labelK3 = document.getElementById('label-kunjungan-3');
+
+       if(toggleAdmin) toggleAdmin.checked = webSettings.adminPanel;
+       if(toggleVas) toggleVas.checked = webSettings.syncVAS;
+       if(toggleMdas) toggleMdas.checked = webSettings.syncMDAS;
+       if(toggleK1) toggleK1.checked = webSettings.kunjungan1;
+       if(toggleK2) toggleK2.checked = webSettings.kunjungan2;
+       if(toggleK3) toggleK3.checked = webSettings.kunjungan3;
+
+       // Jangan menimpa input yang sedang diedit.
+       if(labelK1 && document.activeElement !== labelK1) labelK1.value = webSettings.kunjungan1Label;
+       if(labelK2 && document.activeElement !== labelK2) labelK2.value = webSettings.kunjungan2Label;
+       if(labelK3 && document.activeElement !== labelK3) labelK3.value = webSettings.kunjungan3Label;
     }
 
-    // Fungsi menyimpan ke Database Google Sheets (Realtime)
-    function updateWebSettings() {
+    function collectWebSettingsFromDOM() {
        const btnAdmin = document.getElementById('toggle-admin');
        const btnVas = document.getElementById('toggle-vas');
        const btnMdas = document.getElementById('toggle-mdas');
-       
-       // 1. Simpan State lokal & perbarui DOM
-       webSettings.adminPanel = btnAdmin.checked;
-       webSettings.syncVAS = btnVas.checked;
-       webSettings.syncMDAS = btnMdas.checked;
+       const btnK1 = document.getElementById('toggle-kunjungan-1');
+       const btnK2 = document.getElementById('toggle-kunjungan-2');
+       const btnK3 = document.getElementById('toggle-kunjungan-3');
+       const labelK1 = document.getElementById('label-kunjungan-1');
+       const labelK2 = document.getElementById('label-kunjungan-2');
+       const labelK3 = document.getElementById('label-kunjungan-3');
+
+       const cleanVisitLabel = (input, fallback) => {
+          const value = input ? input.value.trim().replace(/\s+/g, ' ') : '';
+          return value.slice(0, 40) || fallback;
+       };
+
+       return {
+         adminPanel: btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel,
+         syncVAS: btnVas ? btnVas.checked : !!webSettings.syncVAS,
+         syncMDAS: btnMdas ? btnMdas.checked : !!webSettings.syncMDAS,
+         kunjungan1: btnK1 ? btnK1.checked : !!webSettings.kunjungan1,
+         kunjungan2: btnK2 ? btnK2.checked : !!webSettings.kunjungan2,
+         kunjungan3: btnK3 ? btnK3.checked : !!webSettings.kunjungan3,
+         kunjungan1Label: cleanVisitLabel(labelK1, webSettings.kunjungan1Label || 'Kunjungan 1'),
+         kunjungan2Label: cleanVisitLabel(labelK2, webSettings.kunjungan2Label || 'Kunjungan 2'),
+         kunjungan3Label: cleanVisitLabel(labelK3, webSettings.kunjungan3Label || 'Kunjungan 3')
+       };
+    }
+
+    function updateWebSettings() {
+       // Satu sumber payload untuk semua setting; debounce mencegah request
+       // bertumpuk ketika Admin mengganti nama lalu ON/OFF dengan cepat.
+       webSettings = normalizeWebSettingsClient(collectWebSettingsFromDOM());
        applyWebSettingsToDOM();
-       
-       // 2. Kirim POST ke Backend
-       if (!GAS_URL) return;
+
+       if(!GAS_URL) return;
+
+       clearTimeout(webSettingsSaveTimer);
+       webSettingsSaveQueued = true;
+
+       webSettingsSaveTimer = setTimeout(() => {
+         saveWebSettingsToServer();
+       }, 250);
+    }
+
+    function saveWebSettingsToServer() {
+       if(webSettingsSaveInFlight) {
+         webSettingsSaveQueued = true;
+         return;
+       }
+
+       webSettingsSaveQueued = false;
+       webSettingsSaveInFlight = true;
+
+       const btnAdmin = document.getElementById('toggle-admin');
+       const btnVas = document.getElementById('toggle-vas');
+       const btnMdas = document.getElementById('toggle-mdas');
+       const btnK1 = document.getElementById('toggle-kunjungan-1');
+       const btnK2 = document.getElementById('toggle-kunjungan-2');
+       const btnK3 = document.getElementById('toggle-kunjungan-3');
+       const labelK1 = document.getElementById('label-kunjungan-1');
+       const labelK2 = document.getElementById('label-kunjungan-2');
+       const labelK3 = document.getElementById('label-kunjungan-3');
+
+       const payloadSettings = normalizeWebSettingsClient(webSettings);
        const payload = {
            action: 'saveWebSettings',
-           adminPanel: webSettings.adminPanel,
-           syncVAS: webSettings.syncVAS,
-           syncMDAS: webSettings.syncMDAS
+           adminPanel: payloadSettings.adminPanel,
+           syncVAS: payloadSettings.syncVAS,
+           syncMDAS: payloadSettings.syncMDAS,
+           kunjungan1: payloadSettings.kunjungan1,
+           kunjungan2: payloadSettings.kunjungan2,
+           kunjungan3: payloadSettings.kunjungan3,
+           kunjungan1Label: payloadSettings.kunjungan1Label,
+           kunjungan2Label: payloadSettings.kunjungan2Label,
+           kunjungan3Label: payloadSettings.kunjungan3Label
        };
-       
-       // Indikator Loading sementara
-       btnAdmin.disabled = true; btnVas.disabled = true; btnMdas.disabled = true;
-       
-       fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-       .then(r => r.json()).then(res => {
-           console.log("Web Settings Saved: " + res.message);
-           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
-       }).catch(e => {
+
+       const controls = [btnAdmin, btnVas, btnMdas, btnK1, btnK2, btnK3, labelK1, labelK2, labelK3].filter(Boolean);
+       controls.forEach(el => el.disabled = true);
+
+       fetch(GAS_URL, {
+           method: 'POST',
+           headers: {'Content-Type': 'text/plain;charset=utf-8'},
+           body: JSON.stringify(payload)
+       })
+       .then(r => {
+           if(!r.ok) throw new Error('HTTP ' + r.status);
+           return r.json();
+       })
+       .then(res => {
+           if(res && res.status === 'success') {
+              // Gunakan hasil server sebagai state final agar UI benar-benar
+              // identik dengan nilai yang sudah masuk Google Sheets.
+              if(res.webSettings) {
+                 webSettings = res.webSettings;
+                 applyWebSettingsToDOM();
+              }
+              console.log("Web Settings Saved: " + (res.message || "success"));
+           } else {
+              throw new Error((res && res.message) || 'Gagal menyimpan Web Settings');
+           }
+       })
+       .catch(e => {
            console.error("Gagal menyimpan pengaturan web", e);
-           btnAdmin.disabled = false; btnVas.disabled = false; btnMdas.disabled = false;
+           // Kembalikan dari database pada fetch berikutnya; jangan
+           // menghapus input user hanya karena request gagal.
+       })
+       .finally(() => {
+           controls.forEach(el => el.disabled = false);
+           webSettingsSaveInFlight = false;
+
+           if(webSettingsSaveQueued) {
+              clearTimeout(webSettingsSaveTimer);
+              webSettingsSaveTimer = setTimeout(() => saveWebSettingsToServer(), 50);
+           }
        });
     }
 
-    function setupFlowAndUI() {
+        function setupFlowAndUI() {
         // Setup Active Steps Based on Kunjungan Type
         if(kunjunganType === 1) {
             activeSteps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7'];
@@ -1278,6 +3103,326 @@
     }
 
     // -------------------------------------------------------------
+    // ROBUST HISTOGRAM RENDERER — OHQE / SPSS
+    // Additive fix: preserves all existing analysis calculations.
+    // -------------------------------------------------------------
+    const ohqeHistogramCharts = Object.create(null);
+
+    function renderHistogram(canvasId, rawData, title, mean, stdDev, sampleN) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+
+      const data = (Array.isArray(rawData) ? rawData : [])
+        .map(v => Number(v))
+        .filter(v => Number.isFinite(v));
+
+      if (!data.length) return;
+
+      /*
+       * Chart.js is loaded with defer. Analysis normally runs after it,
+       * but this guard prevents a blank chart if the library is still loading.
+       */
+      if (typeof Chart === 'undefined') {
+        window.setTimeout(function () {
+          renderHistogram(canvasId, data, title, mean, stdDev, sampleN);
+        }, 150);
+        return;
+      }
+
+      /* Destroy a previous instance before rebuilding the same canvas. */
+      if (ohqeHistogramCharts[canvasId]) {
+        try { ohqeHistogramCharts[canvasId].destroy(); } catch (_) {}
+        delete ohqeHistogramCharts[canvasId];
+      }
+
+      const parent = canvas.parentElement;
+      if (parent) {
+        parent.style.position = 'relative';
+        parent.style.width = '100%';
+        parent.style.height = window.innerWidth < 768 ? '340px' : '390px';
+        parent.style.minHeight = window.innerWidth < 768 ? '340px' : '390px';
+      }
+
+      /*
+       * Make the canvas explicitly measurable. This fixes the common
+       * "white chart box / no bars" problem caused by an undefined
+       * canvas height when responsive Chart.js is initialized.
+       */
+      canvas.style.display = 'block';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.removeAttribute('height');
+      canvas.removeAttribute('width');
+
+      const sorted = data.slice().sort((a, b) => a - b);
+      const min = sorted[0];
+      const max = sorted[sorted.length - 1];
+
+      /*
+       * Sturges rule gives a stable number of bins for small research
+       * datasets while keeping the visualization readable.
+       */
+      const requestedBins = Math.ceil(Math.log2(data.length) + 1);
+      const binCount = Math.max(5, Math.min(12, requestedBins));
+
+      let lower = Math.floor(min);
+      let upper = Math.ceil(max);
+
+      if (lower === upper) {
+        lower -= 1;
+        upper += 1;
+      }
+
+      let span = upper - lower;
+      let binWidth = span / binCount;
+
+      if (!Number.isFinite(binWidth) || binWidth <= 0) {
+        binWidth = 1;
+      }
+
+      /* Align bins to clean score intervals. */
+      if (binWidth < 1) binWidth = 1;
+
+      const actualBinCount = Math.max(1, Math.ceil(span / binWidth));
+      const labels = [];
+      const frequencies = [];
+
+      for (let i = 0; i < actualBinCount; i++) {
+        const start = lower + (i * binWidth);
+        const end = (i === actualBinCount - 1)
+          ? upper
+          : lower + ((i + 1) * binWidth);
+
+        let count = 0;
+
+        for (let j = 0; j < data.length; j++) {
+          const value = data[j];
+          const inBin = (i === actualBinCount - 1)
+            ? value >= start && value <= end
+            : value >= start && value < end;
+
+          if (inBin) count++;
+        }
+
+        labels.push(
+          Number.isInteger(start) && Number.isInteger(end)
+            ? `${start}–${end}`
+            : `${start.toFixed(1)}–${end.toFixed(1)}`
+        );
+        frequencies.push(count);
+      }
+
+      /*
+       * Normal curve is scaled to histogram frequency units so it is
+       * visually comparable with the bars.
+       */
+      const safeMean = Number(mean);
+      const safeStd = Number(stdDev);
+      const effectiveMean = Number.isFinite(safeMean) ? safeMean : jStat.mean(data);
+      const effectiveStd = Number.isFinite(safeStd) && safeStd > 0
+        ? safeStd
+        : (data.length > 1 ? jStat.stdev(data, true) : 1);
+
+      const normalCurve = labels.map(function (_, i) {
+        const center = lower + ((i + 0.5) * binWidth);
+        const z = (center - effectiveMean) / effectiveStd;
+        const density = Math.exp(-0.5 * z * z) /
+          (effectiveStd * Math.sqrt(2 * Math.PI));
+
+        return density * data.length * binWidth;
+      });
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const barBackground = '#63d5ff';
+      const barBorder = '#111111';
+      const curveColor = '#ff5b5b';
+
+      ohqeHistogramCharts[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Frekuensi',
+              data: frequencies,
+              backgroundColor: barBackground,
+              borderColor: barBorder,
+              borderWidth: 2,
+              borderRadius: 0,
+              barPercentage: 1,
+              categoryPercentage: 1
+            },
+            {
+              type: 'line',
+              label: 'Kurva Normal',
+              data: normalCurve,
+              borderColor: curveColor,
+              backgroundColor: 'transparent',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: curveColor,
+              pointBorderColor: '#111111',
+              pointBorderWidth: 1,
+              tension: 0.25,
+              fill: false,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          resizeDelay: 50,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#111111',
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 12,
+                  weight: 'bold'
+                },
+                usePointStyle: true,
+                padding: 16
+              }
+            },
+            title: {
+              display: true,
+              text: `${title} — Histogram (N=${sampleN || data.length})`,
+              color: '#111111',
+              font: {
+                family: 'Arial, sans-serif',
+                size: 16,
+                weight: 'bold'
+              },
+              padding: {
+                top: 4,
+                bottom: 14
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: '#111111',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              borderColor: '#111111',
+              borderWidth: 1,
+              callbacks: {
+                label: function (context) {
+                  const value = context.parsed && context.parsed.y != null
+                    ? context.parsed.y
+                    : 0;
+                  return `${context.dataset.label}: ${Number(value).toFixed(0)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Skor Total OHQE',
+                color: '#111111',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#111111',
+                autoSkip: false,
+                maxRotation: 45,
+                minRotation: 0,
+                font: {
+                  size: window.innerWidth < 768 ? 9 : 10,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                color: '#111111',
+                width: 2
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Frekuensi',
+                color: '#111111',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#111111',
+                precision: 0,
+                stepSize: 1,
+                font: {
+                  size: 10,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                color: 'rgba(17,17,17,0.12)',
+                lineWidth: 1
+              },
+              border: {
+                color: '#111111',
+                width: 2
+              }
+            }
+          }
+        }
+      });
+
+      /*
+       * A second resize after layout settles prevents charts from being
+       * initialized at zero width when their parent was just injected.
+       */
+      window.requestAnimationFrame(function () {
+        try {
+          ohqeHistogramCharts[canvasId].resize();
+          ohqeHistogramCharts[canvasId].update('none');
+        } catch (_) {}
+      });
+    }
+
+    // Re-render only the existing OHQE histogram charts after viewport changes.
+    let ohqeHistogramResizeTimer = null;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(ohqeHistogramResizeTimer);
+      ohqeHistogramResizeTimer = window.setTimeout(function () {
+        Object.keys(ohqeHistogramCharts).forEach(function (id) {
+          const chart = ohqeHistogramCharts[id];
+          if (!chart) return;
+          try {
+            const canvas = document.getElementById(id);
+            if (canvas && canvas.parentElement) {
+              canvas.parentElement.style.height =
+                window.innerWidth < 768 ? '340px' : '390px';
+            }
+            chart.resize();
+          } catch (_) {}
+        });
+      }, 120);
+    });
+
+    // -------------------------------------------------------------
     // RUN ANALYSIS 1: OHQE SCORE BY DIAGNOSIS
     // -------------------------------------------------------------
     function runAnalysis() {
@@ -1809,5 +3954,289 @@
       });
     }
   </script>
+
+<!-- ============================================================
+     DEVTOOLS WARNING POPUP
+     Additive UI only — existing application structure preserved.
+     ============================================================ -->
+<div id="devtools-warning-popup"
+     class="hidden"
+     role="alertdialog"
+     aria-modal="true"
+     aria-labelledby="devtools-warning-title"
+     aria-describedby="devtools-warning-message">
+  <div id="devtools-warning-backdrop"></div>
+
+  <section id="devtools-warning-card">
+    <div id="devtools-warning-icon" aria-hidden="true">!</div>
+
+    <div id="devtools-warning-content">
+      <span id="devtools-warning-badge">PERINGATAN KEAMANAN</span>
+
+      <h2 id="devtools-warning-title">Tindakan Tidak Diizinkan</h2>
+
+      <p id="devtools-warning-message">
+        Shortcut developer tools terdeteksi. Demi menjaga keamanan
+        dan integritas sistem, tindakan ini tidak dapat digunakan
+        pada halaman ini.
+      </p>
+
+      <p id="devtools-warning-detail">
+        Silakan lanjutkan menggunakan website secara normal.
+      </p>
+
+      <button type="button"
+              id="devtools-warning-close"
+              aria-label="Tutup peringatan">
+        SAYA MENGERTI
+      </button>
+    </div>
+  </section>
+</div>
+
+
+<script id="devtools-warning-popup-script">
+(function () {
+  'use strict';
+
+  /*
+   * DEVTOOLS WARNING UI
+   * ------------------------------------------------------------
+   * This is an additive warning layer for the existing
+   * /protect-devtools.js file. It does not replace the external
+   * protection script.
+   *
+   * It covers the same protection family already used by
+   * protect-devtools.js plus common browser/DevTools shortcuts:
+   * - Right click / Context Menu
+   * - F12
+   * - Ctrl/Cmd + Shift + I  (Inspector)
+   * - Ctrl/Cmd + Shift + J  (Console)
+   * - Ctrl/Cmd + Shift + C  (Inspect Element)
+   * - Ctrl/Cmd + Shift + K  (Console in some browsers)
+   * - Ctrl/Cmd + U          (View Source)
+   * - Ctrl/Cmd + S          (Save Page)
+   * - Ctrl/Cmd + P          (Print)
+   * - Ctrl/Cmd + A          (Select All)
+   * - common DevTools command shortcuts
+   *
+   * NOTE: Browser shortcut availability differs by browser/OS.
+   */
+  function initDevToolsWarningPopup() {
+    const popup = document.getElementById('devtools-warning-popup');
+    const closeButton = document.getElementById('devtools-warning-close');
+    const backdrop = document.getElementById('devtools-warning-backdrop');
+    const title = document.getElementById('devtools-warning-title');
+    const message = document.getElementById('devtools-warning-message');
+    const detail = document.getElementById('devtools-warning-detail');
+
+    if (!popup) return;
+
+    let lastShown = 0;
+    const COOLDOWN = 650;
+
+    function showWarning(reason) {
+      const now = Date.now();
+      if (now - lastShown < COOLDOWN) return;
+      lastShown = now;
+
+      if (title) {
+        title.textContent = 'Tindakan Tidak Diizinkan';
+      }
+
+      if (message) {
+        message.textContent = reason ||
+          'Aksi developer atau browser yang dibatasi terdeteksi pada halaman ini.';
+      }
+
+      if (detail) {
+        detail.textContent =
+          'Silakan gunakan website secara normal. Peringatan ini merupakan bagian dari sistem proteksi halaman.';
+      }
+
+      popup.classList.remove('hidden');
+      document.body.classList.add('devtools-warning-open');
+
+      if (closeButton) {
+        window.setTimeout(function () {
+          try {
+            closeButton.focus({ preventScroll: true });
+          } catch (_) {
+            closeButton.focus();
+          }
+        }, 20);
+      }
+    }
+
+    function hideWarning() {
+      popup.classList.add('hidden');
+      document.body.classList.remove('devtools-warning-open');
+    }
+
+    function modifierPrimary(e) {
+      return !!(e.ctrlKey || e.metaKey);
+    }
+
+    function keyIs(e, value) {
+      const key = String(e.key || '').toLowerCase();
+      const code = e.keyCode;
+      const target = String(value).toLowerCase();
+
+      if (key === target) return true;
+
+      const keyCodes = {
+        a: 65,
+        c: 67,
+        e: 69,
+        i: 73,
+        j: 74,
+        k: 75,
+        p: 80,
+        s: 83,
+        u: 85
+      };
+
+      return code === keyCodes[target];
+    }
+
+    function getShortcutReason(e) {
+      const key = String(e.key || '').toLowerCase();
+      const primary = modifierPrimary(e);
+
+      /* F12 */
+      if (key === 'f12' || e.keyCode === 123) {
+        return 'Shortcut F12 diblokir untuk menjaga keamanan halaman.';
+      }
+
+      /* Inspector — Ctrl/Cmd + Shift + I */
+      if (primary && e.shiftKey && keyIs(e, 'i')) {
+        return 'Shortcut Inspector / Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* Console — Ctrl/Cmd + Shift + J */
+      if (primary && e.shiftKey && keyIs(e, 'j')) {
+        return 'Shortcut Console Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* Inspect Element — Ctrl/Cmd + Shift + C */
+      if (primary && e.shiftKey && keyIs(e, 'c')) {
+        return 'Shortcut Inspect Element diblokir pada halaman ini.';
+      }
+
+      /* Console — Ctrl/Cmd + Shift + K (Firefox/common) */
+      if (primary && e.shiftKey && keyIs(e, 'k')) {
+        return 'Shortcut Console Developer Tools diblokir pada halaman ini.';
+      }
+
+      /* View Source — Ctrl/Cmd + U */
+      if (primary && keyIs(e, 'u')) {
+        return 'Shortcut View Source diblokir pada halaman ini.';
+      }
+
+      /* Save Page — Ctrl/Cmd + S */
+      if (primary && keyIs(e, 's')) {
+        return 'Shortcut Save Page diblokir pada halaman ini.';
+      }
+
+      /* Print — Ctrl/Cmd + P */
+      if (primary && keyIs(e, 'p')) {
+        return 'Shortcut Print diblokir pada halaman ini.';
+      }
+
+      /* Select All — Ctrl/Cmd + A */
+      if (primary && keyIs(e, 'a')) {
+        return 'Shortcut Select All dibatasi pada halaman ini.';
+      }
+
+      /* Common DevTools command/search shortcut */
+      if (primary && e.shiftKey && keyIs(e, 'p')) {
+        return 'Shortcut Developer Tools Command diblokir pada halaman ini.';
+      }
+
+      /* Some browser/DevTools variants use Ctrl/Cmd+Shift+E. */
+      if (primary && e.shiftKey && keyIs(e, 'e')) {
+        return 'Shortcut Developer Tools dibatasi pada halaman ini.';
+      }
+
+      return '';
+    }
+
+    /*
+     * Right-click / Inspect Element via context menu.
+     * Capture phase is intentional so the warning is shown before
+     * application-level handlers can consume the event.
+     */
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showWarning('Klik kanan / Context Menu diblokir pada halaman ini. Gunakan antarmuka website secara normal.');
+    }, true);
+
+    /*
+     * Keyboard protection/warning.
+     * This mirrors protect-devtools.js and extends it with
+     * Select All, Print, Inspect Element and other common shortcuts.
+     */
+    document.addEventListener('keydown', function (e) {
+      const reason = getShortcutReason(e);
+
+      if (!reason) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      showWarning(reason);
+    }, true);
+
+    if (closeButton) {
+      closeButton.addEventListener('click', hideWarning);
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener('click', hideWarning);
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (
+        e.key === 'Escape' &&
+        !popup.classList.contains('hidden')
+      ) {
+        e.preventDefault();
+        hideWarning();
+      }
+    });
+
+    /* Lightweight focus trap for accessibility. */
+    popup.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+
+      const focusable = popup.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDevToolsWarningPopup, {
+      once: true
+    });
+  } else {
+    initDevToolsWarningPopup();
+  }
+})();
+</script>
+
 </body>
 </html>

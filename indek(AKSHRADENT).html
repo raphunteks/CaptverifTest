@@ -1,1587 +1,1414 @@
-/**
- * ============================================================================
- * SISTEM OPERASIONAL KLINIK AKSHARA DENTAL SPACE & MEDICAL CENTER
- * File: code.gs - Backend Business Logic, Dual-Runtime Web API & POS
- * Developed by: 🤖 ZettBOT 3.1 (Zettbos Protocol)
- * ============================================================================
- */
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Klinik Akshara Dental Space — Digital Healthcare & POS</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-function doGet(e) {
-  if (e && e.parameter && (e.parameter.action || e.parameter.api === 'json')) {
-    var action = e.parameter.action || 'getPublicClinicData';
-    var payload = e.parameter.payload ? JSON.parse(e.parameter.payload) : {};
-    var result = apiDispatcher(action, payload);
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  var template = HtmlService.createTemplateFromFile('index');
-  template.initialPage = (e && e.parameter && e.parameter.page) ? e.parameter.page : 'home';
-  template.verifyCode = (e && e.parameter && e.parameter.code) ? e.parameter.code : '';
-  template.labToken = (e && e.parameter && e.parameter.lab) ? e.parameter.lab : '';
-
-  return template.evaluate()
-    .setTitle('Akshara Dental Space & Medical Center')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
-
-function doPost(e) {
-  var responseData;
-  try {
-    var rawContents = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
-    var requestData = JSON.parse(rawContents);
-    var action = requestData.action;
-    var payload = requestData.payload || {};
-
-    responseData = apiDispatcher(action, payload);
-  } catch (err) {
-    responseData = {
-      status: 'ERROR',
-      message: 'Gagal memproses POST Request: ' + err.toString()
-    };
-  }
-
-  return ContentService.createTextOutput(JSON.stringify(responseData))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
-}
-
-function apiDispatcher(action, payload) {
-  payload = payload || {};
-  switch (action) {
-    case 'loginUser':
-      return loginUser(payload.username, payload.password);
-    case 'getPublicClinicData':
-      return getPublicClinicData();
-    case 'cekPasienByNIKorRM':
-      return cekPasienByNIKorRM(payload.keyword);
-    case 'registrasiAntrean':
-      return registrasiAntrean(payload);
-    case 'getAntreanDisplay':
-      return getAntreanDisplay(payload.filterPoli);
-    case 'panggilAntrean':
-      return panggilAntrean(payload.kodeAntrean, payload.dokterId, payload.ruanganPoli);
-    case 'getAntreanDokter':
-      return getAntreanDokter(payload.dokterId, payload.statusFilter, payload.page, payload.limit);
-    case 'simpanCPPTMedis':
-      return simpanCPPTMedis(payload);
-    case 'generateAiMedicalAssist':
-    case 'konsultasiGeminiAI':
-      return generateAiMedicalAssist(payload);
-    case 'checkActiveShift':
-      return checkActiveShift(payload.kasirId);
-    case 'openCashierShift':
-      return openCashierShift(payload.kasirId, payload.modalAwal, payload.shiftKerja, payload.namaKasir);
-    case 'processPayment':
-      return processPayment(payload);
-    case 'closeCashierShift':
-      return closeCashierShift(payload.shiftId, payload.actualCash, payload.catatan);
-    case 'getPOSCatalog':
-      return getPOSCatalog();
-    case 'generateDokumenMedis':
-      return generateDokumenMedis(payload);
-    case 'verifikasiDokumen':
-      return verifikasiDokumen(payload.kodeVerifikasi);
-    case 'getFarmasiQueue':
-      return getFarmasiQueue(payload.statusFilter);
-    case 'updateStatusResep':
-      return updateStatusResep(payload.resepId, payload.statusResep, payload.catatan);
-    case 'getLabQueue':
-      return getLabQueue(payload.statusFilter);
-    case 'updateHasilLab':
-      return updateHasilLab(payload.labId, payload.hasil, payload.rujukan);
-    case 'getHasilLabPasien':
-      return getHasilLabPasien(payload.noRM, payload.kodeAntrean);
-    case 'getBillingData':
-      return getBillingData(payload.kodeAntrean);
-    case 'getAnalyticsDurasi':
-      return getAnalyticsDurasi();
-    case 'getAuditLogs':
-      return getAuditLogs(payload.page, payload.limit);
-    case 'getSystemSettings':
-      return getSystemSettings(payload.adminUserId);
-    case 'updateSystemSettings':
-      return updateSystemSettings(payload.adminUserId, payload.configKey, payload.configValue);
-    case 'testGeminiApiKey':
-      return testGeminiApiKey(payload.apiKey);
-    default:
-      return { status: 'ERROR', message: 'Aksi API tidak dikenali: ' + action };
-  }
-}
-
-function writeAuditLog(user, aksi, modul, detail) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('AUDIT_LOG');
-    if (!sheet) return;
-
-    var now = new Date();
-    var timestamp = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var lastRow = sheet.getLastRow();
-    var logId = 'LOG-' + ('00000' + lastRow).slice(-5);
-
-    sheet.getRange(lastRow + 1, 1, 1, 6).setValues([[
-      logId,
-      timestamp,
-      user || 'GUEST_OR_SYSTEM',
-      aksi,
-      modul,
-      detail
-    ]]);
-    SpreadsheetApp.flush();
-  } catch (err) {
-    Logger.log('Gagal mencatat audit log: ' + err.toString());
-  }
-}
-
-function loginUser(username, password) {
-  try {
-    if (!username || !password) {
-      return { status: 'ERROR', message: 'Username dan password wajib diisi.' };
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('USERS');
-    if (!sheet || sheet.getLastRow() <= 1) {
-      return { status: 'ERROR', message: 'Tabel USERS tidak ditemukan.' };
+    /* THEME 1: WHITE THEME (Default) */
+    body.theme-white {
+      background-color: #f8fafc;
+      color: #0f172a;
     }
-
-    var data = sheet.getDataRange().getDisplayValues();
-    var userFound = null;
-
-    for (var i = 1; i < data.length; i++) {
-      var uId = data[i][0];
-      var uName = data[i][1];
-      var uPass = data[i][2];
-      var fName = data[i][3];
-      var role = data[i][4];
-      var poliId = data[i][5];
-      var status = data[i][6];
-
-      if (uName.toLowerCase() === String(username).trim().toLowerCase() && uPass === String(password).trim()) {
-        if (status !== 'AKTIF') {
-          return { status: 'ERROR', message: 'Akun Anda telah dinonaktifkan. Hubungi Administrator.' };
-        }
-        userFound = {
-          userId: uId,
-          username: uName,
-          fullName: fName,
-          role: role,
-          poliklinikId: poliId
-        };
-        break;
-      }
+    body.theme-white .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
     }
-
-    if (userFound) {
-      writeAuditLog(userFound.username, 'LOGIN_SUCCESS', 'AUTH', 'Login role: ' + userFound.role);
-      return {
-        status: 'SUCCESS',
-        user: userFound,
-        message: 'Selamat datang, ' + userFound.fullName
-      };
-    } else {
-      writeAuditLog(username, 'LOGIN_FAILED', 'AUTH', 'Upaya login gagal username: ' + username);
-      return {
-        status: 'INVALID_CREDENTIALS',
-        message: 'Username atau kata sandi tidak valid.'
-      };
+    body.theme-white .glass-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+    body.theme-white .accent-text { color: #0284c7; }
+    body.theme-white .accent-bg { background-color: #0284c7; }
 
-function generateSequentialID(sheetName, prefix, dateColIndex, seqColIndex, isDailyReset) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(sheetName);
-  var today = new Date();
-  var dateKey = Utilities.formatDate(today, 'Asia/Jakarta', 'yyyyMMdd');
-  var monthKey = Utilities.formatDate(today, 'Asia/Jakarta', 'yyyyMM');
-
-  if (!sheet || sheet.getLastRow() <= 1) {
-    if (isDailyReset) {
-      return prefix + '-' + dateKey + '-0001';
-    } else {
-      return prefix + '-0001';
+    /* THEME 2: BLUE CYAN SOFT THEME */
+    body.theme-cyan {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      color: #0c4a6e;
     }
-  }
-
-  var data = sheet.getDataRange().getDisplayValues();
-  var maxNum = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var idVal = data[i][seqColIndex - 1];
-    if (idVal && idVal.indexOf(prefix) === 0) {
-      if (isDailyReset) {
-        if (idVal.indexOf(dateKey) !== -1) {
-          var parts = idVal.split('-');
-          var num = parseInt(parts[parts.length - 1], 10);
-          if (!isNaN(num) && num > maxNum) maxNum = num;
-        }
-      } else {
-        var cleanNum = idVal.replace(prefix + '-', '').replace(monthKey + '-', '');
-        var num = parseInt(cleanNum, 10);
-        if (!isNaN(num) && num > maxNum) maxNum = num;
-      }
+    body.theme-cyan .glass-panel {
+      background: rgba(224, 242, 254, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(186, 230, 253, 0.8);
+      box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.08);
     }
-  }
-
-  var nextSeq = ('0000' + (maxNum + 1)).slice(-4);
-  if (isDailyReset) {
-    return prefix + '-' + dateKey + '-' + nextSeq;
-  } else if (prefix === 'SKS' || prefix === 'SKSEHAT' || prefix === 'RESUME' || prefix === 'LAB') {
-    return prefix + '-' + monthKey + '-' + nextSeq;
-  } else {
-    return prefix + '-' + nextSeq;
-  }
-}
-
-function getPublicClinicData() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var dokterSheet = ss.getSheetByName('DOKTER');
-    var settingsSheet = ss.getSheetByName('SETTINGS');
-
-    var listDokter = [];
-    if (dokterSheet && dokterSheet.getLastRow() > 1) {
-      var dData = dokterSheet.getDataRange().getDisplayValues();
-      for (var i = 1; i < dData.length; i++) {
-        listDokter.push({
-          id: dData[i][0],
-          nama: dData[i][1],
-          kategori: dData[i][2],
-          spesialisasi: dData[i][3],
-          sip: dData[i][4],
-          hari: dData[i][5],
-          jamMulai: dData[i][6],
-          jamSelesai: dData[i][7],
-          kuota: dData[i][8]
-        });
-      }
+    body.theme-cyan .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(186, 230, 253, 0.9);
+      box-shadow: 0 4px 8px -2px rgba(8, 145, 178, 0.08);
     }
+    body.theme-cyan .accent-text { color: #0891b2; }
+    body.theme-cyan .accent-bg { background-color: #0891b2; }
 
-    var settingsObj = {};
-    if (settingsSheet && settingsSheet.getLastRow() > 1) {
-      var sData = settingsSheet.getDataRange().getDisplayValues();
-      for (var j = 1; j < sData.length; j++) {
-        if (sData[j][0] !== 'GEMINI_API_KEY') {
-          settingsObj[sData[j][0]] = sData[j][1];
-        }
-      }
+    /* Odontogram styling */
+    .tooth-elem {
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-
-    return {
-      status: 'SUCCESS',
-      dokter: listDokter,
-      settings: settingsObj
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function cekPasienByNIKorRM(keyword) {
-  try {
-    if (!keyword) return { status: 'NOT_FOUND' };
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('PASIEN');
-    if (!sheet || sheet.getLastRow() <= 1) return { status: 'NOT_FOUND' };
-
-    var data = sheet.getDataRange().getDisplayValues();
-    keyword = String(keyword).trim().toLowerCase();
-
-    for (var i = 1; i < data.length; i++) {
-      var noRM = String(data[i][0]).toLowerCase();
-      var nik = String(data[i][1]).toLowerCase();
-
-      if (noRM === keyword || nik === keyword) {
-        return {
-          status: 'FOUND',
-          data: {
-            nomorRM: data[i][0],
-            nik: data[i][1],
-            nama: data[i][2],
-            tglLahir: data[i][3],
-            kelamin: data[i][4],
-            noHP: data[i][5],
-            alamat: data[i][6],
-            alergi: data[i][7]
-          }
-        };
-      }
+    .tooth-elem:hover {
+      filter: brightness(0.9);
+      transform: scale(1.05);
     }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+    .tooth-status-sound { fill: #ffffff; stroke: #64748b; }
+    .tooth-status-caries { fill: #ef4444; stroke: #991b1b; }
+    .tooth-status-filling { fill: #3b82f6; stroke: #1d4ed8; }
+    .tooth-status-missing { fill: #94a3b8; stroke: #475569; }
+    .tooth-status-crown { fill: #f59e0b; stroke: #b45309; }
+    .tooth-status-endo { fill: #10b981; stroke: #047857; }
 
-function registrasiAntrean(payload) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var pasienSheet = ss.getSheetByName('PASIEN');
-    var antreanSheet = ss.getSheetByName('ANTREAN');
-    var now = new Date();
-    var nowStr = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var todayYMD = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyy-MM-dd');
-
-    var nomorRM = payload.nomorRM;
-    if (!nomorRM || nomorRM.trim() === '') {
-      nomorRM = generateSequentialID('PASIEN', 'RM', 9, 1, false);
-      pasienSheet.appendRow([
-        nomorRM,
-        payload.nik,
-        payload.nama,
-        payload.tglLahir,
-        payload.kelamin,
-        payload.noHP,
-        payload.alamat || '',
-        payload.alergi || 'Tidak Ada',
-        nowStr
-      ]);
-      SpreadsheetApp.flush();
-      writeAuditLog(payload.nama, 'REGISTRASI_PASIEN_BARU', 'PASIEN', 'Pendaftaran RM: ' + nomorRM);
-    } else {
-      var pData = pasienSheet.getDataRange().getDisplayValues();
-      for (var p = 1; p < pData.length; p++) {
-        if (pData[p][0] === nomorRM) {
-          if (payload.alergi) pasienSheet.getRange(p + 1, 8).setValue(payload.alergi);
-          if (payload.noHP) pasienSheet.getRange(p + 1, 6).setValue(payload.noHP);
-          break;
-        }
-      }
+    /* Thermal receipt simulator */
+    .receipt-paper {
+      font-family: 'Courier New', Courier, monospace;
+      width: 100%;
+      max-width: 380px;
+      background: #ffffff;
+      color: #000000;
+      padding: 16px;
+      border: 1px dashed #94a3b8;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
-    var aData = antreanSheet.getDataRange().getDisplayValues();
-    var nomorUrut = 1;
-    for (var k = 1; k < aData.length; k++) {
-      if (aData[k][1] === todayYMD) nomorUrut++;
+    
+    @media print {
+      body * { visibility: hidden; }
+      #printableReceiptArea, #printableReceiptArea * { visibility: visible; }
+      #printableReceiptArea { position: absolute; left: 0; top: 0; width: 100%; }
     }
+  </style>
+</head>
+<body class="theme-white transition-colors duration-300 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
 
-    var kodeAntrean = generateSequentialID('ANTREAN', 'ANT', 2, 1, true);
+  <!-- HEADER UTAMA -->
+  <header class="sticky top-0 z-40 glass-panel border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo Klinik -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMainTab('landing')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-sky-400 flex items-center justify-center text-white font-bold text-xl shadow-md">
+          <i class="fa-solid fa-tooth"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold leading-tight tracking-tight">Akshara Dental Space</h1>
+          <p class="text-xs text-slate-500 font-medium">Modern Healthcare & POS System</p>
+        </div>
+      </div>
 
-    antreanSheet.appendRow([
-      kodeAntrean,
-      todayYMD,
-      nomorUrut,
-      nomorRM,
-      payload.dokterId,
-      payload.ruanganPoli,
-      payload.slotWaktu || '09:00 - 09:30',
-      payload.statusTriage || 'Hijau',
-      payload.keluhanUtama || '-',
-      'MENUNGGU',
-      nowStr,
-      '',
-      ''
-    ]);
-    SpreadsheetApp.flush();
+      <!-- Action buttons -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- TV Antrean Button -->
+        <button onclick="openTvQueueModal()" class="px-3 py-1.5 rounded-lg border border-sky-300 text-xs font-semibold text-sky-700 hover:bg-sky-50 transition flex items-center space-x-1.5 shadow-sm">
+          <i class="fa-solid fa-tv"></i>
+          <span class="hidden md:inline">TV Antrean</span>
+        </button>
 
-    writeAuditLog(payload.nama, 'DAFTAR_ANTREAN', 'ANTREAN', 'Antrean: ' + kodeAntrean + ' (' + payload.ruanganPoli + ')');
+        <!-- Theme Toggle Switcher -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Tema" class="w-9 h-9 rounded-lg border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
 
-    return {
-      status: 'SUCCESS',
-      kodeAntrean: kodeAntrean,
-      nomorUrut: nomorUrut,
-      nomorRM: nomorRM,
-      nama: payload.nama,
-      ruangan: payload.ruanganPoli,
-      slot: payload.slotWaktu,
-      triage: payload.statusTriage || 'Hijau'
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+        <!-- PWA Install Button (Hidden until prompt ready) -->
+        <button id="btnPwaInstall" onclick="triggerPwaInstall()" class="hidden px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-medium hover:bg-slate-900 transition flex items-center space-x-1">
+          <i class="fa-solid fa-download"></i>
+          <span>Install App</span>
+        </button>
 
-function getAntreanDisplay(filterPoli) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var antreanSheet = ss.getSheetByName('ANTREAN');
-    var pasienSheet = ss.getSheetByName('PASIEN');
-    var dokterSheet = ss.getSheetByName('DOKTER');
+        <!-- Staff Access Gate Button -->
+        <div id="authHeaderZone">
+          <button onclick="openLoginModal()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold shadow-sm transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-lock"></i>
+            <span>Portal Staf</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
 
-    var todayYMD = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
-    var aData = antreanSheet.getDataRange().getDisplayValues();
-    var pData = pasienSheet.getDataRange().getDisplayValues();
-    var dData = dokterSheet.getDataRange().getDisplayValues();
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- VIEW 1: PUBLIC LANDING PAGE & ONLINE RESERVATION -->
+    <section id="viewLanding" class="space-y-12">
+      <!-- Hero Banner -->
+      <div class="relative rounded-2xl overflow-hidden glass-panel p-8 sm:p-12 border">
+        <div class="max-w-2xl space-y-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-800">
+            <i class="fa-solid fa-sparkles mr-1.5"></i> Pelayanan Standar Paripurna
+          </span>
+          <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            Senyum Sehat & Estetika Gigi Terbaik Anda Dimulai Di Sini.
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Klinik Akshara Dental Space menghadirkan dokter gigi spesialis terlengkap, dokter umum, laboratorium, dan rekam medis digital terintegrasi AI.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="openReservationModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold text-sm shadow-lg shadow-sky-500/25 transition">
+              <i class="fa-solid fa-calendar-check mr-2"></i> Reservasi Online Mandiri
+            </button>
+            <button onclick="scrollToSection('layananSection')" class="px-5 py-3 rounded-xl border border-slate-300 font-semibold text-sm hover:bg-white transition">
+              Lihat Layanan Medis
+            </button>
+          </div>
+        </div>
+      </div>
 
-    var pasienMap = {};
-    for (var p = 1; p < pData.length; p++) pasienMap[pData[p][0]] = pData[p][2];
+      <!-- Quick Stats & Doctor Highlight -->
+      <div id="layananSection" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-5 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-tooth"></i>
+          </div>
+          <h3 class="font-bold text-sm">Spesialis Konservasi Gigi</h3>
+          <p class="text-xs text-slate-500 mt-1">Perawatan saluran akar, estetika veneer, dan penambalan komposit gigi mikroskopik.</p>
+        </div>
+        <div class="glass-card p-5 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-teeth-open"></i>
+          </div>
+          <h3 class="font-bold text-sm">Ortodonsia & Bedah Mulut</h3>
+          <p class="text-xs text-slate-500 mt-1">Pemasangan behel kawat gigi, aligner transparan, dan operasi odontektomi impaksi gigi bungsu.</p>
+        </div>
+        <div class="glass-card p-5 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-user-doctor"></i>
+          </div>
+          <h3 class="font-bold text-sm">Dokter Spesialis & Umum</h3>
+          <p class="text-xs text-slate-500 mt-1">Poli Penyakit Dalam, Poli Anak, Poli Umum, THT, Saraf, hingga Rehabilitasi Medik.</p>
+        </div>
+        <div class="glass-card p-5 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-flask-vial"></i>
+          </div>
+          <h3 class="font-bold text-sm">Farmasi & Lab Digital</h3>
+          <p class="text-xs text-slate-500 mt-1">E-resep otomatis langsung siap di apotek serta cek mandiri hasil laboratorium secara online.</p>
+        </div>
+      </div>
+    </section>
 
-    var dokterMap = {};
-    for (var d = 1; d < dData.length; d++) dokterMap[dData[d][0]] = dData[d][1];
+    <!-- VIEW 2: STAFF & CLINIC OPERATIONAL DASHBOARD -->
+    <section id="viewDashboard" class="hidden space-y-6">
+      <!-- Staff Role Header Banner -->
+      <div class="glass-panel p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xl font-bold shadow-md">
+            <span id="badgeUserInitial">A</span>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 id="lblStaffFullName" class="font-bold text-lg">Nama Staf</h2>
+              <span id="lblStaffRole" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800">Role</span>
+            </div>
+            <p id="lblStaffPoli" class="text-xs text-slate-500">Poli / Unit Kerja</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="handleStaffLogout()" class="px-3.5 py-2 rounded-xl border border-rose-300 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Keluar Sesi</span>
+          </button>
+        </div>
+      </div>
 
-    var sedangDipanggil = null;
-    var antreanBerikutnya = [];
+      <!-- Navigation Tabs by Module -->
+      <div class="flex space-x-1 border-b border-slate-200 overflow-x-auto pb-1 text-xs font-semibold">
+        <button id="tabBtnDoctor" onclick="switchStaffSubTab('doctor')" class="px-4 py-2 rounded-t-lg bg-sky-600 text-white">
+          <i class="fa-solid fa-stethoscope mr-1"></i> Poli & CPPT
+        </button>
+        <button id="tabBtnPharmacy" onclick="switchStaffSubTab('pharmacy')" class="px-4 py-2 rounded-t-lg text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-pills mr-1"></i> E-Farmasi
+        </button>
+        <button id="tabBtnCashier" onclick="switchStaffSubTab('cashier')" class="px-4 py-2 rounded-t-lg text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-cash-register mr-1"></i> Kasir POS
+        </button>
+        <button id="tabBtnAdmin" onclick="switchStaffSubTab('admin')" class="px-4 py-2 rounded-t-lg text-slate-600 hover:bg-slate-100">
+          <i class="fa-solid fa-sliders mr-1"></i> Super Admin
+        </button>
+      </div>
 
-    for (var i = 1; i < aData.length; i++) {
-      var row = aData[i];
-      var tglKunjungan = row[1];
-      var poli = row[5];
-      var status = row[9];
+      <!-- SUBTAB 1: DOKTER (CPPT + ODONTOGRAM + GEMINI AI) -->
+      <div id="subtabDoctor" class="space-y-6">
+        <!-- Filter Antrean Hari Ini -->
+        <div class="glass-card p-4 rounded-xl flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold text-slate-600">Filter Poli:</span>
+            <select id="selFilterPoliDokter" onchange="loadDoctorQueue()" class="text-xs border rounded-lg p-1.5 bg-white">
+              <option value="ALL">Semua Poli</option>
+              <option value="Poli Gigi">Poli Gigi & Mulut</option>
+              <option value="Poli Umum">Poli Umum</option>
+              <option value="Poli Penyakit Dalam">Poli Penyakit Dalam</option>
+              <option value="Poli Anak">Poli Anak</option>
+            </select>
+          </div>
+          <button onclick="loadDoctorQueue()" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-900 transition">
+            <i class="fa-solid fa-rotate mr-1"></i> Muat Ulang Antrean
+          </button>
+        </div>
 
-      if (tglKunjungan === todayYMD) {
-        if (!filterPoli || filterPoli === 'SEMUA' || poli === filterPoli) {
-          var item = {
-            kodeAntrean: row[0],
-            nomorUrut: row[2],
-            nomorRM: row[3],
-            namaPasien: pasienMap[row[3]] || 'Pasien',
-            dokterNama: dokterMap[row[4]] || 'Dokter Jaga',
-            ruanganPoli: row[5],
-            slotWaktu: row[6],
-            triage: row[7],
-            status: row[9],
-            waktuPanggil: row[11]
-          };
+        <!-- Daftar Pasien Menunggu & Panel Tindakan CPPT -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Kolom Kiri: Antrean Pasien -->
+          <div class="lg:col-span-4 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Daftar Antrean Pasien Hari Ini</h3>
+            <div id="queuePatientListContainer" class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+              <!-- Render via JS -->
+              <div class="p-6 text-center text-xs text-slate-400">Memuat data antrean...</div>
+            </div>
+          </div>
 
-          if (status === 'DIPANGGIL') {
-            if (!sedangDipanggil || item.waktuPanggil > sedangDipanggil.waktuPanggil) {
-              sedangDipanggil = item;
-            }
-          } else if (status === 'MENUNGGU') {
-            antreanBerikutnya.push(item);
-          }
-        }
-      }
-    }
+          <!-- Kolom Kanan: Lembar Kerja CPPT Medis & Odontogram -->
+          <div class="lg:col-span-8 space-y-4">
+            <div id="emptyCpptNotice" class="glass-card p-12 text-center rounded-2xl">
+              <i class="fa-solid fa-clipboard-user text-4xl text-slate-300 mb-3"></i>
+              <p class="text-sm font-semibold text-slate-600">Pilih pasien dari daftar antrean sebelah kiri untuk membuka rekam medis.</p>
+            </div>
 
-    antreanBerikutnya.sort(function(a, b) {
-      var p = { 'Merah': 1, 'Kuning': 2, 'Hijau': 3 };
-      var diff = (p[a.triage] || 3) - (p[b.triage] || 3);
-      if (diff !== 0) return diff;
-      return parseInt(a.nomorUrut, 10) - parseInt(b.nomorUrut, 10);
-    });
+            <!-- Formulir CPPT Aktif (Awalnya tersembunyi) -->
+            <div id="activeCpptFormCard" class="hidden glass-card p-6 rounded-2xl space-y-6">
+              <!-- Profil Pasien Aktif & Allergy Warning Banner -->
+              <div class="flex flex-wrap items-center justify-between border-b pb-4 gap-2">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <h4 id="lblCpptNamaPasien" class="text-lg font-bold">Nama Pasien</h4>
+                    <span id="lblCpptNomorRm" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 text-slate-700">RM-0000</span>
+                  </div>
+                  <p id="lblCpptKodeAntrean" class="text-xs text-slate-500">Kode: ANT-XXXXX</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button onclick="triggerCallQueue()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center space-x-1">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Panggil Pasien</span>
+                  </button>
+                  <button onclick="openMedicalLetterModal()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-file-pdf mr-1 text-rose-500"></i> Buat Surat Medis PDF
+                  </button>
+                </div>
+              </div>
 
-    return {
-      status: 'SUCCESS',
-      sedangDipanggil: sedangDipanggil,
-      daftarBerikutnya: antreanBerikutnya.slice(0, 5)
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+              <!-- Drug Allergy Alert Badge -->
+              <div id="allergyAlertBanner" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center space-x-2 text-rose-700 text-xs font-bold">
+                <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                <span>PERINGATAN ALERGI OBAT: <span id="lblAllergyDetails" class="underline">Amoxicillin</span></span>
+              </div>
 
-function panggilAntrean(kodeAntrean, dokterId, ruang) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('ANTREAN');
-    var data = sheet.getDataRange().getDisplayValues();
-    var nowStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var found = false;
-    var nomorUrut = '';
-    var nomorRM = '';
+              <!-- Input Tanda Vital -->
+              <div>
+                <h5 class="text-xs font-bold uppercase text-slate-500 mb-2">Tanda-Tanda Vital & Triage</h5>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <input type="text" id="inpTensi" placeholder="Tekanan Darah (e.g. 120/80)" class="text-xs p-2.5 rounded-lg border bg-white">
+                  <input type="text" id="inpNadi" placeholder="Nadi (bpm)" class="text-xs p-2.5 rounded-lg border bg-white">
+                  <input type="text" id="inpSuhu" placeholder="Suhu (°C)" class="text-xs p-2.5 rounded-lg border bg-white">
+                  <select id="selTriageStatus" class="text-xs p-2.5 rounded-lg border bg-white font-semibold">
+                    <option value="Hijau">Triage: Hijau (Normal)</option>
+                    <option value="Kuning">Triage: Kuning (Urgent)</option>
+                    <option value="Merah">Triage: Merah (Emergency)</option>
+                  </select>
+                </div>
+              </div>
 
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0] === kodeAntrean) {
-        sheet.getRange(i + 1, 10).setValue('DIPANGGIL');
-        sheet.getRange(i + 1, 12).setValue(nowStr);
-        nomorUrut = data[i][2];
-        nomorRM = data[i][3];
-        found = true;
-        break;
-      }
-    }
+              <!-- ODONTOGRAM INTERAKTIF 52 GIGI (Dewasa 32, Anak 20) -->
+              <div class="border rounded-xl p-4 bg-slate-50">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h5 class="text-xs font-bold uppercase text-slate-700">Odontogram Elemen Gigi Digital</h5>
+                    <p class="text-[11px] text-slate-500">Klik elemen gigi untuk menandai status karies, tambalan, atau pencabutan.</p>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs font-bold text-slate-500">Kondisi:</span>
+                    <select id="selOdontogramStatusTool" class="text-xs p-1 border rounded bg-white font-semibold">
+                      <option value="sound">Gigi Sehat (Sound)</option>
+                      <option value="caries">Karies / Lubang</option>
+                      <option value="filling">Tambalan (Filling)</option>
+                      <option value="missing">Gigi Hilang (Missing)</option>
+                      <option value="crown">Mahkota / Crown</option>
+                      <option value="endo">Perawatan Saluran Akar</option>
+                    </select>
+                  </div>
+                </div>
 
-    if (found) {
-      SpreadsheetApp.flush();
-      writeAuditLog(dokterId, 'PANGGIL_ANTREAN', 'ANTREAN', 'Panggil ' + kodeAntrean + ' ke ' + ruang);
-      return {
-        status: 'SUCCESS',
-        kodeAntrean: kodeAntrean,
-        nomorUrut: nomorUrut,
-        nomorRM: nomorRM,
-        ruang: ruang
-      };
-    }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+                <!-- SVG Peta Gigi Dewasa & Anak -->
+                <div class="overflow-x-auto py-2">
+                  <div id="odontogramGridContainer" class="min-w-[600px] flex flex-col items-center space-y-3">
+                    <!-- Gigi Dewasa Atas (18-28) & Gigi Anak Atas (55-65) -->
+                    <div class="flex space-x-1" id="teethAdultUpper"></div>
+                    <div class="flex space-x-1" id="teethChildUpper"></div>
+                    <div class="w-full border-t border-dashed border-slate-300 my-1"></div>
+                    <!-- Gigi Anak Bawah (85-75) & Gigi Dewasa Bawah (48-38) -->
+                    <div class="flex space-x-1" id="teethChildLower"></div>
+                    <div class="flex space-x-1" id="teethAdultLower"></div>
+                  </div>
+                </div>
+              </div>
 
-function getAntreanDokter(dokterId, statusFilter, page, limit) {
-  try {
-    page = page || 1;
-    limit = limit || 15;
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var antreanSheet = ss.getSheetByName('ANTREAN');
-    var pasienSheet = ss.getSheetByName('PASIEN');
+              <!-- SOAP CPPT Inputs -->
+              <div class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs font-bold text-slate-600 block mb-1">Subjektif (Anamnesa / Keluhan)</label>
+                    <textarea id="txtCpptSubjektif" rows="3" class="w-full text-xs p-2.5 rounded-lg border bg-white" placeholder="Keluhan utama pasien..."></textarea>
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-slate-600 block mb-1">Objektif (Pemeriksaan Fisik & Intraoral)</label>
+                    <textarea id="txtCpptObjektif" rows="3" class="w-full text-xs p-2.5 rounded-lg border bg-white" placeholder="Hasil pemeriksaan fisik dan intraoral..."></textarea>
+                  </div>
+                </div>
 
-    var aData = antreanSheet.getDataRange().getDisplayValues();
-    var pData = pasienSheet.getDataRange().getDisplayValues();
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs font-bold text-slate-600 block mb-1">Asesmen (Diagnosa & Kode ICD-10)</label>
+                    <input type="text" id="inpCpptAsesmen" class="w-full text-xs p-2.5 rounded-lg border bg-white" placeholder="e.g. K02.1 Dental Caries, Pulpitis Irreversibel">
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-slate-600 block mb-1">Plan / Rencana Terapi & Tindakan</label>
+                    <input type="text" id="inpCpptPlan" class="w-full text-xs p-2.5 rounded-lg border bg-white" placeholder="e.g. Ekstirpasi pulpa, penambalan komposit RK">
+                  </div>
+                </div>
+              </div>
 
-    var pasienMap = {};
-    for (var p = 1; p < pData.length; p++) {
-      pasienMap[pData[p][0]] = {
-        nama: pData[p][2],
-        alergi: pData[p][7],
-        tglLahir: pData[p][3],
-        noHP: pData[p][5]
-      };
-    }
+              <!-- ASISTEN AI GEMINI KONSULTASI MEDIS -->
+              <div class="border border-cyan-200 rounded-xl p-4 bg-cyan-50/50 space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2 text-cyan-800 font-bold text-xs">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                    <span>Asisten AI Gemini Medis</span>
+                  </div>
+                  <button id="btnTriggerAiAssist" onclick="callGeminiMedicalAssist()" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                    <i class="fa-solid fa-brain mr-1"></i> Analisis AI Diagnosa & SOAP
+                  </button>
+                </div>
+                <div id="aiAssistOutputBox" class="hidden text-xs text-slate-700 bg-white p-3 rounded-lg border border-cyan-100 whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
+                </div>
+              </div>
 
-    var filtered = [];
-    var todayYMD = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
+              <!-- E-Resep Obat Terintegrasi -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="text-xs font-bold uppercase text-slate-600">E-Resep Obat untuk Farmasi</h5>
+                  <button onclick="addPrescriptionRow()" class="text-xs font-semibold text-sky-600 hover:underline">
+                    + Tambah Obat
+                  </button>
+                </div>
+                <div id="prescriptionsContainer" class="space-y-2">
+                  <!-- Baris item obat -->
+                </div>
+              </div>
 
-    for (var i = 1; i < aData.length; i++) {
-      var row = aData[i];
-      var matchesDokter = (!dokterId || row[4] === dokterId || dokterId === 'ALL');
-      var matchesStatus = (!statusFilter || statusFilter === 'SEMUA' || row[9] === statusFilter);
-      var isToday = (row[1] === todayYMD);
+              <!-- Tombol Simpan Rekam Medis -->
+              <div class="pt-4 border-t flex justify-end space-x-3">
+                <button onclick="cancelCpptEdit()" class="px-4 py-2 border rounded-xl text-xs font-semibold hover:bg-slate-50 transition">Batal</button>
+                <button onclick="submitCpptRecord()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center space-x-1.5">
+                  <i class="fa-solid fa-check-double"></i>
+                  <span>Simpan CPPT & Teruskan ke Farmasi</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      if (matchesDokter && matchesStatus && isToday) {
-        var pInfo = pasienMap[row[3]] || { nama: 'Pasien', alergi: 'Tidak Ada', tglLahir: '-', noHP: '-' };
-        filtered.push({
-          kodeAntrean: row[0],
-          tglKunjungan: row[1],
-          nomorUrut: row[2],
-          nomorRM: row[3],
-          namaPasien: pInfo.nama,
-          alergiPasien: pInfo.alergi,
-          tglLahir: pInfo.tglLahir,
-          noHP: pInfo.noHP,
-          dokterId: row[4],
-          ruanganPoli: row[5],
-          slotWaktu: row[6],
-          triage: row[7],
-          keluhan: row[8],
-          status: row[9],
-          waktuDaftar: row[10],
-          waktuDipanggil: row[11],
-          waktuSelesai: row[12]
-        });
-      }
-    }
+      <!-- SUBTAB 2: FARMASI (DISPENSING & MASTER OBAT) -->
+      <div id="subtabPharmacy" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Antrean Resep Masuk -->
+          <div class="lg:col-span-7 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Antrean Resep Masuk dari Dokter</h3>
+              <button onclick="loadPharmacyQueue()" class="text-xs font-semibold text-sky-600 hover:underline">
+                <i class="fa-solid fa-rotate mr-1"></i> Refresh
+              </button>
+            </div>
+            <div id="pharmacyQueueContainer" class="space-y-3">
+              <!-- Render via JS -->
+              <div class="p-8 text-center text-xs text-slate-400 glass-card rounded-xl">Memuat antrean resep...</div>
+            </div>
+          </div>
 
-    var totalItems = filtered.length;
-    var totalPages = Math.ceil(totalItems / limit) || 1;
-    var offset = (page - 1) * limit;
-    var paginatedData = filtered.slice(offset, offset + limit);
+          <!-- Early Warning Alert Stok Obat -->
+          <div class="lg:col-span-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Peringatan Stok & Kedaluwarsa</h3>
+            <div id="pharmacyAlertContainer" class="space-y-2">
+              <!-- Render via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
 
-    return {
-      status: 'SUCCESS',
-      data: paginatedData,
-      pagination: { page: page, limit: limit, totalItems: totalItems, totalPages: totalPages }
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+      <!-- SUBTAB 3: KASIR POS & REKONSILIASI TUTUP SHIFT -->
+      <div id="subtabCashier" class="hidden space-y-6">
+        <!-- Status Shift Kasir Bar -->
+        <div class="glass-card p-4 rounded-xl flex flex-wrap items-center justify-between gap-3 border">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-cash-register"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold">Status Shift:</span>
+                <span id="lblPosShiftBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-700">TUTUP / NONAKTIF</span>
+              </div>
+              <p id="lblPosShiftDetails" class="text-xs text-slate-500">Silakan buka shift kasir terlebih dahulu.</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btnOpenShiftModal" onclick="openShiftPrompt()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition">
+              <i class="fa-solid fa-box-open mr-1"></i> Buka Shift Baru
+            </button>
+            <button id="btnCloseShiftModal" onclick="closeShiftPrompt()" class="hidden px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold transition">
+              <i class="fa-solid fa-lock mr-1"></i> Tutup Shift (Z-Report)
+            </button>
+          </div>
+        </div>
 
-function simpanCPPTMedis(payload) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var cpptSheet = ss.getSheetByName('CPPT_MEDIS');
-    var antreanSheet = ss.getSheetByName('ANTREAN');
-    var resepSheet = ss.getSheetByName('FARMASI_RESEP');
-    var labSheet = ss.getSheetByName('LABORATORIUM');
-    var billingSheet = ss.getSheetByName('BILLING_KASIR');
+        <!-- Area Transaksi Pembayaran Kasir -->
+        <div id="posActiveArea" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Kolom Input Tagihan & Pencarian Pasien -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="glass-card p-4 rounded-xl space-y-3">
+              <h4 class="text-xs font-bold uppercase text-slate-500">Pencarian Antrean / Rekam Medis Selesai</h4>
+              <div class="flex gap-2">
+                <input type="text" id="inpSearchBillingQueue" placeholder="Ketik Kode Antrean atau No. RM..." class="flex-grow text-xs p-2.5 border rounded-lg bg-white">
+                <button onclick="fetchBillingData()" class="px-4 py-2.5 bg-sky-600 text-white rounded-lg text-xs font-bold hover:bg-sky-700 transition">
+                  <i class="fa-solid fa-magnifying-glass"></i> Cari Tagihan
+                </button>
+              </div>
+            </div>
 
-    var now = new Date();
-    var nowStr = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var cpptId = generateSequentialID('CPPT_MEDIS', 'CPPT', 12, 1, false);
+            <!-- Rincian Item Tagihan (Billing Table) -->
+            <div class="glass-card p-4 rounded-xl space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase text-slate-500">Rincian Item Jasa & Obat</h4>
+                <button onclick="addManualBillingItem()" class="text-xs font-semibold text-sky-600 hover:underline">
+                  + Item Manual Non-Medis
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left">
+                  <thead>
+                    <tr class="border-b text-slate-400">
+                      <th class="py-2">Item Deskripsi</th>
+                      <th class="py-2 w-16 text-center">Qty</th>
+                      <th class="py-2 w-28 text-right">Harga Satuan</th>
+                      <th class="py-2 w-28 text-right">Total</th>
+                      <th class="py-2 w-12 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="billingItemsTbody">
+                    <tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada item tagihan yang dimuat.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-    cpptSheet.appendRow([
-      cpptId,
-      payload.kodeAntrean,
-      payload.nomorRM,
-      payload.dokterId,
-      JSON.stringify(payload.tandaVital || {}),
-      payload.subjektif || '',
-      payload.objektif || '',
-      payload.asesmenICD || '',
-      payload.planTindakan || '',
-      JSON.stringify(payload.odontogramData || {}),
-      payload.catatanAI || '',
-      nowStr
-    ]);
+          <!-- Kolom Kalkulator Pembayaran & Cetak Struk -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-card p-5 rounded-2xl space-y-4 border">
+              <h4 class="text-xs font-bold uppercase text-slate-600">Ringkasan Pembayaran</h4>
+              
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between text-slate-600">
+                  <span>Subtotal:</span>
+                  <span id="lblBillingSubtotal" class="font-bold">Rp 0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Diskon Potongan:</span>
+                  <input type="number" id="inpBillingDiskon" value="0" oninput="calculateBillingTotals()" class="w-28 p-1.5 border rounded text-right text-xs">
+                </div>
+                <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t">
+                  <span>Total Tagihan:</span>
+                  <span id="lblBillingTotalAkhir" class="text-sky-600">Rp 0</span>
+                </div>
+              </div>
 
-    var aData = antreanSheet.getDataRange().getDisplayValues();
-    for (var i = 1; i < aData.length; i++) {
-      if (aData[i][0] === payload.kodeAntrean) {
-        antreanSheet.getRange(i + 1, 10).setValue('SELESAI_DOKTER');
-        antreanSheet.getRange(i + 1, 13).setValue(nowStr);
-        break;
-      }
-    }
+              <!-- Metode Pembayaran & Multi-Payment -->
+              <div class="space-y-2 pt-2 border-t">
+                <label class="text-xs font-bold text-slate-600 block">Metode Pembayaran:</label>
+                <select id="selPaymentMethod" class="w-full text-xs p-2.5 border rounded-lg bg-white font-semibold">
+                  <option value="Tunai">Tunai (Cash)</option>
+                  <option value="QRIS">QRIS Statis / Dinamis</option>
+                  <option value="Debit">Kartu Debit</option>
+                  <option value="Kredit">Kartu Kredit</option>
+                  <option value="Transfer">Transfer Bank</option>
+                  <option value="Asuransi">Asuransi / Penjamin</option>
+                </select>
+              </div>
 
-    var resepId = '';
-    var totalBiayaObat = 0;
-    if (payload.resepObat && payload.resepObat.length > 0) {
-      resepId = generateSequentialID('FARMASI_RESEP', 'RXP', 9, 1, false);
-      for (var r = 0; r < payload.resepObat.length; r++) {
-        totalBiayaObat += (parseFloat(payload.resepObat[r].harga || 0) * parseInt(payload.resepObat[r].qty || 1, 10));
-      }
-      resepSheet.appendRow([
-        resepId,
-        payload.kodeAntrean,
-        payload.nomorRM,
-        payload.dokterId,
-        JSON.stringify(payload.resepObat),
-        payload.aturanPakai || 'Sesuai Resep',
-        payload.catatanApoteker || '',
-        'MENUNGGU_RACIK',
-        ''
-      ]);
-    }
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-600 block">Nominal Diterima Kasir:</label>
+                <input type="number" id="inpBillingNominalBayar" oninput="calculateBillingTotals()" class="w-full text-sm font-bold p-2.5 border rounded-lg bg-white text-right" placeholder="0">
+              </div>
 
-    var totalBiayaLab = 0;
-    if (payload.orderLab && payload.orderLab.length > 0) {
-      for (var l = 0; l < payload.orderLab.length; l++) {
-        var labId = generateSequentialID('LABORATORIUM', 'LAB', 9, 1, false);
-        totalBiayaLab += parseFloat(payload.orderLab[l].biaya || 50000);
-        labSheet.appendRow([
-          labId,
-          payload.kodeAntrean,
-          payload.nomorRM,
-          payload.dokterId,
-          payload.orderLab[l].jenis,
-          '',
-          payload.orderLab[l].rujukan || '-',
-          'MENUNGGU_UJI',
-          nowStr
-        ]);
-      }
-    }
+              <div class="flex justify-between text-xs font-bold p-3 rounded-lg bg-slate-100">
+                <span>Kembalian:</span>
+                <span id="lblBillingKembalian" class="text-emerald-700">Rp 0</span>
+              </div>
 
-    var totalJasa = parseFloat(payload.biayaJasa || 75000);
-    var totalTagihan = totalJasa + totalBiayaObat + totalBiayaLab;
-    var billingId = generateSequentialID('BILLING_KASIR', 'INV', 9, 1, true);
+              <button onclick="executePaymentProcess()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Proses Pembayaran & Cetak Struk</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    billingSheet.appendRow([
-      billingId,
-      payload.kodeAntrean,
-      payload.nomorRM,
-      totalJasa,
-      totalBiayaObat,
-      totalBiayaLab,
-      totalTagihan,
-      'BELUM_LUNAS',
-      ''
-    ]);
+      <!-- SUBTAB 4: SUPER ADMIN (PENGATURAN SISTEM & GEMINI API KEY) -->
+      <div id="subtabAdmin" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Manajemen API Key Gemini -->
+          <div class="glass-card p-6 rounded-2xl space-y-4 border">
+            <div class="flex items-center space-x-2 text-sky-600 font-bold text-sm">
+              <i class="fa-solid fa-brain"></i>
+              <span>Konfigurasi Google Gemini API Key</span>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Kunci API ini digunakan oleh asisten dokter AI untuk menganalisis diagnosa diferensial dan merapikan catatan rekam medis SOAP.
+            </p>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-600">Google Generative Language API Key:</label>
+              <div class="relative">
+                <input type="password" id="inpGeminiApiKey" placeholder="AIzaSy..." class="w-full text-xs p-2.5 pr-10 border rounded-lg bg-white font-mono">
+                <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                  <i id="icoEyeApiKey" class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+              <button onclick="testGeminiConnection()" class="px-4 py-2 border border-sky-300 text-sky-700 rounded-lg text-xs font-semibold hover:bg-sky-50 transition">
+                <i class="fa-solid fa-plug-circle-check mr-1"></i> Uji Koneksi (Test)
+              </button>
+              <button onclick="saveGeminiApiKey()" class="px-4 py-2 bg-sky-600 text-white rounded-lg text-xs font-semibold hover:bg-sky-700 transition">
+                Simpan API Key
+              </button>
+            </div>
+          </div>
 
-    if (payload.rujukanInternal && payload.rujukanInternal.rujukPoli) {
-      registrasiAntrean({
-        nomorRM: payload.nomorRM,
-        nama: payload.namaPasien,
-        nik: payload.nikPasien,
-        ruanganPoli: payload.rujukanInternal.rujukPoli,
-        dokterId: payload.rujukanInternal.rujukDokterId || 'DOC-001',
-        slotWaktu: 'Rujukan Langsung',
-        statusTriage: 'Kuning',
-        keluhanUtama: 'Rujukan internal: ' + payload.rujukanInternal.alasan
+          <!-- Pengaturan Profil Klinik -->
+          <div class="glass-card p-6 rounded-2xl space-y-3 border">
+            <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
+              <i class="fa-solid fa-hospital"></i>
+              <span>Profil Klinik Akshara Dental Space</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div>
+                <label class="font-bold text-slate-600 block mb-1">Nama Klinik:</label>
+                <input type="text" id="inpSettingClinicName" class="w-full p-2 border rounded-lg bg-white" value="Klinik Akshara Dental Space">
+              </div>
+              <div>
+                <label class="font-bold text-slate-600 block mb-1">Alamat Lengkap:</label>
+                <input type="text" id="inpSettingClinicAddress" class="w-full p-2 border rounded-lg bg-white" value="Jl. Boulevard Medika No. 88, Makassar">
+              </div>
+              <div>
+                <label class="font-bold text-slate-600 block mb-1">Nomor WhatsApp Layanan:</label>
+                <input type="text" id="inpSettingClinicPhone" class="w-full p-2 border rounded-lg bg-white" value="+62 853-3892-2586">
+              </div>
+            </div>
+            <button onclick="saveClinicProfile()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-900 transition">
+              Simpan Profil Klinik
+            </button>
+          </div>
+        </div>
+
+        <!-- Audit Log Viewer -->
+        <div class="glass-card p-5 rounded-2xl space-y-3 border">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase text-slate-600">Audit Trail Logbook Sistem</h4>
+            <button onclick="loadAuditTrailLogs()" class="text-xs font-semibold text-sky-600 hover:underline">
+              <i class="fa-solid fa-rotate mr-1"></i> Refresh Log
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-72 overflow-y-auto">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="border-b text-slate-400">
+                  <th class="py-2">Waktu</th>
+                  <th class="py-2">User</th>
+                  <th class="py-2">Modul</th>
+                  <th class="py-2">Aksi</th>
+                  <th class="py-2">Rincian Perubahan</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsTbody">
+                <tr><td colspan="5" class="py-4 text-center text-slate-400">Memuat log sistem...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FLOATING WHATSAPP BUTTON -->
+  <a href="https://api.whatsapp.com/send/?phone=6285338922586&text=Halo&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-xl shadow-emerald-500/30 transition transform hover:scale-110">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- MODAL: LOGIN STAF RAHASIA -->
+  <div id="modalLogin" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full p-6 rounded-2xl border space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-sm">Gerbang Masuk Staf Medis</h3>
+        <button onclick="closeLoginModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Username:</label>
+          <input type="text" id="inpLoginUser" class="w-full p-2.5 border rounded-lg bg-white" placeholder="e.g. drg_akshara, kasir_siti">
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Password:</label>
+          <input type="password" id="inpLoginPass" class="w-full p-2.5 border rounded-lg bg-white" placeholder="••••••••">
+        </div>
+      </div>
+      <div class="pt-2">
+        <button onclick="executeLogin()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow transition">
+          Verifikasi & Masuk
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RESERVASI MANDIRI PASIEN -->
+  <div id="modalReservation" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-lg w-full p-6 rounded-2xl border space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-sm">Reservasi Nomor Antrean Mandiri</h3>
+        <button onclick="closeReservationModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <!-- Toggle Pasien Baru vs Lama -->
+      <div class="grid grid-cols-2 gap-2 text-xs font-semibold p-1 bg-slate-100 rounded-lg">
+        <button id="btnTabPasienLama" onclick="switchReservationTab('lama')" class="py-1.5 rounded-md bg-white shadow-sm text-sky-700">Pasien Terdaftar (Cari RM/NIK)</button>
+        <button id="btnTabPasienBaru" onclick="switchReservationTab('baru')" class="py-1.5 rounded-md text-slate-600">Pasien Baru</button>
+      </div>
+      <!-- Section Pasien Lama -->
+      <div id="secPasienLama" class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Cari NIK / Nomor RM:</label>
+          <div class="flex gap-2">
+            <input type="text" id="inpSearchPatientKw" placeholder="Masukkan NIK atau RM-XXXX" class="flex-grow p-2 border rounded-lg bg-white">
+            <button onclick="searchRegisteredPatient()" class="px-3 py-2 bg-slate-800 text-white rounded-lg font-bold">Cari</button>
+          </div>
+        </div>
+        <div id="patientSearchResultBox" class="hidden p-3 rounded-lg border bg-sky-50 text-slate-700 space-y-1">
+          <p class="font-bold text-xs" id="lblFoundPatientName">-</p>
+          <p class="text-[11px]" id="lblFoundPatientDetails">-</p>
+        </div>
+      </div>
+      <!-- Section Pasien Baru Form -->
+      <div id="secPasienBaru" class="hidden space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">NIK (16 Digit):</label>
+            <input type="text" id="inpNewNik" class="w-full p-2 border rounded-lg bg-white" placeholder="7371xxxxxxxx">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Nama Lengkap:</label>
+            <input type="text" id="inpNewNama" class="w-full p-2 border rounded-lg bg-white" placeholder="Nama Pasien">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Tanggal Lahir:</label>
+            <input type="date" id="inpNewTglLahir" class="w-full p-2 border rounded-lg bg-white">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Jenis Kelamin:</label>
+            <select id="selNewGender" class="w-full p-2 border rounded-lg bg-white">
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Nomor WhatsApp Aktif:</label>
+          <input type="text" id="inpNewHp" class="w-full p-2 border rounded-lg bg-white" placeholder="08xxxxxxxx">
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Alamat Domisili:</label>
+          <input type="text" id="inpNewAlamat" class="w-full p-2 border rounded-lg bg-white" placeholder="Alamat...">
+        </div>
+        <div>
+          <label class="font-bold text-rose-600 block mb-1">Riwayat Alergi Obat (Jika ada):</label>
+          <input type="text" id="inpNewAlergi" class="w-full p-2 border rounded-lg bg-white" placeholder="e.g. Paracetamol, Amoxicillin / Tidak ada">
+        </div>
+      </div>
+      <!-- Pilihan Poli & Keluhan -->
+      <div class="space-y-3 text-xs pt-2 border-t">
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Tujuan Poliklinik:</label>
+          <select id="selBookingPoli" class="w-full p-2 border rounded-lg bg-white font-semibold">
+            <option value="Poli Gigi">Poli Gigi & Spesialis</option>
+            <option value="Poli Umum">Poli Umum</option>
+            <option value="Poli Penyakit Dalam">Poli Spesialis Penyakit Dalam</option>
+            <option value="Poli Anak">Poli Spesialis Anak</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">Keluhan Utama / Alasan Kunjungan:</label>
+          <textarea id="txtBookingKeluhan" rows="2" class="w-full p-2 border rounded-lg bg-white" placeholder="Gigi geraham sakit sejak 2 hari..."></textarea>
+        </div>
+      </div>
+      <div class="pt-2 border-t">
+        <button onclick="submitReservation()" class="w-full py-3 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-bold text-xs rounded-xl shadow-lg transition">
+          Konfirmasi & Cetak Nomor Antrean
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TV DISPLAY MONITOR ANTREAN (FULLSCREEN READY) -->
+  <div id="modalTvQueue" class="fixed inset-0 z-50 hidden bg-slate-950 text-white flex flex-col p-6 overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center text-white text-xl">
+          <i class="fa-solid fa-tooth"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold tracking-tight">TV MONITOR ANTREAN KLINIK AKSHARA</h2>
+          <p class="text-xs text-cyan-400">Panggilan Pasien Terpadu & Suara Otomatis</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <select id="selTvPoliFilter" onchange="refreshTvQueueData()" class="text-xs p-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-semibold">
+          <option value="ALL">Semua Poliklinik</option>
+          <option value="Poli Gigi">Poli Gigi</option>
+          <option value="Poli Umum">Poli Umum</option>
+        </select>
+        <button onclick="closeTvQueueModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
+          <i class="fa-solid fa-xmark mr-1"></i> Tutup Monitor
+        </button>
+      </div>
+    </div>
+
+    <!-- Konten Utama Display Monitor -->
+    <div class="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <!-- Kotak Utama Panggilan Berjalan -->
+      <div class="lg:col-span-8 bg-slate-900 border-2 border-cyan-500/50 rounded-3xl p-8 sm:p-12 text-center shadow-2xl flex flex-col items-center justify-center space-y-4">
+        <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+          SEDANG DIPANGGIL
+        </span>
+        <h3 id="lblTvActiveQueueNumber" class="text-6xl sm:text-8xl font-black text-white tracking-tight font-mono">
+          ---
+        </h3>
+        <div class="space-y-1">
+          <p id="lblTvActivePoli" class="text-2xl sm:text-3xl font-bold text-cyan-400">Ruangan Poli</p>
+          <p id="lblTvActiveDoctor" class="text-sm sm:text-base text-slate-400">drg. Akshara Sp.KG</p>
+        </div>
+        <div class="pt-4">
+          <button onclick="testTvAudioChime()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700">
+            <i class="fa-solid fa-volume-high mr-1"></i> Uji Suara Bel
+          </button>
+        </div>
+      </div>
+
+      <!-- Kotak 5 Antrean Berikutnya -->
+      <div class="lg:col-span-4 space-y-4">
+        <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Antrean Selanjutnya</h4>
+        <div id="tvUpcomingContainer" class="space-y-3">
+          <!-- Render via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: STRUK KASIR THERMAL SIAP CETAK -->
+  <div id="modalPrintReceipt" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full p-6 rounded-2xl border space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-sm">Struk Kasir Siap Cetak</h3>
+        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="printableReceiptArea" class="receipt-paper mx-auto text-xs">
+        <!-- Render thermal invoice -->
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="window.print()" class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold shadow hover:bg-black transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-print"></i>
+          <span>Cetak Thermal (58/80mm)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-20 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    /**
+     * ========================================================================
+     * FRONTEND ENGINE & DUAL-RUNTIME UNIVERSAL API BRIDGE
+     * ========================================================================
+     */
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzZ8HVyql76ZZbVY7qk8HISf9h8d8xfs6zb4NlrjUZu_MkEYlZMLbjoS300_ap80h-e/exec";
+
+    // Application state
+    let currentUser = null;
+    let activeShift = null;
+    let selectedPatientAntrean = null;
+    let currentBillingItems = [];
+    let odontogramState = {};
+
+    (function initSecurityProtections() {
+      // 1. Matikan Klik Kanan
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
       });
-    }
 
-    SpreadsheetApp.flush();
-    writeAuditLog(payload.dokterId, 'INPUT_CPPT', 'MEDIS', 'CPPT: ' + cpptId + ' RM: ' + payload.nomorRM);
-
-    return {
-      status: 'SUCCESS',
-      cpptId: cpptId,
-      resepId: resepId,
-      billingId: billingId,
-      message: 'Rekam Medis berhasil disimpan.'
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function generateAiMedicalAssist(soapContext) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var settingsSheet = ss.getSheetByName('SETTINGS');
-    var apiKey = '';
-
-    if (settingsSheet && settingsSheet.getLastRow() > 1) {
-      var sData = settingsSheet.getDataRange().getDisplayValues();
-      for (var i = 1; i < sData.length; i++) {
-        if (sData[i][0] === 'GEMINI_API_KEY') {
-          apiKey = sData[i][1];
-          break;
+      // 2. Blokir Shortcut DevTools (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U)
+      document.addEventListener('keydown', function(e) {
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+          (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+        ) {
+          e.preventDefault();
+          return false;
         }
-      }
-    }
-
-    if (!apiKey || apiKey === 'MASUKKAN_GEMINI_API_KEY_DI_SINI') {
-      return {
-        status: 'FALLBACK',
-        analisis: 'Catatan Asisten Klinis Gemini AI:\n1. Diagnosa Banding: Pulpitis Reversibel pada gigi karies profunda (#16, #26), Karies Dentin Media.\n2. Rencana Tindakan: Pembersihan kavitas, pelapisan kalsium hidroksida/GIC, restorasi komposit estetik.\n3. Anjuran Edukasi: Hindari suhu ekstrem, kontrol kebersihan sela gigi.'
-      };
-    }
-
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey;
-    var promptText = 'Anda adalah asisten konsultan medis klinik Akshara. Analisis catatan SOAP berikut:\n'
-      + 'Subjektif: ' + (soapContext.subjektif || '-') + '\n'
-      + 'Objektif: ' + (soapContext.objektif || '-') + '\n'
-      + 'Tanda Vital: ' + JSON.stringify(soapContext.tandaVital || {}) + '\n'
-      + 'Odontogram: ' + JSON.stringify(soapContext.odontogram || {}) + '\n'
-      + 'Berikan rekomendasi (1) Diagnosa Banding & ICD-10, (2) Rekomendasi Terapi & Tindakan, (3) Cross-check keamanan obat.';
-
-    var payload = { contents: [{ parts: [{ text: promptText }] }] };
-    var options = {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-
-    var response = UrlFetchApp.fetch(url, options);
-    if (response.getResponseCode() === 200) {
-      var parsed = JSON.parse(response.getContentText());
-      return { status: 'SUCCESS', analisis: parsed.candidates[0].content.parts[0].text };
-    }
-    return { status: 'FALLBACK', analisis: 'Layanan AI offline. Teruskan observasi standar faskes.' };
-  } catch (err) {
-    return { status: 'FALLBACK', analisis: 'AI Offline: ' + err.toString() };
-  }
-}
-
-function testGeminiApiKey(apiKey) {
-  try {
-    if (!apiKey || apiKey.trim() === '') {
-      return { status: 'ERROR', message: 'API Key tidak boleh kosong.' };
-    }
-
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey.trim();
-    var payload = { contents: [{ parts: [{ text: 'Halo Gemini, konfirmasi koneksi API akshara klinik dental.' }] }] };
-    var options = {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-
-    var response = UrlFetchApp.fetch(url, options);
-    if (response.getResponseCode() === 200) {
-      return { status: 'SUCCESS', message: 'Koneksi ke Google Gemini AI Berhasil & Aktif.' };
-    } else {
-      var errData = JSON.parse(response.getContentText());
-      var msg = (errData && errData.error && errData.error.message) ? errData.error.message : 'Respon gagal: ' + response.getResponseCode();
-      return { status: 'ERROR', message: msg };
-    }
-  } catch (err) {
-    return { status: 'ERROR', message: 'Gagal menguji API Key: ' + err.toString() };
-  }
-}
-
-function getSystemSettings(adminUserId) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('SETTINGS');
-    if (!sheet || sheet.getLastRow() <= 1) {
-      return { status: 'ERROR', message: 'Sheet SETTINGS tidak ditemukan.' };
-    }
-
-    var data = sheet.getDataRange().getDisplayValues();
-    var settings = {};
-    var rawApiKey = '';
-
-    for (var i = 1; i < data.length; i++) {
-      var key = data[i][0];
-      var val = data[i][1];
-      if (key === 'GEMINI_API_KEY') {
-        rawApiKey = val;
-        var masked = (val && val.length > 8) ? (val.substring(0, 6) + '...' + val.substring(val.length - 4)) : '••••••••';
-        settings[key] = masked;
-      } else {
-        settings[key] = val;
-      }
-    }
-
-    return {
-      status: 'SUCCESS',
-      settings: settings,
-      isApiKeyConfigured: (rawApiKey && rawApiKey !== 'MASUKKAN_GEMINI_API_KEY_DI_SINI')
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function updateSystemSettings(adminUserId, configKey, configValue) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('SETTINGS');
-    if (!sheet) return { status: 'ERROR', message: 'Sheet SETTINGS tidak ditemukan.' };
-
-    var data = sheet.getDataRange().getDisplayValues();
-    var found = false;
-
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0] === configKey) {
-        sheet.getRange(i + 1, 2).setValue(configValue);
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      sheet.appendRow([configKey, configValue, 'Pengaturan Tambahan Administrator']);
-    }
-
-    SpreadsheetApp.flush();
-    var logDetail = (configKey === 'GEMINI_API_KEY') ? 'Pembaruan Gemini API Key' : ('Ubah ' + configKey + ' menjadi: ' + configValue);
-    writeAuditLog(adminUserId || 'SUPER_ADMIN', 'UPDATE_SETTINGS', 'CONFIG', logDetail);
-
-    return { status: 'SUCCESS', message: 'Pengaturan ' + configKey + ' berhasil diperbarui.' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function checkActiveShift(kasirId) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('POS_SHIFT');
-    if (!sheet || sheet.getLastRow() <= 1) return { status: 'NO_ACTIVE_SHIFT' };
-
-    var data = sheet.getDataRange().getDisplayValues();
-
-    for (var i = data.length - 1; i >= 1; i--) {
-      var row = data[i];
-      if (row[9] === 'OPEN') {
-        if (!kasirId || row[2] === kasirId || kasirId === 'ALL') {
-          return {
-            status: 'ACTIVE_SHIFT',
-            data: {
-              shiftId: row[0],
-              tanggal: row[1],
-              namaKasir: row[2],
-              shiftKerja: row[3],
-              modalAwal: row[4],
-              totalTunai: row[5],
-              totalNonTunai: row[6],
-              waktuBuka: row[10]
-            }
-          };
-        }
-      }
-    }
-    return { status: 'NO_ACTIVE_SHIFT' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function openCashierShift(kasirId, modalAwal, shiftKerja, namaKasir) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('POS_SHIFT');
-    var now = new Date();
-    var todayYMD = Utilities.formatDate(now, 'Asia/Jakarta', 'yyyy-MM-dd');
-    var nowStr = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var shiftId = generateSequentialID('POS_SHIFT', 'SHIFT', 2, 1, true);
-
-    sheet.appendRow([
-      shiftId,
-      todayYMD,
-      namaKasir || kasirId,
-      shiftKerja || 'Pagi',
-      parseFloat(modalAwal || 0),
-      0,
-      0,
-      0,
-      0,
-      'OPEN',
-      nowStr,
-      '',
-      ''
-    ]);
-    SpreadsheetApp.flush();
-
-    writeAuditLog(namaKasir || kasirId, 'BUKA_SHIFT', 'KASIR', 'Buka shift: ' + shiftId + ' Modal Awal: Rp ' + modalAwal);
-
-    return {
-      status: 'SUCCESS',
-      shiftId: shiftId,
-      modalAwal: modalAwal,
-      shiftKerja: shiftKerja,
-      namaKasir: namaKasir || kasirId,
-      waktuBuka: nowStr
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function processPayment(dataTransaksi) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var trxSheet = ss.getSheetByName('TRANSAKSI_KASIR');
-    var shiftSheet = ss.getSheetByName('POS_SHIFT');
-    var antreanSheet = ss.getSheetByName('ANTREAN');
-    var billingSheet = ss.getSheetByName('BILLING_KASIR');
-    var obatSheet = ss.getSheetByName('MASTER_OBAT');
-
-    var now = new Date();
-    var nowStr = Utilities.formatDate(now, 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var trxId = generateSequentialID('TRANSAKSI_KASIR', 'TRX', 13, 1, true);
-
-    var rincianJson = JSON.stringify(dataTransaksi.items || []);
-    var subtotal = parseFloat(dataTransaksi.subtotal || 0);
-    var diskon = parseFloat(dataTransaksi.diskon || 0);
-    var totalAkhir = parseFloat(dataTransaksi.totalAkhir || (subtotal - diskon));
-    var metodeBayar = dataTransaksi.metodeBayar || 'TUNAI';
-    var nominalBayar = parseFloat(dataTransaksi.nominalBayar || totalAkhir);
-    var nominalKembali = parseFloat(dataTransaksi.nominalKembali || 0);
-
-    trxSheet.appendRow([
-      trxId,
-      dataTransaksi.shiftId || '-',
-      dataTransaksi.kodeAntrean || '-',
-      dataTransaksi.nomorRM || '-',
-      rincianJson,
-      subtotal,
-      diskon,
-      totalAkhir,
-      metodeBayar,
-      nominalBayar,
-      nominalKembali,
-      dataTransaksi.kasirNama || 'Kasir',
-      nowStr,
-      'LUNAS'
-    ]);
-
-    if (dataTransaksi.shiftId && dataTransaksi.shiftId !== '-') {
-      var sData = shiftSheet.getDataRange().getDisplayValues();
-      for (var s = 1; s < sData.length; s++) {
-        if (sData[s][0] === dataTransaksi.shiftId) {
-          var curTunai = parseFloat(sData[s][5] || 0);
-          var curNonTunai = parseFloat(sData[s][6] || 0);
-
-          if (metodeBayar.indexOf('TUNAI') !== -1) {
-            shiftSheet.getRange(s + 1, 6).setValue(curTunai + totalAkhir);
-          } else {
-            shiftSheet.getRange(s + 1, 7).setValue(curNonTunai + totalAkhir);
-          }
-          break;
-        }
-      }
-    }
-
-    if (dataTransaksi.kodeAntrean && dataTransaksi.kodeAntrean !== '-') {
-      var aData = antreanSheet.getDataRange().getDisplayValues();
-      for (var a = 1; a < aData.length; a++) {
-        if (aData[a][0] === dataTransaksi.kodeAntrean) {
-          antreanSheet.getRange(a + 1, 10).setValue('SELESAI');
-          break;
-        }
-      }
-
-      var bData = billingSheet.getDataRange().getDisplayValues();
-      for (var b = 1; b < bData.length; b++) {
-        if (bData[b][1] === dataTransaksi.kodeAntrean) {
-          billingSheet.getRange(b + 1, 8).setValue('LUNAS');
-          billingSheet.getRange(b + 1, 9).setValue(nowStr);
-          break;
-        }
-      }
-    }
-
-    if (dataTransaksi.items && dataTransaksi.items.length > 0) {
-      var oData = obatSheet.getDataRange().getDisplayValues();
-      for (var i = 0; i < dataTransaksi.items.length; i++) {
-        var itm = dataTransaksi.items[i];
-        if (itm.obatId) {
-          for (var rowO = 1; rowO < oData.length; rowO++) {
-            if (oData[rowO][0] === itm.obatId) {
-              var curStok = parseInt(oData[rowO][4], 10) || 0;
-              var newStok = Math.max(0, curStok - (parseInt(itm.qty, 10) || 1));
-              obatSheet.getRange(rowO + 1, 5).setValue(newStok);
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    SpreadsheetApp.flush();
-    writeAuditLog(dataTransaksi.kasirNama || 'Kasir', 'TRANSAKSI_POS', 'KASIR', 'TRX: ' + trxId + ' Total: Rp ' + totalAkhir + ' (' + metodeBayar + ')');
-
-    return {
-      status: 'SUCCESS',
-      transaksiId: trxId,
-      totalAkhir: totalAkhir,
-      nominalKembali: nominalKembali,
-      waktuTransaksi: nowStr
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function closeCashierShift(shiftId, actualCash, catatan) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('POS_SHIFT');
-    var data = sheet.getDataRange().getDisplayValues();
-    var nowStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var foundRow = -1;
-
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0] === shiftId) {
-        foundRow = i + 1;
-        var modalAwal = parseFloat(data[i][4] || 0);
-        var totalTunaiSistem = parseFloat(data[i][5] || 0);
-        var totalNonTunaiSistem = parseFloat(data[i][6] || 0);
-        var totalFisikTunai = parseFloat(actualCash || 0);
-        var totalTunaiHarapan = modalAwal + totalTunaiSistem;
-        var selisihKas = totalFisikTunai - totalTunaiHarapan;
-
-        sheet.getRange(foundRow, 8).setValue(totalFisikTunai);
-        sheet.getRange(foundRow, 9).setValue(selisihKas);
-        sheet.getRange(foundRow, 10).setValue('LOCKED');
-        sheet.getRange(foundRow, 12).setValue(nowStr);
-        sheet.getRange(foundRow, 13).setValue(catatan || 'Shift Ditutup Sesuai Rekonsiliasi');
-
-        SpreadsheetApp.flush();
-        writeAuditLog(data[i][2], 'TUTUP_SHIFT', 'KASIR', 'Tutup Shift: ' + shiftId + ' Selisih: Rp ' + selisihKas);
-
-        return {
-          status: 'SUCCESS',
-          shiftId: shiftId,
-          namaKasir: data[i][2],
-          shiftKerja: data[i][3],
-          modalAwal: modalAwal,
-          totalTunaiSistem: totalTunaiSistem,
-          totalNonTunaiSistem: totalNonTunaiSistem,
-          totalTunaiHarapan: totalTunaiHarapan,
-          totalFisikTunai: totalFisikTunai,
-          selisihKas: selisihKas,
-          statusShift: 'LOCKED',
-          waktuTutup: nowStr,
-          catatan: catatan
-        };
-      }
-    }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getPOSCatalog() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var oSheet = ss.getSheetByName('MASTER_OBAT');
-    var oData = oSheet.getDataRange().getDisplayValues();
-
-    var catalog = [];
-    for (var i = 1; i < oData.length; i++) {
-      catalog.push({
-        id: oData[i][0],
-        nama: oData[i][1],
-        kategori: oData[i][2],
-        satuan: oData[i][3],
-        stok: oData[i][4],
-        harga: oData[i][7]
       });
-    }
 
-    return { status: 'SUCCESS', catalog: catalog };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function generateDokumenMedis(payload) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var docSheet = ss.getSheetByName('DOKUMEN_MEDIS');
-    var settingsSheet = ss.getSheetByName('SETTINGS');
-
-    var klinikNama = 'Akshara Dental Space & Medical Center';
-    var klinikAlamat = 'Jl. Boulevard Kesehatan No. 88, Makassar';
-    var klinikTelp = '+62 853-3892-2586';
-
-    if (settingsSheet && settingsSheet.getLastRow() > 1) {
-      var sData = settingsSheet.getDataRange().getDisplayValues();
-      for (var s = 1; s < sData.length; s++) {
-        if (sData[s][0] === 'KLINIK_NAMA') klinikNama = sData[s][1];
-        if (sData[s][0] === 'KLINIK_ALAMAT') klinikAlamat = sData[s][1];
-        if (sData[s][0] === 'KLINIK_TELEPON') klinikTelp = sData[s][1];
-      }
-    }
-
-    var prefix = 'SKS';
-    if (payload.jenisDokumen === 'Surat Keterangan Sehat') prefix = 'SKSEHAT';
-    if (payload.jenisDokumen === 'Hasil Laboratorium') prefix = 'LAB';
-    if (payload.jenisDokumen === 'Resume Medis') prefix = 'RESUME';
-
-    var nomorSurat = generateSequentialID('DOKUMEN_MEDIS', prefix, 9, 2, false);
-    var docId = 'DOC-' + ('0000' + (docSheet.getLastRow() + 1)).slice(-4);
-    var kodeVerifikasi = 'VFY-' + Utilities.getUuid().slice(0, 8).toUpperCase();
-    var now = new Date();
-    var tglTerbitStr = Utilities.formatDate(now, 'Asia/Jakarta', 'dd MMMM yyyy');
-
-    var webAppUrl = ScriptApp.getService().getUrl() || '';
-    var verifyUrl = webAppUrl + '?page=verifikasi&code=' + kodeVerifikasi;
-    var qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(verifyUrl);
-
-    var htmlContent = '<!DOCTYPE html><html><head><meta charset="utf-8">'
-      + '<style>'
-      + 'body { font-family: Arial, sans-serif; color: #0f172a; padding: 25px; line-height: 1.5; }'
-      + '.header { text-align: center; border-bottom: 3px double #0284c7; padding-bottom: 12px; margin-bottom: 20px; }'
-      + '.header h1 { margin: 0; color: #0369a1; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }'
-      + '.header p { margin: 2px 0; font-size: 11px; color: #475569; }'
-      + '.title { text-align: center; font-size: 15px; font-weight: bold; text-decoration: underline; margin: 15px 0 5px 0; }'
-      + '.doc-no { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 20px; }'
-      + '.content-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }'
-      + '.content-table td { padding: 6px 4px; vertical-align: top; }'
-      + '.signature-box { width: 100%; margin-top: 35px; }'
-      + '.qr-img { width: 95px; height: 95px; border: 1px solid #cbd5e1; padding: 3px; }'
-      + '.footer-note { font-size: 9px; color: #94a3b8; margin-top: 30px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 6px; }'
-      + '</style></head><body>'
-      + '<div class="header">'
-      + '<h1>' + klinikNama + '</h1>'
-      + '<p>' + klinikAlamat + ' | Telepon: ' + klinikTelp + '</p>'
-      + '</div>'
-      + '<div class="title">' + payload.jenisDokumen.toUpperCase() + '</div>'
-      + '<div class="doc-no">Nomor: ' + nomorSurat + '</div>'
-      + '<table class="content-table">'
-      + '<tr><td style="width: 25%;">Nama Pasien</td><td style="width: 2%;">:</td><td><b>' + payload.namaPasien + '</b></td></tr>'
-      + '<tr><td>Nomor RM / NIK</td><td>:</td><td>' + payload.nomorRM + ' / ' + (payload.nik || '-') + '</td></tr>'
-      + '<tr><td>Keterangan Klinis</td><td>:</td><td>' + (payload.keterangan || 'Pasien dinyatakan memerlukan istirahat tirah baring.') + '</td></tr>'
-      + (payload.lamaIstirahat ? '<tr><td>Lama Istirahat</td><td>:</td><td>' + payload.lamaIstirahat + ' Hari (' + payload.tglMulai + ' s/d ' + payload.tglSelesai + ')</td></tr>' : '')
-      + '</table>'
-      + '<table class="signature-box">'
-      + '<tr>'
-      + '<td style="width: 50%; vertical-align: middle; text-align: left;">'
-      + '<img src="' + qrApiUrl + '" class="qr-img"><br>'
-      + '<span style="font-size: 9px; color: #475569;">Stempel QR Digital Sah.<br>Pindai untuk validasi keaslian.</span>'
-      + '</td>'
-      + '<td style="width: 50%; text-align: right; vertical-align: top; font-size: 12px;">'
-      + 'Makassar, ' + tglTerbitStr + '<br>Dokter Pemeriksa,<br><br><br><br>'
-      + '<b>' + (payload.dokterNama || 'drg. Akshara Mahendra, Sp.KG') + '</b><br>'
-      + '<span style="font-size: 10px; color: #64748b;">SIP Terdaftar Faskes</span>'
-      + '</td>'
-      + '</tr>'
-      + '</table>'
-      + '<div class="footer-note">Diterbitkan resmi oleh Sistem Elektronik Akshara Dental Space. Sah tanpa stempel basah.</div>'
-      + '</body></html>';
-
-    var blob = Utilities.newBlob(htmlContent, 'text/html', nomorSurat.replace(/\//g, '_') + '.html');
-    var pdfFile = DriveApp.createFile(blob.getAs('application/pdf')).setName(nomorSurat.replace(/\//g, '_') + '.pdf');
-    pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    var fileUrl = pdfFile.getUrl();
-
-    docSheet.appendRow([
-      docId,
-      nomorSurat,
-      payload.jenisDokumen,
-      payload.nomorRM,
-      payload.kodeAntrean || '-',
-      payload.dokterId || 'DOC-001',
-      fileUrl,
-      kodeVerifikasi,
-      nowStr
-    ]);
-
-    SpreadsheetApp.flush();
-    writeAuditLog(payload.dokterNama || 'DOKTER', 'CETAK_DOKUMEN', 'DOKUMEN_MEDIS', 'Terbit ' + payload.jenisDokumen + ': ' + nomorSurat);
-
-    return {
-      status: 'SUCCESS',
-      nomorSurat: nomorSurat,
-      fileUrl: fileUrl,
-      kodeVerifikasi: kodeVerifikasi,
-      verifyUrl: verifyUrl
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function verifikasiDokumen(kodeVerifikasi) {
-  try {
-    if (!kodeVerifikasi) return { status: 'NOT_FOUND' };
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('DOKUMEN_MEDIS');
-
-    if (!sheet || sheet.getLastRow() <= 1) return { status: 'NOT_FOUND' };
-    var data = sheet.getDataRange().getDisplayValues();
-
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][7] === kodeVerifikasi) {
-        return {
-          status: 'VALID',
-          docId: data[i][0],
-          nomorSurat: data[i][1],
-          jenisDokumen: data[i][2],
-          nomorRM: data[i][3],
-          kodeAntrean: data[i][4],
-          fileUrl: data[i][6],
-          tglTerbit: data[i][8]
-        };
-      }
-    }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getFarmasiQueue(statusFilter) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var rSheet = ss.getSheetByName('FARMASI_RESEP');
-    var pSheet = ss.getSheetByName('PASIEN');
-    var dSheet = ss.getSheetByName('DOKTER');
-    var oSheet = ss.getSheetByName('MASTER_OBAT');
-
-    var rData = rSheet.getDataRange().getDisplayValues();
-    var pData = pSheet.getDataRange().getDisplayValues();
-    var dData = dSheet.getDataRange().getDisplayValues();
-    var oData = oSheet.getDataRange().getDisplayValues();
-
-    var pMap = {};
-    for (var p = 1; p < pData.length; p++) pMap[pData[p][0]] = pData[p][2];
-
-    var dMap = {};
-    for (var d = 1; d < dData.length; d++) dMap[dData[d][0]] = dData[d][1];
-
-    var queue = [];
-    for (var i = 1; i < rData.length; i++) {
-      var st = rData[i][7];
-      if (!statusFilter || statusFilter === 'SEMUA' || st === statusFilter) {
-        queue.push({
-          resepId: rData[i][0],
-          kodeAntrean: rData[i][1],
-          nomorRM: rData[i][2],
-          namaPasien: pMap[rData[i][2]] || 'Pasien',
-          dokterNama: dMap[rData[i][3]] || 'Dokter',
-          detailObat: rData[i][4],
-          aturanPakai: rData[i][5],
-          catatan: rData[i][6],
-          statusResep: rData[i][7],
-          waktuSelesai: rData[i][8]
-        });
-      }
-    }
-
-    var warnings = [];
-    var now = new Date();
-    for (var k = 1; k < oData.length; k++) {
-      var namaObat = oData[k][1];
-      var stok = parseInt(oData[k][4], 10) || 0;
-      var minStok = parseInt(oData[k][5], 10) || 0;
-      var expStr = oData[k][6];
-
-      if (stok <= minStok) {
-        warnings.push({
-          obatId: oData[k][0],
-          nama: namaObat,
-          tipe: 'STOK_KRITIS',
-          pesan: 'Stok tersisa ' + stok + ' (Batas: ' + minStok + ')'
-        });
-      }
-
-      if (expStr) {
-        var expDate = new Date(expStr);
-        var diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
-        if (diffDays <= 90) {
-          warnings.push({
-            obatId: oData[k][0],
-            nama: namaObat,
-            tipe: 'KADALUWARSA_DEKAT',
-            pesan: 'Kadaluwarsa dalam ' + diffDays + ' hari (' + expStr + ')'
-          });
+      // 3. Clear Console Interval ringan
+      setInterval(function() {
+        if (window.console && window.console.clear) {
+          window.console.clear();
         }
-      }
-    }
+      }, 15000);
+    })();
 
-    return {
-      status: 'SUCCESS',
-      queue: queue,
-      earlyWarnings: warnings
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function updateStatusResep(resepId, statusResep, catatan) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var rSheet = ss.getSheetByName('FARMASI_RESEP');
-    var oSheet = ss.getSheetByName('MASTER_OBAT');
-    var rData = rSheet.getDataRange().getDisplayValues();
-    var nowStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    var found = false;
-
-    for (var i = 1; i < rData.length; i++) {
-      if (rData[i][0] === resepId) {
-        rSheet.getRange(i + 1, 8).setValue(statusResep);
-        rSheet.getRange(i + 1, 9).setValue(nowStr);
-        if (catatan) rSheet.getRange(i + 1, 7).setValue(catatan);
-
-        if (statusResep === 'DISERAHKAN') {
-          try {
-            var obatList = JSON.parse(rData[i][4] || '[]');
-            var oData = oSheet.getDataRange().getDisplayValues();
-            for (var m = 0; m < obatList.length; m++) {
-              var targetNama = obatList[m].nama;
-              var targetQty = parseInt(obatList[m].qty, 10) || 1;
-
-              for (var rowO = 1; rowO < oData.length; rowO++) {
-                if (oData[rowO][1].toLowerCase() === targetNama.toLowerCase()) {
-                  var curStock = parseInt(oData[rowO][4], 10) || 0;
-                  var newStock = Math.max(0, curStock - targetQty);
-                  oSheet.getRange(rowO + 1, 5).setValue(newStock);
-                  break;
-                }
+    function runApi(actionName, payloadData) {
+      return new Promise(function(resolve, reject) {
+        // Cek apakah berjalan di lingkungan bawaan Google Apps Script
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(function(res) {
+              resolve(typeof res === 'string' ? JSON.parse(res) : res);
+            })
+            .withFailureHandler(function(err) {
+              reject(err);
+            })
+            .doPost({
+              postData: {
+                contents: JSON.stringify({ action: actionName, payload: payloadData || {} })
               }
-            }
-          } catch (e) {}
+            });
+        } else {
+          // Standalone Vercel / GitHub Pages Runtime via HTTP POST
+          fetch(GAS_API_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: actionName, payload: payloadData || {} })
+          })
+          .then(function(res) { return res.json(); })
+          .then(function(data) { resolve(data); })
+          .catch(function(err) { reject(err); });
         }
-        found = true;
-        break;
-      }
-    }
-
-    if (found) {
-      SpreadsheetApp.flush();
-      writeAuditLog('APOTEKER', 'UPDATE_RESEP', 'FARMASI', 'Resep: ' + resepId + ' Status: ' + statusResep);
-      return { status: 'SUCCESS' };
-    }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getLabQueue(statusFilter) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('LABORATORIUM');
-    var pSheet = ss.getSheetByName('PASIEN');
-    var data = sheet.getDataRange().getDisplayValues();
-    var pData = pSheet.getDataRange().getDisplayValues();
-
-    var pMap = {};
-    for (var p = 1; p < pData.length; p++) pMap[pData[p][0]] = pData[p][2];
-
-    var list = [];
-    for (var i = 1; i < data.length; i++) {
-      if (!statusFilter || statusFilter === 'SEMUA' || data[i][7] === statusFilter) {
-        list.push({
-          labId: data[i][0],
-          kodeAntrean: data[i][1],
-          nomorRM: data[i][2],
-          namaPasien: pMap[data[i][2]] || 'Pasien',
-          dokterId: data[i][3],
-          jenis: data[i][4],
-          hasil: data[i][5],
-          rujukan: data[i][6],
-          status: data[i][7],
-          tgl: data[i][8]
-        });
-      }
-    }
-    return { status: 'SUCCESS', data: list };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function updateHasilLab(labId, hasil, rujukan) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('LABORATORIUM');
-    var data = sheet.getDataRange().getDisplayValues();
-
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0] === labId) {
-        sheet.getRange(i + 1, 6).setValue(hasil);
-        if (rujukan) sheet.getRange(i + 1, 7).setValue(rujukan);
-        sheet.getRange(i + 1, 8).setValue('SELESAI');
-        SpreadsheetApp.flush();
-        writeAuditLog('PETUGAS_LAB', 'INPUT_HASIL_LAB', 'LABORATORIUM', 'Uji Lab Selesai: ' + labId);
-        return { status: 'SUCCESS' };
-      }
-    }
-    return { status: 'NOT_FOUND' };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getHasilLabPasien(noRM, kodeAntrean) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('LABORATORIUM');
-    var pSheet = ss.getSheetByName('PASIEN');
-    var data = sheet.getDataRange().getDisplayValues();
-    var pData = pSheet.getDataRange().getDisplayValues();
-
-    var pasienNama = '';
-    for (var p = 1; p < pData.length; p++) {
-      if (pData[p][0] === noRM) {
-        pasienNama = pData[p][2];
-        break;
-      }
-    }
-
-    var list = [];
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][2] === noRM && (data[i][1] === kodeAntrean || !kodeAntrean)) {
-        list.push({
-          labId: data[i][0],
-          jenis: data[i][4],
-          hasil: data[i][5],
-          rujukan: data[i][6],
-          status: data[i][7],
-          tgl: data[i][8]
-        });
-      }
-    }
-    return { status: 'SUCCESS', pasienNama: pasienNama, data: list };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getBillingData(kodeAntrean) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var bSheet = ss.getSheetByName('BILLING_KASIR');
-    var pSheet = ss.getSheetByName('PASIEN');
-    var aSheet = ss.getSheetByName('ANTREAN');
-
-    var bData = bSheet.getDataRange().getDisplayValues();
-    var pData = pSheet.getDataRange().getDisplayValues();
-    var aData = aSheet.getDataRange().getDisplayValues();
-
-    var pMap = {};
-    for (var p = 1; p < pData.length; p++) pMap[pData[p][0]] = pData[p][2];
-
-    var poliMap = {};
-    for (var a = 1; a < aData.length; a++) poliMap[aData[a][0]] = aData[a][5];
-
-    var results = [];
-    for (var i = 1; i < bData.length; i++) {
-      if (!kodeAntrean || bData[i][1] === kodeAntrean || bData[i][7] === 'BELUM_LUNAS') {
-        results.push({
-          billingId: bData[i][0],
-          kodeAntrean: bData[i][1],
-          nomorRM: bData[i][2],
-          namaPasien: pMap[bData[i][2]] || 'Pasien',
-          ruanganPoli: poliMap[bData[i][1]] || '-',
-          jasaMedis: bData[i][3],
-          obat: bData[i][4],
-          lab: bData[i][5],
-          total: bData[i][6],
-          status: bData[i][7],
-          tglBayar: bData[i][8]
-        });
-      }
-    }
-    return { status: 'SUCCESS', data: results };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getAnalyticsDurasi() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('ANTREAN');
-    if (!sheet || sheet.getLastRow() <= 1) {
-      return { status: 'SUCCESS', avgWaitMins: 12, avgServiceMins: 18, totalHariIni: 0 };
-    }
-
-    var data = sheet.getDataRange().getDisplayValues();
-    var todayYMD = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
-    var totalWaitMinutes = 0;
-    var waitCount = 0;
-    var totalServiceMinutes = 0;
-    var serviceCount = 0;
-    var todayCount = 0;
-
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][1] === todayYMD) {
-        todayCount++;
-        var tDaftar = data[i][10];
-        var tPanggil = data[i][11];
-        var tSelesai = data[i][12];
-
-        if (tDaftar && tPanggil) {
-          var d1 = new Date(tDaftar.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-          var d2 = new Date(tPanggil.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-          var diff = (d2 - d1) / 60000;
-          if (!isNaN(diff) && diff > 0 && diff < 300) {
-            totalWaitMinutes += diff;
-            waitCount++;
-          }
-        }
-
-        if (tPanggil && tSelesai) {
-          var d3 = new Date(tPanggil.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-          var d4 = new Date(tSelesai.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-          var diffSvc = (d4 - d3) / 60000;
-          if (!isNaN(diffSvc) && diffSvc > 0 && diffSvc < 300) {
-            totalServiceMinutes += diffSvc;
-            serviceCount++;
-          }
-        }
-      }
-    }
-
-    return {
-      status: 'SUCCESS',
-      avgWaitMins: waitCount > 0 ? Math.round(totalWaitMinutes / waitCount) : 14,
-      avgServiceMins: serviceCount > 0 ? Math.round(totalServiceMinutes / serviceCount) : 22,
-      totalHariIni: todayCount
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
-
-function getAuditLogs(page, limit) {
-  try {
-    page = page || 1;
-    limit = limit || 20;
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('AUDIT_LOG');
-    if (!sheet || sheet.getLastRow() <= 1) {
-      return { status: 'SUCCESS', data: [], total: 0 };
-    }
-
-    var data = sheet.getDataRange().getDisplayValues();
-    var logs = [];
-    for (var i = data.length - 1; i >= 1; i--) {
-      logs.push({
-        id: data[i][0],
-        timestamp: data[i][1],
-        user: data[i][2],
-        aksi: data[i][3],
-        modul: data[i][4],
-        detail: data[i][5]
       });
     }
 
-    var totalItems = logs.length;
-    var totalPages = Math.ceil(totalItems / limit) || 1;
-    var offset = (page - 1) * limit;
-    var paginated = logs.slice(offset, offset + limit);
+    function toggleTheme() {
+      const body = document.body;
+      if (body.classList.contains('theme-white')) {
+        body.classList.remove('theme-white');
+        body.classList.add('theme-cyan');
+        localStorage.setItem('akshara_theme', 'cyan');
+        showToast('Tema Diubah', 'Tema Blue Cyan Soft Aktif', 'info');
+      } else {
+        body.classList.remove('theme-cyan');
+        body.classList.add('theme-white');
+        localStorage.setItem('akshara_theme', 'white');
+        showToast('Tema Diubah', 'Tema White Higienis Aktif', 'info');
+      }
+    }
 
-    return {
-      status: 'SUCCESS',
-      data: paginated,
-      pagination: { page: page, limit: limit, totalItems: totalItems, totalPages: totalPages }
-    };
-  } catch (err) {
-    return { status: 'ERROR', message: err.toString() };
-  }
-}
+    function initTheme() {
+      const saved = localStorage.getItem('akshara_theme') || 'white';
+      document.body.classList.remove('theme-white', 'theme-cyan');
+      document.body.classList.add('theme-' + saved);
+    }
+
+    function showToast(title, message, type) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let borderCol = 'border-sky-500';
+      let icon = 'fa-info-circle text-sky-500';
+      if (type === 'success') {
+        borderCol = 'border-emerald-500';
+        icon = 'fa-circle-check text-emerald-500';
+      } else if (type === 'error') {
+        borderCol = 'border-rose-500';
+        icon = 'fa-triangle-exclamation text-rose-500';
+      }
+
+      toast.className = 'pointer-events-auto p-4 rounded-xl glass-card border-l-4 ' + borderCol + ' shadow-xl flex items-center space-x-3 text-xs min-w-[280px] max-w-sm transition-all duration-300 transform translate-x-full';
+      toast.innerHTML = '<i class="fa-solid ' + icon + ' text-base"></i><div><h5 class="font-bold">' + title + '</h5><p class="text-slate-500">' + message + '</p></div>';
+
+      container.appendChild(toast);
+      setTimeout(function() { toast.classList.remove('translate-x-full'); }, 50);
+      setTimeout(function() {
+        toast.classList.add('translate-x-full');
+        setTimeout(function() { toast.remove(); }, 300);
+      }, 4000);
+    }
+
+    function renderOdontogramSvg() {
+      // 32 Gigi Dewasa (FDI Notation)
+      const upperAdult = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28];
+      const lowerAdult = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38];
+      // 20 Gigi Anak (FDI Notation)
+      const upperChild = [55,54,53,52,51, 61,62,63,64,65];
+      const lowerChild = [85,84,83,82,81, 71,72,73,74,75];
+
+      renderToothRow('teethAdultUpper', upperAdult);
+      renderToothRow('teethAdultLower', lowerAdult);
+      renderToothRow('teethChildUpper', upperChild);
+      renderToothRow('teethChildLower', lowerChild);
+    }
+
+    function renderToothRow(elemId, numbers) {
+      const container = document.getElementById(elemId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      numbers.forEach(function(num) {
+        const btn = document.createElement('div');
+        const st = odontogramState[num] || 'sound';
+        btn.className = 'w-7 h-9 border rounded flex flex-col items-center justify-between p-0.5 text-[9px] font-bold tooth-elem tooth-status-' + st;
+        btn.id = 'tooth_btn_' + num;
+        btn.innerHTML = '<span>' + num + '</span><i class="fa-solid fa-tooth text-[11px]"></i>';
+        btn.onclick = function() {
+          const selectedStatus = document.getElementById('selOdontogramStatusTool').value;
+          odontogramState[num] = selectedStatus;
+          btn.className = 'w-7 h-9 border rounded flex flex-col items-center justify-between p-0.5 text-[9px] font-bold tooth-elem tooth-status-' + selectedStatus;
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function openLoginModal() {
+      document.getElementById('modalLogin').classList.remove('hidden');
+    }
+    function closeLoginModal() {
+      document.getElementById('modalLogin').classList.add('hidden');
+    }
+
+    function executeLogin() {
+      const u = document.getElementById('inpLoginUser').value.trim();
+      const p = document.getElementById('inpLoginPass').value.trim();
+
+      if (!u || !p) {
+        showToast('Peringatan', 'Isi username dan password Anda.', 'error');
+        return;
+      }
+
+      runApi('login', { username: u, password: p })
+        .then(function(res) {
+          if (res.status === 'success') {
+            currentUser = res.user;
+            sessionStorage.setItem('akshara_user', JSON.stringify(currentUser));
+            showToast('Login Berhasil', 'Selamat datang, ' + currentUser.fullName, 'success');
+            closeLoginModal();
+            updateUiAfterLogin();
+          } else {
+            showToast('Gagal Masuk', res.message, 'error');
+          }
+        })
+        .catch(function(err) {
+          showToast('Error', err.toString(), 'error');
+        });
+    }
+
+    function updateUiAfterLogin() {
+      if (!currentUser) return;
+      document.getElementById('viewLanding').classList.add('hidden');
+      document.getElementById('viewDashboard').classList.remove('hidden');
+
+      document.getElementById('lblStaffFullName').textContent = currentUser.fullName;
+      document.getElementById('lblStaffRole').textContent = currentUser.role;
+      document.getElementById('lblStaffPoli').textContent = currentUser.poliId;
+      document.getElementById('badgeUserInitial').textContent = currentUser.fullName.charAt(0).toUpperCase();
+
+      // Atur tab sesuai role
+      if (currentUser.role === 'Dokter') {
+        switchStaffSubTab('doctor');
+      } else if (currentUser.role === 'Farmasi') {
+        switchStaffSubTab('pharmacy');
+      } else if (currentUser.role === 'Kasir') {
+        switchStaffSubTab('cashier');
+      } else if (currentUser.role === 'Admin') {
+        switchStaffSubTab('admin');
+      }
+    }
+
+    function handleStaffLogout() {
+      currentUser = null;
+      sessionStorage.removeItem('akshara_user');
+      document.getElementById('viewDashboard').classList.add('hidden');
+      document.getElementById('viewLanding').classList.remove('hidden');
+      showToast('Keluar', 'Sesi staf telah ditutup.', 'info');
+    }
+
+    function openTvQueueModal() {
+      document.getElementById('modalTvQueue').classList.remove('hidden');
+      refreshTvQueueData();
+    }
+    function closeTvQueueModal() {
+      document.getElementById('modalTvQueue').classList.add('hidden');
+    }
+
+    function testTvAudioChime() {
+      playChimeAndSpeak("ANT-20260903-0001", "Poli Gigi");
+    }
+
+    function playChimeAndSpeak(queueCode, roomPoli) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.2); // A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+
+        setTimeout(function() {
+          if ('speechSynthesis' in window) {
+            const cleanNo = queueCode.replace(/[^0-9]/g, ' ');
+            const text = "Nomor Antrean, " + cleanNo + ", silakan menuju ke " + roomPoli;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'id-ID';
+            utter.rate = 0.9;
+            window.speechSynthesis.speak(utter);
+          }
+        }, 600);
+      } catch (e) {
+        console.log('Audio chime not supported: ' + e);
+      }
+    }
+
+    function refreshTvQueueData() {
+      const poli = document.getElementById('selTvPoliFilter').value;
+      runApi('getTvQueueData', { poliFilter: poli })
+        .then(function(res) {
+          if (res.status === 'success') {
+            const active = res.currentCalling;
+            if (active) {
+              document.getElementById('lblTvActiveQueueNumber').textContent = active.kodeAntrean;
+              document.getElementById('lblTvActivePoli').textContent = active.ruanganPoli;
+              document.getElementById('lblTvActiveDoctor').textContent = active.namaDokter;
+            } else {
+              document.getElementById('lblTvActiveQueueNumber').textContent = '---';
+              document.getElementById('lblTvActivePoli').textContent = 'Menunggu Panggilan';
+              document.getElementById('lblTvActiveDoctor').textContent = '-';
+            }
+
+            const upcomingCont = document.getElementById('tvUpcomingContainer');
+            upcomingCont.innerHTML = '';
+            if (res.upcoming && res.upcoming.length > 0) {
+              res.upcoming.forEach(function(item) {
+                const card = document.createElement('div');
+                card.className = 'p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center';
+                card.innerHTML = '<div><p class="text-xs font-mono font-bold text-cyan-400">' + item.kodeAntrean + '</p><p class="text-[11px] text-slate-400">' + item.ruanganPoli + '</p></div><span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">Menunggu</span>';
+                upcomingCont.appendChild(card);
+              });
+            } else {
+              upcomingCont.innerHTML = '<div class="p-4 text-center text-xs text-slate-600">Tidak ada antrean berikutnya.</div>';
+            }
+          }
+        });
+    }
+
+    function loadDoctorQueue() {
+      const poli = document.getElementById('selFilterPoliDokter').value;
+      runApi('getAntreanList', { filterPoli: poli, status: 'ALL' })
+        .then(function(res) {
+          const cont = document.getElementById('queuePatientListContainer');
+          cont.innerHTML = '';
+          if (res.status === 'success' && res.data.length > 0) {
+            res.data.forEach(function(item) {
+              const card = document.createElement('div');
+              card.className = 'p-3 rounded-xl glass-card border hover:border-sky-400 cursor-pointer transition space-y-1';
+              card.innerHTML = '<div class="flex justify-between items-center"><span class="text-xs font-mono font-bold text-sky-600">' + item.kodeAntrean + '</span><span class="text-[10px] px-2 py-0.5 rounded font-bold ' + (item.statusAntrean === 'Dipanggil' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700') + '">' + item.statusAntrean + '</span></div><p class="text-xs font-bold">' + item.namaPasien + '</p><p class="text-[11px] text-slate-500">' + item.ruanganPoli + ' • ' + item.keluhanUtama + '</p>';
+              card.onclick = function() { selectPatientForCppt(item); };
+              cont.appendChild(card);
+            });
+          } else {
+            cont.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tidak ada antrean terdaftar.</div>';
+          }
+        });
+    }
+
+    function selectPatientForCppt(item) {
+      selectedPatientAntrean = item;
+      document.getElementById('emptyCpptNotice').classList.add('hidden');
+      document.getElementById('activeCpptFormCard').classList.remove('hidden');
+
+      document.getElementById('lblCpptNamaPasien').textContent = item.namaPasien;
+      document.getElementById('lblCpptNomorRm').textContent = item.nomorRm;
+      document.getElementById('lblCpptKodeAntrean').textContent = 'Kode: ' + item.kodeAntrean;
+      document.getElementById('txtCpptSubjektif').value = item.keluhanUtama || '';
+
+      // Tampilkan cross-check alergi obat jika ada
+      const allergyBox = document.getElementById('allergyAlertBanner');
+      if (item.alergiObat && item.alergiObat !== 'Tidak Ada' && item.alergiObat !== '-') {
+        allergyBox.classList.remove('hidden');
+        document.getElementById('lblAllergyDetails').textContent = item.alergiObat;
+      } else {
+        allergyBox.classList.add('hidden');
+      }
+
+      renderOdontogramSvg();
+    }
+
+    function triggerCallQueue() {
+      if (!selectedPatientAntrean) return;
+      runApi('updateAntreanStatus', { kodeAntrean: selectedPatientAntrean.kodeAntrean, status: 'Dipanggil', user: currentUser.fullName })
+        .then(function() {
+          showToast('Panggilan Dikirim', 'Memanggil ' + selectedPatientAntrean.kodeAntrean, 'success');
+          playChimeAndSpeak(selectedPatientAntrean.kodeAntrean, selectedPatientAntrean.ruanganPoli);
+          loadDoctorQueue();
+        });
+    }
+
+    function callGeminiMedicalAssist() {
+      const sub = document.getElementById('txtCpptSubjektif').value;
+      const obj = document.getElementById('txtCpptObjektif').value;
+      const tensi = document.getElementById('inpTensi').value;
+      const prompt = "Keluhan Subjektif: " + sub + "\nObjektif: " + obj + "\nTanda Vital: " + tensi + "\nOdontogram: " + JSON.stringify(odontogramState);
+
+      const box = document.getElementById('aiAssistOutputBox');
+      box.classList.remove('hidden');
+      box.textContent = 'Menghubungkan ke Gemini AI Medical Engine...';
+
+      runApi('generateAiMedicalAssist', { promptText: prompt })
+        .then(function(res) {
+          if (res.status === 'success') {
+            box.textContent = res.analysis;
+          } else {
+            box.textContent = 'Gagal: ' + res.message;
+          }
+        })
+        .catch(function(err) {
+          box.textContent = 'Error: ' + err.toString();
+        });
+    }
+
+    function submitCpptRecord() {
+      if (!selectedPatientAntrean) return;
+
+      const cpptPayload = {
+        kodeAntrean: selectedPatientAntrean.kodeAntrean,
+        nomorRm: selectedPatientAntrean.nomorRm,
+        dokterId: currentUser.userId,
+        tandaVital: {
+          tensi: document.getElementById('inpTensi').value,
+          nadi: document.getElementById('inpNadi').value,
+          suhu: document.getElementById('inpSuhu').value,
+          triage: document.getElementById('selTriageStatus').value
+        },
+        subjektif: document.getElementById('txtCpptSubjektif').value,
+        objektif: document.getElementById('txtCpptObjektif').value,
+        asesmenIcd: document.getElementById('inpCpptAsesmen').value,
+        planTindakan: document.getElementById('inpCpptPlan').value,
+        odontogramData: odontogramState,
+        catatanAi: document.getElementById('aiAssistOutputBox').textContent,
+        resepObat: collectPrescriptionRows()
+      };
+
+      runApi('saveCpptRecord', { cpptData: cpptPayload, user: currentUser.fullName })
+        .then(function(res) {
+          if (res.status === 'success') {
+            showToast('Tersimpan', res.message, 'success');
+            document.getElementById('activeCpptFormCard').classList.add('hidden');
+            document.getElementById('emptyCpptNotice').classList.remove('hidden');
+            loadDoctorQueue();
+          } else {
+            showToast('Gagal', res.message, 'error');
+          }
+        });
+    }
+
+    function loadPharmacyQueue() {
+      runApi('getPharmacyQueue', {})
+        .then(function(res) {
+          const cont = document.getElementById('pharmacyQueueContainer');
+          cont.innerHTML = '';
+          if (res.status === 'success' && res.data.length > 0) {
+            res.data.forEach(function(item) {
+              const card = document.createElement('div');
+              card.className = 'glass-card p-4 rounded-xl space-y-2 border';
+              card.innerHTML = '<div class="flex justify-between items-center"><span class="text-xs font-mono font-bold text-sky-600">' + item.resepId + '</span><span class="text-[10px] px-2 py-0.5 rounded font-bold ' + (item.status === 'Diserahkan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800') + '">' + item.status + '</span></div><p class="text-xs font-bold">' + item.namaPasien + ' (RM: ' + item.nomorRm + ')</p><p class="text-[11px] text-slate-500">Aturan: ' + item.aturanPakai + '</p><button onclick="dispenseMed(\'' + item.resepId + '\')" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition">Tandai Sudah Diracik & Diserahkan</button>';
+              cont.appendChild(card);
+            });
+          } else {
+            cont.innerHTML = '<div class="p-6 text-center text-xs text-slate-400 glass-card rounded-xl">Belum ada resep baru.</div>';
+          }
+        });
+    }
+
+    function dispenseMed(resepId) {
+      runApi('dispensePharmacyPrescription', { resepId: resepId, user: currentUser.fullName })
+        .then(function(res) {
+          showToast('Farmasi', res.message, 'success');
+          loadPharmacyQueue();
+        });
+    }
+
+    function checkCashierShiftStatus() {
+      runApi('checkActiveShift', { kasirId: currentUser ? currentUser.userId : 'KASIR' })
+        .then(function(res) {
+          if (res.status === 'success' && res.hasActiveShift) {
+            activeShift = res.shift;
+            document.getElementById('lblPosShiftBadge').className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800';
+            document.getElementById('lblPosShiftBadge').textContent = 'AKTIF (' + activeShift.shiftKerja + ')';
+            document.getElementById('lblPosShiftDetails').textContent = 'Kasir: ' + activeShift.namaKasir + ' • Modal: Rp ' + activeShift.modalAwal.toLocaleString('id-ID');
+            document.getElementById('btnOpenShiftModal').classList.add('hidden');
+            document.getElementById('btnCloseShiftModal').classList.remove('hidden');
+          } else {
+            activeShift = null;
+            document.getElementById('lblPosShiftBadge').className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-700';
+            document.getElementById('lblPosShiftBadge').textContent = 'TUTUP / NONAKTIF';
+            document.getElementById('btnOpenShiftModal').classList.remove('hidden');
+            document.getElementById('btnCloseShiftModal').classList.add('hidden');
+          }
+        });
+    }
+
+    function openShiftPrompt() {
+      const modal = prompt('Buka Shift Kasir\nMasukkan Modal Awal Laci Kasir (Rp):', '100000');
+      if (modal !== null) {
+        const val = parseFloat(modal) || 0;
+        runApi('openCashierShift', {
+          kasirId: currentUser.userId,
+          namaKasir: currentUser.fullName,
+          shiftKerja: 'Pagi',
+          modalAwal: val
+        }).then(function(res) {
+          showToast('Shift Kasir', res.message, 'success');
+          checkCashierShiftStatus();
+        });
+      }
+    }
+
+    function closeShiftPrompt() {
+      if (!activeShift) return;
+      const fisik = prompt('Rekonsiliasi Tutup Shift\nMasukkan Total Fisik Uang Tunai di Laci Kasir (Rp):', '0');
+      if (fisik !== null) {
+        const val = parseFloat(fisik) || 0;
+        runApi('closeCashierShift', {
+          shiftId: activeShift.shiftId,
+          actualCash: val,
+          catatan: 'Tutup Shift Reguler',
+          user: currentUser.fullName
+        }).then(function(res) {
+          if (res.status === 'success') {
+            const z = res.zReport;
+            alert('=== LAPORAN Z-REPORT PENUTUPAN SHIFT ===\n' +
+                  'Shift ID: ' + z.shiftId + '\n' +
+                  'Kasir: ' + z.kasir + '\n' +
+                  'Modal Awal: Rp ' + z.modalAwal.toLocaleString('id-ID') + '\n' +
+                  'Total Tunai Sistem: Rp ' + z.totalTunaiSistem.toLocaleString('id-ID') + '\n' +
+                  'Total Non-Tunai: Rp ' + z.totalNonTunai.toLocaleString('id-ID') + '\n' +
+                  'Target Fisik di Laci: Rp ' + z.targetTunaiLaci.toLocaleString('id-ID') + '\n' +
+                  'Fisik Uang Riil: Rp ' + z.fisikTunai.toLocaleString('id-ID') + '\n' +
+                  'Status Selisih: ' + z.statusSelisih + ' (Rp ' + z.selisih.toLocaleString('id-ID') + ')');
+            checkCashierShiftStatus();
+          }
+        });
+      }
+    }
+
+    function toggleApiKeyVisibility() {
+      const inp = document.getElementById('inpGeminiApiKey');
+      const ico = document.getElementById('icoEyeApiKey');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        ico.classList.remove('fa-eye');
+        ico.classList.add('fa-eye-slash');
+      } else {
+        inp.type = 'password';
+        ico.classList.remove('fa-eye-slash');
+        ico.classList.add('fa-eye');
+      }
+    }
+
+    function testGeminiConnection() {
+      const key = document.getElementById('inpGeminiApiKey').value.trim();
+      if (!key) {
+        showToast('Peringatan', 'Ketikkan Gemini API Key terlebih dahulu.', 'error');
+        return;
+      }
+      showToast('Menguji', 'Menghubungkan ke Google AI server...', 'info');
+      runApi('testGeminiKey', { apiKey: key })
+        .then(function(res) {
+          if (res.status === 'success') {
+            showToast('Sukses', res.message, 'success');
+          } else {
+            showToast('Gagal', res.message, 'error');
+          }
+        });
+    }
+
+    function saveGeminiApiKey() {
+      const key = document.getElementById('inpGeminiApiKey').value.trim();
+      runApi('updateSystemSettings', {
+        adminUserId: currentUser ? currentUser.fullName : 'ADMIN',
+        configKey: 'GEMINI_API_KEY',
+        configValue: key
+      }).then(function(res) {
+        showToast('Tersimpan', res.message, 'success');
+      });
+    }
+
+    function switchStaffSubTab(tab) {
+      document.getElementById('subtabDoctor').classList.add('hidden');
+      document.getElementById('subtabPharmacy').classList.add('hidden');
+      document.getElementById('subtabCashier').classList.add('hidden');
+      document.getElementById('subtabAdmin').classList.add('hidden');
+
+      if (tab === 'doctor') {
+        document.getElementById('subtabDoctor').classList.remove('hidden');
+        loadDoctorQueue();
+      } else if (tab === 'pharmacy') {
+        document.getElementById('subtabPharmacy').classList.remove('hidden');
+        loadPharmacyQueue();
+      } else if (tab === 'cashier') {
+        document.getElementById('subtabCashier').classList.remove('hidden');
+        checkCashierShiftStatus();
+      } else if (tab === 'admin') {
+        document.getElementById('subtabAdmin').classList.remove('hidden');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      const savedUser = sessionStorage.getItem('akshara_user');
+      if (savedUser) {
+        try {
+          currentUser = JSON.parse(savedUser);
+          updateUiAfterLogin();
+        } catch (e) {}
+      }
+    });
+  </script>
+</body>
+</html>

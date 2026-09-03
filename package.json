@@ -1,20 +1,24 @@
 {
-  "name": "axa-xyz-protocol",
-  "version": "2.0.0",
-  "description": "Kuesioner OHQE, VAS, MDAS dengan Live Statistical Engine dan G*Power Simulator",
-  "main": "index.html",
-  "scripts": {
-    "start": "npx serve .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "Endodontic",
-    "Pulpitis",
-    "Nekrosis",
-    "SPSS",
-    "GPower"
-  ],
-  "author": "AXA XYZ Researcher",
-  "license": "ISC",
-  "dependencies": {}
+"name": "akshara-dental-space-webapp",
+"version": "4.0.0",
+"description": "Enterprise-grade Clinical Management, Digital Medical Records, Odontogram, TV Queue, and Cashier POS System for Klinik Akshara Dental Space",
+"private": true,
+"main": "index.html",
+"scripts": {
+"start": "npx serve .",
+"dev": "npx serve .",
+"build": "echo 'Frontend is pure standalone static HTML5 and ready for Vercel/GitHub Pages deployment.'"
+},
+"keywords": [
+"google-apps-script",
+"dental-clinic",
+"hospital-information-system",
+"odontogram",
+"cppt-soap",
+"gemini-ai",
+"pos-cashier",
+"vercel"
+],
+"author": "Klinik Akshara Dental Space Dev Team",
+"license": "UNLICENSED"
 }

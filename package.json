@@ -1,24 +1,20 @@
 {
-"name": "akshara-dental-space-webapp",
-"version": "4.0.0",
-"description": "Enterprise-grade Clinical Management, Digital Medical Records, Odontogram, TV Queue, and Cashier POS System for Klinik Akshara Dental Space",
-"private": true,
-"main": "index.html",
-"scripts": {
-"start": "npx serve .",
-"dev": "npx serve .",
-"build": "echo 'Frontend is pure standalone static HTML5 and ready for Vercel/GitHub Pages deployment.'"
-},
-"keywords": [
-"google-apps-script",
-"dental-clinic",
-"hospital-information-system",
-"odontogram",
-"cppt-soap",
-"gemini-ai",
-"pos-cashier",
-"vercel"
-],
-"author": "Klinik Akshara Dental Space Dev Team",
-"license": "UNLICENSED"
+  "name": "akshara-dental-space-webapp",
+  "version": "4.0.0",
+  "description": "Enterprise-Grade Google Apps Script & Standalone Vercel Healthcare System for Klinik Akshara Dental Space",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "google-apps-script",
+    "healthcare-erp",
+    "dental-clinic",
+    "odontogram",
+    "gemini-ai",
+    "pos-cashier"
+  ],
+  "author": "Klinik Akshara Dental Space",
+  "license": "MIT"
 }

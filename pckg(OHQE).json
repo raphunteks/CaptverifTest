@@ -1,0 +1,20 @@
+{
+  "name": "axa-xyz-protocol",
+  "version": "2.0.0",
+  "description": "Kuesioner OHQE, VAS, MDAS dengan Live Statistical Engine dan G*Power Simulator",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Endodontic",
+    "Pulpitis",
+    "Nekrosis",
+    "SPSS",
+    "GPower"
+  ],
+  "author": "AXA XYZ Researcher",
+  "license": "ISC",
+  "dependencies": {}
+}

@@ -1,20 +1,20 @@
 {
-  "name": "akshara-dental-space-webapp",
-  "version": "4.0.0",
-  "description": "Enterprise-Grade Google Apps Script & Standalone Vercel Healthcare System for Klinik Akshara Dental Space",
+  "name": "axa-xyz-protocol",
+  "version": "2.0.0",
+  "description": "Kuesioner OHQE, VAS, MDAS dengan Live Statistical Engine dan G*Power Simulator",
   "main": "index.html",
   "scripts": {
     "start": "npx serve .",
-    "deploy": "vercel --prod"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "google-apps-script",
-    "healthcare-erp",
-    "dental-clinic",
-    "odontogram",
-    "gemini-ai",
-    "pos-cashier"
+    "Endodontic",
+    "Pulpitis",
+    "Nekrosis",
+    "SPSS",
+    "GPower"
   ],
-  "author": "Klinik Akshara Dental Space",
-  "license": "MIT"
+  "author": "AXA XYZ Researcher",
+  "license": "ISC",
+  "dependencies": {}
 }

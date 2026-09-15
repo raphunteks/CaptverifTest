@@ -1670,56 +1670,11 @@
     // Cross-visit duplicate-prevention state.
     
     // ================================================================
-    // DUAL-LAYER PERSISTENT DEDUPLICATION (LOCALSTORAGE + SERVER SYNC)
+    // AUTHORITATIVE DATABASE PERSISTENCE (NO LOCALSTORAGE PATIENT DEDUP)
     // ================================================================
-    const OHQE_DEDUP_STORAGE_KEY_PREFIX = 'OHQE_SUBMITTED_VISIT_';
-
-    function getLocalSubmittedPatientNames(visitNum) {
-      const v = Number(visitNum || kunjunganType);
-      if (v !== 2 && v !== 3) return [];
-      try {
-        const raw = localStorage.getItem(OHQE_DEDUP_STORAGE_KEY_PREFIX + v);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) return parsed.map(normalizePatientName).filter(Boolean);
-        }
-      } catch (e) {}
-      return [];
-    }
-
-    function saveLocalSubmittedPatientName(visitNum, name) {
-      const v = Number(visitNum || kunjunganType);
-      if (v !== 2 && v !== 3) return;
-      const norm = normalizePatientName(name);
-      if (!norm) return;
-      try {
-        const current = getLocalSubmittedPatientNames(v);
-        if (!current.includes(norm)) {
-          current.push(norm);
-          localStorage.setItem(OHQE_DEDUP_STORAGE_KEY_PREFIX + v, JSON.stringify(current));
-        }
-      } catch (e) {}
-    }
-
-    function syncLocalSubmittedWithServer(visitNum, serverNamesList) {
-      const v = Number(visitNum || kunjunganType);
-      if (v !== 2 && v !== 3) return;
-      try {
-        const local = new Set(getLocalSubmittedPatientNames(v));
-        if (Array.isArray(serverNamesList)) {
-          serverNamesList.forEach(n => {
-            const norm = normalizePatientName(n);
-            if (norm) local.add(norm);
-          });
-        }
-        localStorage.setItem(OHQE_DEDUP_STORAGE_KEY_PREFIX + v, JSON.stringify(Array.from(local)));
-      } catch (e) {}
-    }
-
     function initExistingVisitPatientNames() {
-      const localNames = getLocalSubmittedPatientNames(kunjunganType);
-      existingVisitPatientNames = new Set(localNames);
-      existingVisitPatientNamesCount = existingVisitPatientNames.size;
+      existingVisitPatientNames = new Set();
+      existingVisitPatientNamesCount = 0;
     }
 
     let existingVisitPatientNames = new Set();
@@ -2003,12 +1958,15 @@
     }
 
     // PASIEN DATA_OHQE_1 SELALU DITAMPILKAN (DISPLAY FIRST).
-    // HANYA MENGECUALIKAN PASIEN YG SUDAH ADA DI DATA_OHQE_2 (K2) ATAU DATA_OHQE_3 (K3).
+    // HANYA MENGECUALIKAN PASIEN YG SUDAH BERSTATUS TRUE DI DATABASE UNTUK KUNJUNGAN INI.
     function getAvailableK1PatientDirectory() {
       if (!k1PatientDirectory.length) return [];
       return k1PatientDirectory.filter(record => {
         const norm = normalizePatientName(record.nama);
-        return norm && !existingVisitPatientNames.has(norm);
+        if (!norm) return false;
+        if (kunjunganType === 2 && record.statusK2) return false;
+        if (kunjunganType === 3 && record.statusK3) return false;
+        return !existingVisitPatientNames.has(norm);
       });
     }
 
@@ -2158,6 +2116,8 @@
                 nama: p.nama,
                 id: p.id || `ROW-${p.row || (idx + 2)}`,
                 rowNumber: p.row || (idx + 2),
+                statusK2: Boolean(p.statusK2),
+                statusK3: Boolean(p.statusK3),
                 rowData: null,
                 biodata: null
               }));
@@ -2206,6 +2166,8 @@
                   nama: p.nama,
                   id: p.id || `ROW-${p.row || (idx + 2)}`,
                   rowNumber: p.row || (idx + 2),
+                  statusK2: Boolean(p.statusK2),
+                  statusK3: Boolean(p.statusK3),
                   rowData: null,
                   biodata: null
                 }));
@@ -2221,12 +2183,10 @@
             k1PatientDirectoryLoadedAt = Date.now();
           }
 
-          // Set daftar pasien yang sudah ada di visit ini (deduplikasi)
-          syncLocalSubmittedWithServer(kunjunganType, registeredList);
-          const allDedup = new Set([
-            ...getLocalSubmittedPatientNames(kunjunganType),
-            ...registeredList.map(normalizePatientName).filter(Boolean)
-          ]);
+          // Set daftar pasien yang sudah ada di visit ini (murni dari Database Server)
+          const allDedup = new Set(
+            registeredList.map(normalizePatientName).filter(Boolean)
+          );
           existingVisitPatientNames = allDedup;
           existingVisitPatientNamesCount = existingVisitPatientNames.size;
           existingVisitPatientNamesReady = true;
@@ -2914,11 +2874,24 @@
               if (norm) {
                 existingVisitPatientNames.add(norm);
                 existingVisitPatientNamesCount = existingVisitPatientNames.size;
-                saveLocalSubmittedPatientName(kunjunganType, norm);
+                // Update in-memory status flag
+                const foundP = k1PatientDirectory.find(p => normalizePatientName(p.nama) === norm);
+                if (foundP) {
+                  if (kunjunganType === 2) foundP.statusK2 = true;
+                  if (kunjunganType === 3) foundP.statusK3 = true;
+                }
               }
               try {
                 sessionStorage.removeItem(`OHQE_DIR_CACHE_V${kunjunganType}`);
                 sessionStorage.removeItem(`OHQE_SESSION_DIR_V3_${kunjunganType}`);
+              } catch (e) {}
+            } else if (kunjunganType === 1) {
+              // Hapus cache direktori K2/K3 agar pasien baru K1 langsung siap jika form K2/K3 dibuka
+              try {
+                sessionStorage.removeItem('OHQE_DIR_CACHE_V2');
+                sessionStorage.removeItem('OHQE_DIR_CACHE_V3');
+                sessionStorage.removeItem('OHQE_SESSION_DIR_V3_2');
+                sessionStorage.removeItem('OHQE_SESSION_DIR_V3_3');
               } catch (e) {}
             }
             currentStepIndex = activeSteps.length;

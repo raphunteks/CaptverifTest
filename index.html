@@ -3418,6 +3418,14 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
         return null;
     }
 
+    /*
+     * BACKEND CONTRACT K2/K3
+     * K2 -> Data_OHQE_2!C:C / Nama_Lengkap
+     * K3 -> Data_OHQE_3!C:C / Nama_Lengkap
+     *
+     * Endpoint dikembalikan backend sebagai:
+     * {status:'success', visit, sheet, patients:[{id,row,nama}], count}
+     */
     async function fetchVisitNamesFromDedicatedEndpoint(visit) {
         const action = visit === 2
           ? 'getKunjungan2Patients'
@@ -3430,6 +3438,13 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
         if(!data || typeof data !== 'object') {
             throw new Error(`${action}: response kosong.`);
+        }
+
+        if(
+          data.status &&
+          String(data.status).toLowerCase() !== 'success'
+        ) {
+            throw new Error(extractApiErrorMessage(data,action));
         }
 
         const candidates = [
@@ -3578,8 +3593,18 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
                     console.error(
                       `[OHQE K${visit}] Duplicate-check gagal.`,
                       {
-                        dedicatedError,
-                        fallbackError
+                        visit,
+                        sheetName,
+                        dedicatedError:
+                          dedicatedError?.message ||
+                          String(dedicatedError || ''),
+                        fallbackError:
+                          fallbackError?.message ||
+                          String(fallbackError || ''),
+                        hint:
+                          'Deploy ulang Code GS versi terintegrasi; ' +
+                          'endpoint getKunjungan2Patients/getKunjungan3Patients ' +
+                          'harus tersedia.'
                       }
                     );
 
@@ -3757,25 +3782,94 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
         return result;
     }
 
+    /*
+     * API RESPONSE HARDENING — K2/K3 DUPLICATE INTEGRATION
+     * Backend contract:
+     *   {status:'success', ...}
+     *   {status:'error', code:'...', message:'...'}
+     *
+     * Penting: duplicate-check bersifat fail-closed. Jika backend
+     * belum mendukung endpoint K2/K3, daftar pasien K1 tidak dibuka.
+     */
+    function extractApiErrorMessage(data,fallbackLabel='Endpoint') {
+        if(!data) return `${fallbackLabel}: response kosong.`;
+        if(typeof data === 'string') return `${fallbackLabel}: ${data}`;
+
+        if(typeof data === 'object') {
+            const message =
+              data.message ||
+              data.error ||
+              data.detail ||
+              data.statusMessage ||
+              data.reason;
+
+            if(message) return `${fallbackLabel}: ${String(message)}`;
+
+            if(
+              data.status &&
+              String(data.status).toLowerCase() === 'error'
+            ) {
+                return `${fallbackLabel}: request gagal.`;
+            }
+        }
+
+        return `${fallbackLabel}: request gagal.`;
+    }
+
     async function fetchJsonEndpoint(url,label='Endpoint') {
-        const response = await fetch(url,{redirect:'follow',cache:'no-store'});
+        let response;
+
+        try {
+            response = await fetch(
+              url,
+              {
+                redirect:'follow',
+                cache:'no-store',
+                headers:{'Accept':'application/json'}
+              }
+            );
+        } catch(networkError) {
+            throw new Error(
+              `${label}: koneksi ke Google Apps Script gagal. ` +
+              `${networkError?.message || networkError}`
+            );
+        }
 
         const text = await response.text();
 
         if(!response.ok) {
-            throw new Error(`${label}: HTTP ${response.status}`);
+            const preview = String(text || '').replace(/\s+/g,' ').slice(0,220);
+            throw new Error(
+              `${label}: HTTP ${response.status}` +
+              `${preview ? ` — ${preview}` : ''}`
+            );
         }
 
         let data;
         try {
             data = JSON.parse(text);
         } catch(error) {
-            const preview = String(text || '').replace(/\s+/g,' ').slice(0,180);
-            throw new Error(`${label}: respons bukan JSON${preview ? ` (${preview})` : ''}`);
+            const preview = String(text || '').replace(/\s+/g,' ').slice(0,220);
+            throw new Error(
+              `${label}: respons bukan JSON` +
+              `${preview ? ` — ${preview}` : ''}`
+            );
+        }
+
+        if(
+          data &&
+          typeof data === 'object' &&
+          String(data.status || '').toLowerCase() === 'error'
+        ) {
+            throw new Error(extractApiErrorMessage(data,label));
         }
 
         if(data && data.error) {
             throw new Error(`${label}: ${data.error}`);
+        }
+
+        if(data && data.success === false) {
+            throw new Error(extractApiErrorMessage(data,label));
         }
 
         return data;
@@ -4670,9 +4764,82 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
       };
 
       if (!GAS_URL) { setTimeout(() => { currentStepIndex = activeSteps.length; updateUI(); }, 1500); return; }
-      fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) })
-      .then(r => r.text()).then(text => { try { const res = JSON.parse(text); if(res.status === 'success') { currentStepIndex = activeSteps.length; updateUI(); } else { showCustomAlert("Error: " + res.message, "Gagal Menyimpan"); resetSubmitBtn(); } } catch (e) { throw new Error("Respons invalid"); } })
-      .catch(err => { showCustomAlert("Koneksi gagal. Cek internet/Deploy URL", "Gagal"); resetSubmitBtn(); });
+      fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {'Content-Type':'text/plain;charset=utf-8'}
+      })
+      .then(async r => {
+        const text = await r.text();
+
+        let res;
+        try {
+          res = JSON.parse(text);
+        } catch (e) {
+          const preview = String(text || '').replace(/\s+/g,' ').slice(0,220);
+          throw new Error(
+            `Respons backend tidak valid${preview ? `: ${preview}` : ''}`
+          );
+        }
+
+        if(res.status === 'success') {
+          currentStepIndex = activeSteps.length;
+          updateUI();
+          return;
+        }
+
+        /*
+         * LAST-MILE SERVER GUARD:
+         * Jika backend menemukan duplicate (misalnya dua browser
+         * submit hampir bersamaan), refresh daftar K2/K3.
+         */
+        if(
+          isFollowUpVisit() &&
+          (
+            res.code === 'DUPLICATE_PATIENT' ||
+            String(res.message || '').toLowerCase().includes('sudah tercatat') ||
+            String(res.message || '').toLowerCase().includes('duplicate')
+          )
+        ) {
+          try {
+            await prepareK2K3PatientData(true);
+          } catch(syncError) {
+            console.warn(
+              '[OHQE K2/K3] Refresh duplicate list setelah rejection gagal:',
+              syncError?.message || syncError
+            );
+          }
+
+          const duplicateMessage =
+            res.message ||
+            `Pasien sudah tercatat di ${getCurrentFollowUpSheetName()}.`;
+
+          k1PatientSelected = false;
+          showK1PatientDropdown(true);
+          setK1PatientStatus(duplicateMessage,'error');
+          showCustomAlert(duplicateMessage,'Duplikasi Pasien');
+          resetSubmitBtn();
+          return;
+        }
+
+        throw new Error(
+          res.message ||
+          res.error ||
+          'Backend menolak penyimpanan data.'
+        );
+      })
+      .catch(err => {
+        console.error(
+          '[OHQE] submitData gagal:',
+          err?.message || err
+        );
+        showCustomAlert(
+          err?.message ||
+          'Koneksi gagal. Cek internet/Deploy URL.',
+          'Gagal Menyimpan'
+        );
+        resetSubmitBtn();
+      });
     }
 
     function resetSubmitBtn() { document.getElementById('submit-text').style.opacity = '1'; document.getElementById('submit-loader').classList.add('hidden'); document.getElementById('btn-submit').disabled = false; document.getElementById('btn-prev').disabled = false; }

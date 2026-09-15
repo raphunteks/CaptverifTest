@@ -1268,6 +1268,15 @@
       if (p === 'kunjungan1' || p === 'kunjungan2' || p === 'kunjungan3') {
         kunjunganType = p === 'kunjungan1' ? 1 : (p === 'kunjungan2' ? 2 : 3);
         currentStepIndex = 0;
+        const navButtons = document.getElementById('nav-buttons');
+        if (navButtons) {
+          navButtons.classList.remove('hidden');
+          navButtons.style.display = 'flex';
+        }
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+          progressContainer.classList.remove('hidden');
+        }
         setupFlowAndUI();
         if (appCont) appCont.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1545,6 +1554,18 @@
       // Contract: Kunjungan 3 hanya Bagian 1–4.
       // Hanya menambahkan marker DOM; routing/state lama tetap dipertahankan.
       document.body.dataset.ohqeKunjungan = String(kunjunganType);
+
+      // Pastikan kontainer navigasi dan progres aktif dan tidak tersembunyi
+      const navButtons = document.getElementById('nav-buttons');
+      if (navButtons) {
+        navButtons.classList.remove('hidden');
+        navButtons.style.display = 'flex';
+      }
+      const progressContainer = document.getElementById('progress-container');
+      if (progressContainer) {
+        progressContainer.classList.remove('hidden');
+      }
+
       setupPatientIdentityUI();
 
       // Render Riwayat Nyeri Lanjutan (Conditional Input Box)
@@ -2319,7 +2340,21 @@
       if (picker) picker.classList.add('patient-selected');
       if (lock) {
         lock.classList.remove('hidden');
-        lock.textContent = `✓ Pasien terpilih dari Data_OHQE_1 — ${record.nama}`;
+        lock.className = 'mt-2 px-3 py-2 rounded-lg border-2 border-black bg-[#b8f34a] text-xs font-black text-black flex items-center justify-between shadow-sm';
+        lock.innerHTML = `<span class="flex-1">✓ Pasien terpilih dari Data_OHQE_1 — <strong>${escapeHtmlSafe(record.nama)}</strong></span>
+          <button type="button" onclick="nextStep()" class="ml-2 px-3 py-1 bg-[#111] text-[#b8f34a] hover:bg-[#222] rounded-lg text-xs font-black tracking-wider transition-all flex items-center gap-1 shadow-sm shrink-0" title="Lanjut mengisi kuesioner">
+            SELANJUTNYA →
+          </button>`;
+      }
+
+      const navButtons = document.getElementById('nav-buttons');
+      if (navButtons) {
+        navButtons.classList.remove('hidden');
+        navButtons.style.display = 'flex';
+      }
+      const btnNext = document.getElementById('btn-next');
+      if (btnNext) {
+        btnNext.classList.remove('hidden');
       }
 
       if (input) {
@@ -2399,7 +2434,10 @@
       const input = document.getElementById('nama');
 
       if (picker) picker.classList.remove('patient-selected');
-      if (lock) lock.classList.add('hidden');
+      if (lock) {
+        lock.classList.add('hidden');
+        lock.innerHTML = '✓ Pasien terpilih dari Database Kunjungan 1 — biodata terkunci';
+      }
 
       if (input) {
         input.readOnly = false;
@@ -2731,8 +2769,21 @@
       if (currentStepIndex < activeSteps.length) {
         const currentId = activeSteps[currentStepIndex];
         const stepEl = document.getElementById(currentId);
-        stepEl.style.display = 'block';
-        setTimeout(() => stepEl.classList.add('active'), 10);
+        if (stepEl) {
+          stepEl.style.display = 'block';
+          setTimeout(() => stepEl.classList.add('active'), 10);
+        }
+
+        // PASTIKAN NAV-BUTTONS & PROGRESS CONTAINER SELALU AKTIF (TIDAK TERKUNCI HIDDEN)
+        const navButtons = document.getElementById('nav-buttons');
+        if (navButtons) {
+          navButtons.classList.remove('hidden');
+          navButtons.style.display = 'flex';
+        }
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+          progressContainer.classList.remove('hidden');
+        }
 
         const pct = ((currentStepIndex + 1) / activeSteps.length) * 100;
         document.getElementById('progress-bar').style.width = `${pct}%`;
@@ -2752,15 +2803,28 @@
         const btnNext = document.getElementById('btn-next');
         const btnSubmit = document.getElementById('btn-submit');
 
-        btnPrev.classList.toggle('hidden', currentStepIndex === 0);
-        if (currentStepIndex === activeSteps.length - 1) { btnNext.classList.add('hidden'); btnSubmit.classList.remove('hidden'); }
-        else { btnNext.classList.remove('hidden'); btnSubmit.classList.add('hidden'); }
+        if (btnPrev) btnPrev.classList.toggle('hidden', currentStepIndex === 0);
+        if (currentStepIndex === activeSteps.length - 1) { 
+          if (btnNext) btnNext.classList.add('hidden'); 
+          if (btnSubmit) btnSubmit.classList.remove('hidden'); 
+        } else { 
+          if (btnNext) {
+            btnNext.classList.remove('hidden');
+            btnNext.style.display = '';
+          }
+          if (btnSubmit) btnSubmit.classList.add('hidden'); 
+        }
       } else {
         // Success Step Render
-        document.getElementById('step-8').style.display = 'block';
-        setTimeout(() => document.getElementById('step-8').classList.add('active'), 10);
-        document.getElementById('progress-container').classList.add('hidden');
-        document.getElementById('nav-buttons').classList.add('hidden');
+        const step8 = document.getElementById('step-8');
+        if (step8) {
+          step8.style.display = 'block';
+          setTimeout(() => step8.classList.add('active'), 10);
+        }
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) progressContainer.classList.add('hidden');
+        const navButtons = document.getElementById('nav-buttons');
+        if (navButtons) navButtons.classList.add('hidden');
       }
     }
 

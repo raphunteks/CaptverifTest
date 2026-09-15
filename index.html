@@ -1852,6 +1852,189 @@ body[data-ohqe-kunjungan="3"] #step-5{
 @media(max-width:640px){#k1-patient-dropdown{max-height:60vh}.k1-patient-option{padding:14px 12px;font-size:14px}}
 </style>
 
+<style id="k2-k3-patient-selector-super-big-hardening">
+/*
+================================================================
+K2/K3 PATIENT SELECTOR — SUPER BIG HARDENING
+- Full Name visibility
+- Search/dropdown readability
+- Mobile touch target
+- Loading / selected states
+- Does not change DOM IDs or application data logic
+================================================================
+*/
+#k1-patient-picker{
+  position:relative!important;
+}
+
+#k1-patient-dropdown{
+  position:relative!important;
+  z-index:999!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  color:#111!important;
+  border:3px solid #111!important;
+  border-radius:14px!important;
+  box-shadow:6px 6px 0 #111!important;
+}
+
+#k1-patient-dropdown-status{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  background:#fff!important;
+  color:#555!important;
+  border-bottom:2px solid #111!important;
+}
+
+#k1-patient-options{
+  max-height:420px!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+.k1-patient-option{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-height:64px!important;
+  padding:10px 12px!important;
+  background:#fff!important;
+  color:#111!important;
+  border:0!important;
+  border-bottom:2px solid #111!important;
+  text-align:left!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+  transition:background-color 100ms ease,transform 100ms ease!important;
+}
+
+.k1-patient-option:last-child{
+  border-bottom:0!important;
+}
+
+.k1-patient-option:hover,
+.k1-patient-option:focus-visible{
+  background:#ffe66d!important;
+  outline:none!important;
+}
+
+.k1-patient-option:active{
+  background:#ff72b6!important;
+  transform:translate(2px,2px)!important;
+}
+
+.k1-patient-index{
+  display:inline-flex!important;
+  flex:0 0 30px!important;
+  width:30px!important;
+  height:30px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:2px solid #111!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#111!important;
+  font-size:11px!important;
+  font-weight:1000!important;
+}
+
+.k1-patient-option-main{
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:2px!important;
+}
+
+.k1-patient-option-name{
+  display:block!important;
+  color:#111!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  font-weight:950!important;
+  word-break:break-word!important;
+}
+
+.k1-patient-option-id{
+  display:block!important;
+  color:#666!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+}
+
+#k1-patient-picker #nama.k1-patient-loading{
+  background:#eef7ff!important;
+  border-color:#175cd3!important;
+}
+
+#k1-patient-picker.patient-selected #nama{
+  background:#f3f3f3!important;
+  border-color:#111!important;
+  box-shadow:4px 4px 0 #111!important;
+  cursor:not-allowed!important;
+  font-weight:900!important;
+}
+
+#k1-patient-picker.patient-selected #k1-patient-search-icon{
+  color:#111!important;
+}
+
+#step-1.k1-patient-locked .k1-source-locked-field{
+  background:#f3f3f3!important;
+  color:#111!important;
+  border-color:#111!important;
+  box-shadow:3px 3px 0 #111!important;
+  cursor:not-allowed!important;
+  opacity:1!important;
+}
+
+#step-1.k1-patient-locked .k1-source-locked-field:disabled{
+  -webkit-text-fill-color:#111!important;
+  color:#111!important;
+  opacity:1!important;
+}
+
+@media(max-width:640px){
+  #k1-patient-dropdown{
+    max-height:60vh!important;
+    border-radius:12px!important;
+    box-shadow:4px 4px 0 #111!important;
+  }
+
+  #k1-patient-options{
+    max-height:50vh!important;
+  }
+
+  .k1-patient-option{
+    min-height:68px!important;
+    padding:12px 10px!important;
+  }
+
+  .k1-patient-option-name{
+    font-size:14px!important;
+  }
+
+  .k1-patient-option-id{
+    font-size:10px!important;
+  }
+
+  .k1-patient-index{
+    flex-basis:32px!important;
+    width:32px!important;
+    height:32px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .k1-patient-option{
+    transition:none!important;
+  }
+}
+</style>
+
 <style id="ohqe-mobile-scale-labels-super-upgrade">
 /*
 ================================================================
@@ -2868,30 +3051,739 @@ Tujuan:
     }
 
     // ================================================================
-    // K2/K3 PATIENT SELECTOR — DATA_OHQE_1 ONLY
+    // K2/K3 PATIENT SELECTOR — DATA_OHQE_1 ONLY — SUPER BIG HARDENED
     // ================================================================
+    /*
+      ROOT-CAUSE FIX:
+      Versi sebelumnya memanggil:
+        ?action=getKunjungan1Patients
+        ?action=getKunjungan1Patient
+      tetapi deployment Google Apps Script pada GAS_URL aktif saat ini
+      tidak mengenali action tersebut. Akibatnya browser menerima:
+        "Action not recognized"
+      dan directory pasien kosong.
+
+      STRATEGI KOMPATIBILITAS:
+      1. Gunakan endpoint EXISTING getAdminData yang memang sudah dipakai
+         aplikasi untuk mengambil data OHQE.
+      2. Ambil array `ohqe` dari response server.
+      3. Nama Lengkap = row[2], sesuai tabel OHQE existing.
+      4. Simpan row lengkap secara lokal agar K2/K3 dapat mengisi biodata
+         tanpa membutuhkan endpoint baru.
+      5. `sourceKunjungan1Row` = posisi sheet (index + 2), sedangkan
+         `sourceKunjungan1Id` = row[0].
+      6. Tidak mengubah schema saveData, scoring, routing, atau logic K1.
+    */
+
+    const K1_OHQE_COL = Object.freeze({
+        ID: 0,
+        NAMA_LENGKAP: 2,
+        NO_HP: 3,
+        USIA: 4,
+        JK: 5,
+        PEKERJAAN: 6,
+        PENDIDIKAN: 7,
+        UMR: 8,
+        DIAGNOSIS: 9,
+        DIAG_PERI: 10,
+        GIGI_RAWAT: 11,
+        JML_GIGI: 12,
+        BB: 13,
+        TB: 14,
+        TD: 15,
+        OHQE_START: 16,
+        OHQE_TOTAL: 53,
+        OHQE_INTERPRETASI: 54
+    });
+
     let k1PatientDirectory = [];
     let k1PatientSelected = false;
     let k1PatientSelectedRow = null;
     let k1PatientSelectedId = null;
+    let k1PatientSelectedRecord = null;
     let k1PatientSearchTimer = null;
     let k1PatientDirectoryRequest = null;
+    let k1PatientDirectoryLoadedAt = 0;
+    let k1PatientDirectorySource = '';
 
-    function isFollowUpVisit() { return kunjunganType === 2 || kunjunganType === 3; }
-    function escapeHtmlSafe(value) { return String(value == null ? '' : value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-    function setPatientFieldValue(id,value){ const el=document.getElementById(id); if(el) el.value=value==null?'':String(value); }
-    function setPatientFieldLocked(id,locked){ const el=document.getElementById(id); if(!el)return; el.classList.toggle('k1-source-locked-field',locked); if(el.tagName==='SELECT') el.disabled=locked; else el.readOnly=locked; el.setAttribute('aria-readonly',locked?'true':'false'); if(locked)el.setAttribute('tabindex','-1');else el.removeAttribute('tabindex'); }
-    function lockFollowUpBiodata(){ if(!isFollowUpVisit())return; ['noHp','usia','jk','pekerjaan','pendidikan','umr','bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'].forEach(id=>setPatientFieldLocked(id,true)); const step=document.getElementById('step-1'); if(step)step.classList.add('k1-patient-locked'); }
-    function unlockFollowUpBiodata(){ ['noHp','usia','jk','pekerjaan','pendidikan','umr','bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'].forEach(id=>setPatientFieldLocked(id,false)); const step=document.getElementById('step-1'); if(step)step.classList.remove('k1-patient-locked'); }
-    function renderK1PatientOptions(query){ const options=document.getElementById('k1-patient-options'),status=document.getElementById('k1-patient-dropdown-status'); if(!options||!status)return; const q=String(query||'').trim().toLowerCase(); const filtered=k1PatientDirectory.filter(p=>String(p.nama||'').toLowerCase().includes(q)).slice(0,50); options.innerHTML=filtered.map((p,idx)=>`<button type="button" class="k1-patient-option" role="option" aria-selected="false" data-k1-row="${escapeHtmlSafe(p.rowNumber)}" data-k1-name="${escapeHtmlSafe(p.nama)}" data-k1-id="${escapeHtmlSafe(p.id||'')}"><span class="k1-patient-index">${idx+1}</span>${escapeHtmlSafe(p.nama)}</button>`).join(''); status.textContent=filtered.length?(q?`${filtered.length} pasien cocok dengan pencarian`:`${filtered.length} pasien tersedia dari Kunjungan 1`):(q?'Pasien tidak ditemukan di Data_OHQE_1.':'Belum ada data pasien Kunjungan 1.'); options.querySelectorAll('.k1-patient-option').forEach(btn=>btn.addEventListener('click',()=>selectK1Patient(Number(btn.dataset.k1Row),btn.dataset.k1Name,btn.dataset.k1Id))); }
-    function showK1PatientDropdown(show){ const dd=document.getElementById('k1-patient-dropdown'),input=document.getElementById('nama'); if(dd)dd.classList.toggle('hidden',!show); if(input)input.setAttribute('aria-expanded',show?'true':'false'); }
-    function applyK1PatientData(d){ if(!d||!d.found)return false; setPatientFieldValue('nama',d.nama); ['noHp','usia','jk','pekerjaan','pendidikan','umr','diagnosis','diagPeri','gigiRawat','jmlGigi','bb','tb','td'].forEach(id=>setPatientFieldValue(id,d[id])); lockFollowUpBiodata(); const picker=document.getElementById('k1-patient-picker'),lock=document.getElementById('k1-patient-lock-status'),input=document.getElementById('nama'); if(picker)picker.classList.add('patient-selected'); if(lock)lock.classList.remove('hidden'); if(input){input.readOnly=true;input.setAttribute('tabindex','-1');input.placeholder='Pasien Kunjungan 1 terpilih';input.setAttribute('aria-readonly','true');} k1PatientSelected=true; return true; }
-    async function selectK1Patient(rowNumber,displayName,patientId){ if(!isFollowUpVisit()||k1PatientSelected)return; showK1PatientDropdown(false); const status=document.getElementById('k1-patient-dropdown-status'); if(status)status.textContent='Memuat biodata pasien dari Data_OHQE_1...'; try{ const response=await fetch(`${GAS_URL}?action=getKunjungan1Patient&row=${encodeURIComponent(rowNumber)}`,{redirect:'follow'}); if(!response.ok)throw new Error('HTTP '+response.status); const d=await response.json(); if(!d.found)throw new Error(d.message||'Data pasien tidak ditemukan.'); k1PatientSelectedRow=rowNumber; k1PatientSelectedId=d.id||patientId||null; applyK1PatientData(d); showCustomAlert(`Data pasien "${d.nama||displayName}" berhasil dimuat dari Data_OHQE_1. Seluruh biodata dikunci dan tidak dapat diubah.`,'Pasien Dipilih'); }catch(e){ console.error('getKunjungan1Patient:',e); showCustomAlert('Gagal memuat biodata pasien dari Data_OHQE_1. Pastikan endpoint Kunjungan 1 pada Google Apps Script sudah diperbarui.','Koneksi Database'); if(status)status.textContent='Gagal memuat data. Silakan coba lagi.'; } }
-    async function loadK1PatientDirectory(force=false){ if(!isFollowUpVisit()||!GAS_URL)return; if(k1PatientDirectoryRequest&&!force)return k1PatientDirectoryRequest; if(k1PatientDirectory.length&&!force)return k1PatientDirectory; const status=document.getElementById('k1-patient-dropdown-status'); if(status)status.textContent='Memuat daftar pasien Kunjungan 1...'; k1PatientDirectoryRequest=fetch(`${GAS_URL}?action=getKunjungan1Patients`,{redirect:'follow'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(d=>{if(!Array.isArray(d.patients))throw new Error(d.message||'Format daftar pasien tidak valid.');k1PatientDirectory=d.patients
-      .map(p=>p?Object.assign({},p,{rowNumber:p.rowNumber||p.row}):p)
-      .filter(p=>p&&p.nama&&p.rowNumber);renderK1PatientOptions('');return k1PatientDirectory;}).catch(e=>{console.error('getKunjungan1Patients:',e);k1PatientDirectory=[];if(status)status.textContent='Daftar pasien gagal dimuat. Pastikan endpoint Data_OHQE_1 aktif.';throw e;}).finally(()=>{k1PatientDirectoryRequest=null;}); return k1PatientDirectoryRequest; }
-    function initK1PatientPicker(){ if(!isFollowUpVisit())return; const input=document.getElementById('nama'),picker=document.getElementById('k1-patient-picker'); if(!input||!picker)return; if(input.dataset.k1PickerReady==='1')return; input.dataset.k1PickerReady='1'; input.placeholder='Cari nama pasien Kunjungan 1...'; input.setAttribute('aria-label','Cari Nama Lengkap Pasien dari Data_OHQE_1'); input.addEventListener('focus',async()=>{if(k1PatientSelected)return;showK1PatientDropdown(true);if(!k1PatientDirectory.length){try{await loadK1PatientDirectory();}catch(_){}}renderK1PatientOptions(input.value);}); input.addEventListener('input',()=>{if(k1PatientSelected)return;clearTimeout(k1PatientSearchTimer);k1PatientSearchTimer=setTimeout(()=>{renderK1PatientOptions(input.value);showK1PatientDropdown(true);},80);}); input.addEventListener('keydown',e=>{if(e.key==='Escape')showK1PatientDropdown(false);}); document.addEventListener('click',e=>{if(!picker.contains(e.target))showK1PatientDropdown(false);},{passive:true}); loadK1PatientDirectory().catch(()=>{}); }
-    function setupPatientIdentityUI(){ const picker=document.getElementById('k1-patient-picker'),note=document.getElementById('k1-patient-source-note'); if(isFollowUpVisit()){if(picker)picker.classList.remove('hidden');if(note)note.classList.remove('hidden');initK1PatientPicker();lockFollowUpBiodata();}else{if(picker)picker.classList.remove('hidden');if(note)note.classList.add('hidden');}}
+    function isFollowUpVisit() {
+        return kunjunganType === 2 || kunjunganType === 3;
+    }
+
+    function escapeHtmlSafe(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#039;');
+    }
+
+    function normalizePatientName(value) {
+        return String(value == null ? '' : value)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g,'')
+          .replace(/\s+/g,' ')
+          .trim()
+          .toLowerCase();
+    }
+
+    function setPatientFieldValue(id,value) {
+        const el = document.getElementById(id);
+        if(el) el.value = value == null ? '' : String(value);
+    }
+
+    function setPatientFieldLocked(id,locked) {
+        const el = document.getElementById(id);
+        if(!el) return;
+
+        el.classList.toggle('k1-source-locked-field',locked);
+
+        if(el.tagName === 'SELECT') {
+            el.disabled = locked;
+        } else {
+            el.readOnly = locked;
+        }
+
+        el.setAttribute('aria-readonly',locked ? 'true' : 'false');
+
+        if(locked) el.setAttribute('tabindex','-1');
+        else el.removeAttribute('tabindex');
+    }
+
+    function lockFollowUpBiodata() {
+        if(!isFollowUpVisit()) return;
+
+        [
+          'noHp','usia','jk','pekerjaan','pendidikan','umr',
+          'bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'
+        ].forEach(id => setPatientFieldLocked(id,true));
+
+        const step = document.getElementById('step-1');
+        if(step) step.classList.add('k1-patient-locked');
+    }
+
+    function unlockFollowUpBiodata() {
+        [
+          'noHp','usia','jk','pekerjaan','pendidikan','umr',
+          'bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'
+        ].forEach(id => setPatientFieldLocked(id,false));
+
+        const step = document.getElementById('step-1');
+        if(step) step.classList.remove('k1-patient-locked');
+    }
+
+    function setK1PatientStatus(message,type='info') {
+        const status = document.getElementById('k1-patient-dropdown-status');
+        if(!status) return;
+
+        status.textContent = message;
+
+        status.classList.remove(
+          'text-gray-600',
+          'text-red-700',
+          'text-green-700',
+          'text-blue-700',
+          'bg-red-50',
+          'bg-green-50',
+          'bg-blue-50'
+        );
+
+        if(type === 'error') {
+            status.classList.add('text-red-700','bg-red-50');
+        } else if(type === 'success') {
+            status.classList.add('text-green-700','bg-green-50');
+        } else if(type === 'loading') {
+            status.classList.add('text-blue-700','bg-blue-50');
+        } else {
+            status.classList.add('text-gray-600');
+        }
+    }
+
+    function setK1PatientPickerLoading(loading) {
+        const input = document.getElementById('nama');
+        const icon = document.getElementById('k1-patient-search-icon');
+
+        if(input) {
+            input.classList.toggle('k1-patient-loading',loading);
+            input.setAttribute('aria-busy',loading ? 'true' : 'false');
+        }
+
+        if(icon) {
+            icon.classList.toggle('animate-spin',loading);
+        }
+    }
+
+    function renderK1PatientOptions(query) {
+        const options = document.getElementById('k1-patient-options');
+        const status = document.getElementById('k1-patient-dropdown-status');
+
+        if(!options || !status) return;
+
+        const rawQuery = String(query || '').trim();
+        const q = normalizePatientName(rawQuery);
+
+        const filtered = k1PatientDirectory
+          .filter(p => {
+              const name = normalizePatientName(p.nama);
+              const id = normalizePatientName(p.id);
+              return !q || name.includes(q) || id.includes(q);
+          })
+          .slice(0,50);
+
+        if(!filtered.length) {
+            options.innerHTML = `
+              <div class="px-4 py-5 text-center">
+                <div class="font-black text-black">Pasien tidak ditemukan</div>
+                <div class="text-xs font-semibold text-gray-500 mt-1">
+                  Coba ketik nama lengkap atau sebagian nama pasien.
+                </div>
+              </div>`;
+        } else {
+            options.innerHTML = filtered.map((p,idx) => {
+                const safeName = escapeHtmlSafe(p.nama);
+                const safeId = escapeHtmlSafe(p.id || '');
+                const safeRow = escapeHtmlSafe(p.rowNumber || '');
+
+                return `
+                  <button
+                    type="button"
+                    class="k1-patient-option"
+                    role="option"
+                    aria-selected="false"
+                    data-k1-row="${safeRow}"
+                    data-k1-name="${safeName}"
+                    data-k1-id="${safeId}"
+                  >
+                    <span class="k1-patient-index">${idx + 1}</span>
+                    <span class="k1-patient-option-main">
+                      <span class="k1-patient-option-name">${safeName}</span>
+                      ${safeId ? `<span class="k1-patient-option-id">ID: ${safeId}</span>` : ''}
+                    </span>
+                  </button>`;
+            }).join('');
+        }
+
+        if(filtered.length) {
+            status.textContent = q
+              ? `${filtered.length} pasien cocok dengan pencarian`
+              : `${filtered.length} pasien tersedia dari Data_OHQE_1`;
+        } else {
+            status.textContent = q
+              ? 'Pasien tidak ditemukan di Data_OHQE_1.'
+              : 'Belum ada data pasien Kunjungan 1.';
+        }
+
+        options.querySelectorAll('.k1-patient-option').forEach(btn => {
+            btn.addEventListener('click',() => {
+                selectK1Patient(
+                  Number(btn.dataset.k1Row),
+                  btn.dataset.k1Name,
+                  btn.dataset.k1Id
+                );
+            });
+        });
+    }
+
+    function showK1PatientDropdown(show) {
+        const dd = document.getElementById('k1-patient-dropdown');
+        const input = document.getElementById('nama');
+
+        if(dd) {
+            dd.classList.toggle('hidden',!show);
+            dd.setAttribute('aria-hidden',show ? 'false' : 'true');
+        }
+
+        if(input) {
+            input.setAttribute('aria-expanded',show ? 'true' : 'false');
+        }
+    }
+
+    function buildK1PatientDirectoryFromOHQERows(rows) {
+        if(!Array.isArray(rows)) return [];
+
+        const seen = new Set();
+        const result = [];
+
+        rows.forEach((row,index) => {
+            if(!Array.isArray(row)) return;
+
+            const nama = String(row[K1_OHQE_COL.NAMA_LENGKAP] ?? '').trim();
+            if(!nama) return;
+
+            const id = String(row[K1_OHQE_COL.ID] ?? '').trim();
+            const dedupeKey = `${normalizePatientName(nama)}|${id}`;
+
+            if(seen.has(dedupeKey)) return;
+            seen.add(dedupeKey);
+
+            result.push({
+                nama,
+                id,
+                rowNumber: index + 2,
+                rowData: row,
+                source: 'getAdminData:ohqe'
+            });
+        });
+
+        return result;
+    }
+
+    async function fetchJsonEndpoint(url,label='Endpoint') {
+        const response = await fetch(url,{redirect:'follow',cache:'no-store'});
+
+        const text = await response.text();
+
+        if(!response.ok) {
+            throw new Error(`${label}: HTTP ${response.status}`);
+        }
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch(error) {
+            const preview = String(text || '').replace(/\s+/g,' ').slice(0,180);
+            throw new Error(`${label}: respons bukan JSON${preview ? ` (${preview})` : ''}`);
+        }
+
+        if(data && data.error) {
+            throw new Error(`${label}: ${data.error}`);
+        }
+
+        return data;
+    }
+
+    async function loadK1PatientDirectory(force=false) {
+        if(!isFollowUpVisit() || !GAS_URL) return [];
+
+        if(
+            k1PatientDirectoryRequest &&
+            !force
+        ) {
+            return k1PatientDirectoryRequest;
+        }
+
+        const cacheAge = Date.now() - k1PatientDirectoryLoadedAt;
+
+        if(
+            k1PatientDirectory.length &&
+            cacheAge < 60000 &&
+            !force
+        ) {
+            renderK1PatientOptions(
+              document.getElementById('nama')?.value || ''
+            );
+            return k1PatientDirectory;
+        }
+
+        const status = document.getElementById('k1-patient-dropdown-status');
+
+        setK1PatientPickerLoading(true);
+        setK1PatientStatus(
+          'Memuat daftar Nama Lengkap pasien dari Data_OHQE_1...',
+          'loading'
+        );
+
+        k1PatientDirectoryRequest = (async() => {
+            try {
+                /*
+                  IMPORTANT:
+                  Jangan lagi memanggil getKunjungan1Patients karena deployment
+                  GAS saat ini tidak mengenali action tersebut.
+
+                  getAdminData adalah endpoint existing yang sudah dipakai
+                  oleh aplikasi untuk memperoleh data OHQE:
+                    data.ohqe -> Data_OHQE_1
+                    row[2]  -> Nama Lengkap
+                */
+                const data = await fetchJsonEndpoint(
+                  `${GAS_URL}?action=getAdminData&_k1ts=${Date.now()}`,
+                  'getAdminData'
+                );
+
+                if(!data || !Array.isArray(data.ohqe)) {
+                    throw new Error(
+                      'Response getAdminData tidak memiliki array "ohqe".'
+                    );
+                }
+
+                const directory = buildK1PatientDirectoryFromOHQERows(
+                  data.ohqe
+                );
+
+                if(!directory.length) {
+                    throw new Error(
+                      'Data_OHQE_1 berhasil diakses tetapi tidak memiliki Nama_Lengkap yang valid.'
+                    );
+                }
+
+                k1PatientDirectory = directory;
+                k1PatientDirectoryLoadedAt = Date.now();
+                k1PatientDirectorySource = 'Data_OHQE_1 via getAdminData';
+
+                renderK1PatientOptions(
+                  document.getElementById('nama')?.value || ''
+                );
+
+                setK1PatientStatus(
+                  `${directory.length} pasien berhasil dimuat dari Data_OHQE_1.`,
+                  'success'
+                );
+
+                return directory;
+
+            } catch(error) {
+                console.error(
+                  '[OHQE K2/K3] Gagal memuat directory Data_OHQE_1:',
+                  error
+                );
+
+                k1PatientDirectory = [];
+                k1PatientDirectoryLoadedAt = 0;
+                k1PatientDirectorySource = '';
+
+                setK1PatientStatus(
+                  `Daftar pasien gagal dimuat: ${error.message || 'Kesalahan koneksi database.'}`,
+                  'error'
+                );
+
+                throw error;
+
+            } finally {
+                setK1PatientPickerLoading(false);
+                k1PatientDirectoryRequest = null;
+            }
+        })();
+
+        return k1PatientDirectoryRequest;
+    }
+
+    function getK1PatientRecordByRow(rowNumber) {
+        const targetRow = Number(rowNumber);
+
+        return k1PatientDirectory.find(
+          p => Number(p.rowNumber) === targetRow
+        ) || null;
+    }
+
+    function getK1PatientRecordById(patientId) {
+        const target = String(patientId || '').trim();
+
+        if(!target) return null;
+
+        return k1PatientDirectory.find(
+          p => String(p.id || '').trim() === target
+        ) || null;
+    }
+
+    function getK1PatientRecordByName(name) {
+        const target = normalizePatientName(name);
+
+        if(!target) return null;
+
+        return k1PatientDirectory.find(
+          p => normalizePatientName(p.nama) === target
+        ) || null;
+    }
+
+    function applyK1PatientRowData(record) {
+        if(!record || !Array.isArray(record.rowData)) return false;
+
+        const row = record.rowData;
+
+        const mapped = {
+            nama: row[K1_OHQE_COL.NAMA_LENGKAP],
+            noHp: row[K1_OHQE_COL.NO_HP],
+            usia: row[K1_OHQE_COL.USIA],
+            jk: row[K1_OHQE_COL.JK],
+            pekerjaan: row[K1_OHQE_COL.PEKERJAAN],
+            pendidikan: row[K1_OHQE_COL.PENDIDIKAN],
+            umr: row[K1_OHQE_COL.UMR],
+            diagnosis: row[K1_OHQE_COL.DIAGNOSIS],
+            diagPeri: row[K1_OHQE_COL.DIAG_PERI],
+            gigiRawat: row[K1_OHQE_COL.GIGI_RAWAT],
+            jmlGigi: row[K1_OHQE_COL.JML_GIGI],
+            bb: row[K1_OHQE_COL.BB],
+            tb: row[K1_OHQE_COL.TB],
+            td: row[K1_OHQE_COL.TD]
+        };
+
+        if(!String(mapped.nama || '').trim()) return false;
+
+        Object.keys(mapped).forEach(id => {
+            setPatientFieldValue(id,mapped[id]);
+        });
+
+        return true;
+    }
+
+    function finalizeK1PatientSelection(record,displayName,patientId) {
+        if(!record) {
+            throw new Error(
+              `Data pasien "${displayName || patientId || ''}" tidak ditemukan di Data_OHQE_1.`
+            );
+        }
+
+        const applied = applyK1PatientRowData(record);
+
+        if(!applied) {
+            throw new Error(
+              'Data biodata pasien ditemukan tetapi struktur baris Data_OHQE_1 tidak lengkap.'
+            );
+        }
+
+        k1PatientSelectedRecord = record;
+        k1PatientSelectedRow = Number(record.rowNumber) || null;
+        k1PatientSelectedId = String(
+          record.id || patientId || ''
+        ).trim() || null;
+
+        lockFollowUpBiodata();
+
+        const picker = document.getElementById('k1-patient-picker');
+        const lock = document.getElementById('k1-patient-lock-status');
+        const input = document.getElementById('nama');
+
+        if(picker) picker.classList.add('patient-selected');
+        if(lock) {
+            lock.classList.remove('hidden');
+            lock.textContent =
+              `✓ Pasien terpilih dari Data_OHQE_1 — ${record.nama}`;
+        }
+
+        if(input) {
+            input.value = record.nama;
+            input.readOnly = true;
+            input.setAttribute('tabindex','-1');
+            input.placeholder = 'Pasien Kunjungan 1 terpilih';
+            input.setAttribute('aria-readonly','true');
+        }
+
+        showK1PatientDropdown(false);
+        setK1PatientStatus(
+          `Pasien "${record.nama}" berhasil dipilih dari Data_OHQE_1.`,
+          'success'
+        );
+
+        k1PatientSelected = true;
+
+        return true;
+    }
+
+    async function selectK1Patient(rowNumber,displayName,patientId) {
+        if(!isFollowUpVisit() || k1PatientSelected) return;
+
+        showK1PatientDropdown(false);
+
+        const record =
+          getK1PatientRecordByRow(rowNumber) ||
+          getK1PatientRecordById(patientId) ||
+          getK1PatientRecordByName(displayName);
+
+        if(!record) {
+            setK1PatientStatus(
+              'Data pasien belum tersedia. Memuat ulang Data_OHQE_1...',
+              'loading'
+            );
+
+            try {
+                await loadK1PatientDirectory(true);
+            } catch(error) {
+                console.error(
+                  '[OHQE K2/K3] Reload Data_OHQE_1 gagal:',
+                  error
+                );
+                showCustomAlert(
+                  'Gagal memuat daftar pasien dari Data_OHQE_1. Silakan refresh halaman dan coba kembali.',
+                  'Database Pasien'
+                );
+                return;
+            }
+        }
+
+        const finalRecord =
+          getK1PatientRecordByRow(rowNumber) ||
+          getK1PatientRecordById(patientId) ||
+          getK1PatientRecordByName(displayName);
+
+        try {
+            finalizeK1PatientSelection(
+              finalRecord,
+              displayName,
+              patientId
+            );
+
+            showCustomAlert(
+              `Data pasien "${finalRecord.nama}" berhasil dimuat dari Data_OHQE_1. Seluruh biodata Kunjungan 1 telah diisi dan dikunci.`,
+              'Pasien Dipilih'
+            );
+
+        } catch(error) {
+            console.error(
+              '[OHQE K2/K3] Gagal menerapkan data pasien:',
+              error
+            );
+
+            setK1PatientStatus(
+              error.message || 'Data pasien tidak dapat diterapkan.',
+              'error'
+            );
+
+            showCustomAlert(
+              error.message || 'Data pasien tidak dapat diterapkan.',
+              'Database Pasien'
+            );
+        }
+    }
+
+    function resetK1PatientPicker() {
+        k1PatientSelected = false;
+        k1PatientSelectedRow = null;
+        k1PatientSelectedId = null;
+        k1PatientSelectedRecord = null;
+
+        const picker = document.getElementById('k1-patient-picker');
+        const lock = document.getElementById('k1-patient-lock-status');
+        const input = document.getElementById('nama');
+
+        if(picker) picker.classList.remove('patient-selected');
+        if(lock) lock.classList.add('hidden');
+
+        if(input) {
+            input.readOnly = false;
+            input.removeAttribute('tabindex');
+            input.placeholder = 'Cari nama pasien Kunjungan 1...';
+            input.setAttribute('aria-readonly','false');
+            input.value = '';
+        }
+
+        unlockFollowUpBiodata();
+        setK1PatientStatus(
+          k1PatientDirectory.length
+            ? `${k1PatientDirectory.length} pasien tersedia dari Data_OHQE_1.`
+            : 'Menyiapkan daftar pasien...',
+          'info'
+        );
+        renderK1PatientOptions('');
+    }
+
+    function initK1PatientPicker() {
+        if(!isFollowUpVisit()) return;
+
+        const input = document.getElementById('nama');
+        const picker = document.getElementById('k1-patient-picker');
+
+        if(!input || !picker) return;
+
+        if(input.dataset.k1PickerReady === '1') return;
+
+        input.dataset.k1PickerReady = '1';
+        input.placeholder = 'Cari nama pasien Kunjungan 1...';
+        input.setAttribute(
+          'aria-label',
+          'Cari Nama Lengkap Pasien dari Data_OHQE_1'
+        );
+        input.setAttribute('autocomplete','off');
+        input.setAttribute('role','combobox');
+        input.setAttribute('aria-autocomplete','list');
+        input.setAttribute('aria-controls','k1-patient-dropdown');
+        input.setAttribute('aria-expanded','false');
+
+        input.addEventListener('focus',async() => {
+            if(k1PatientSelected) return;
+
+            showK1PatientDropdown(true);
+
+            if(!k1PatientDirectory.length) {
+                try {
+                    await loadK1PatientDirectory();
+                } catch(_) {}
+            }
+
+            renderK1PatientOptions(input.value);
+        });
+
+        input.addEventListener('input',() => {
+            if(k1PatientSelected) return;
+
+            clearTimeout(k1PatientSearchTimer);
+
+            k1PatientSearchTimer = setTimeout(() => {
+                renderK1PatientOptions(input.value);
+                showK1PatientDropdown(true);
+            },80);
+        });
+
+        input.addEventListener('keydown',async(e) => {
+            if(e.key === 'Escape') {
+                showK1PatientDropdown(false);
+                return;
+            }
+
+            if(e.key === 'ArrowDown') {
+                e.preventDefault();
+
+                if(!k1PatientDirectory.length) {
+                    try {
+                        await loadK1PatientDirectory();
+                    } catch(_) {
+                        return;
+                    }
+                }
+
+                showK1PatientDropdown(true);
+
+                const firstOption =
+                  document.querySelector('.k1-patient-option');
+
+                if(firstOption) firstOption.focus();
+
+                return;
+            }
+
+            if(e.key === 'Enter') {
+                const exact = getK1PatientRecordByName(input.value);
+
+                if(exact) {
+                    e.preventDefault();
+                    selectK1Patient(
+                      exact.rowNumber,
+                      exact.nama,
+                      exact.id
+                    );
+                }
+            }
+        });
+
+        document.addEventListener(
+          'click',
+          e => {
+              if(!picker.contains(e.target)) {
+                  showK1PatientDropdown(false);
+              }
+          },
+          {passive:true}
+        );
+
+        // Prefetch hanya pada K2/K3.
+        loadK1PatientDirectory().catch(() => {});
+    }
+
+    function setupPatientIdentityUI() {
+        const picker = document.getElementById('k1-patient-picker');
+        const note = document.getElementById('k1-patient-source-note');
+
+        if(isFollowUpVisit()) {
+            if(picker) picker.classList.remove('hidden');
+            if(note) note.classList.remove('hidden');
+
+            initK1PatientPicker();
+            lockFollowUpBiodata();
+        } else {
+            if(picker) picker.classList.remove('hidden');
+            if(note) note.classList.add('hidden');
+        }
+    }
 
     // Fitur Auto-Fill Data Pasien dari Backend
     function fetchPasienData() {

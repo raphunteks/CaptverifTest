@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instrumen OHQE - Oral Health-Related Quality of Life Scale for Endodontic Patients</title>
-  <meta name="description" content="Instrumen OHQE untuk penilaian kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik. Mendukung Kunjungan 1, 2, dan 3, VAS, MDAS, analisis statistik, dan pengelolaan data penelitian.">
+  <meta name="description" content="Instrumen OHQE untuk penilaian kualitas hidup terkait kesehatan gigi dan mulut pada pasien endodontik. Mendukung Kunjungan 1, 2, dan 3, Numeric Rating Scale (NRS), MDAS, analisis statistik, dan pengelolaan data penelitian.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="theme-color" content="#111111">
   <meta name="color-scheme" content="light dark">
@@ -88,7 +88,33 @@
     
     .vas-group label { min-height: 45px; border-radius: 0.5rem; padding: 5px; }
 
-    /* WONG-BAKER FACES SVG STYLE */
+    /* NUMERIC RATING SCALE (NRS) STYLES (GAMBAR 1) */
+    .nrs-btn {
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nrs-btn:hover {
+      background: var(--nb-yellow, #ffe66d) !important;
+      transform: translateY(-2px);
+    }
+    .nrs-btn.active,
+    .nrs-btn:has(input[type="radio"]:checked) {
+      background: var(--nb-pink, #ff6fb5) !important;
+      color: #111 !important;
+      border-color: #111 !important;
+      border-width: 3px !important;
+      box-shadow: 3px 3px 0 #111 !important;
+      transform: scale(1.18) !important;
+      z-index: 20;
+    }
+    .nrs-bracket {
+      border-bottom: 2px solid currentColor;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+    }
+
+    /* WONG-BAKER FACES SVG STYLE (BACKWARD COMPATIBILITY) */
     .face-svg { width: 40px; height: 40px; transition: all 0.3s ease; fill: transparent; stroke: #9ca3af; stroke-width: 2; }
     .vas-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
     .vas-item input[type="radio"] { display: none; }
@@ -1721,6 +1747,94 @@ footer a:hover {
 <style id="devtools-warning-body-style">
 body.devtools-warning-open { overflow: hidden !important; }
 </style>
+
+<style id="ohqe-nrs-visibility-k3-hardening">
+/*
+================================================================
+OHQE NRS VISIBILITY + KUNJUNGAN 3 HARDENING
+================================================================
+- Memastikan angka 0–10 NRS selalu terbaca.
+- Warna angka mengikuti kategori spektrum.
+- Active score tetap memiliki kontras tinggi.
+- Tidak menghapus logic NRS/VAS legacy.
+- Kunjungan 3 tidak menampilkan step-5/NRS.
+================================================================
+*/
+
+/* NRS number: explicit child selector + !important prevents
+   inherited Tailwind/theme rules from making the digits invisible. */
+#container-nrs .nrs-btn{
+  color:#ffffff!important;
+  background:#111111!important;
+  border-color:#111111!important;
+}
+
+#container-nrs .nrs-btn .nrs-score{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  color:#ffffff!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  font-size:1rem!important;
+  min-width:1ch;
+  text-shadow:0 1px 2px rgba(0,0,0,.85)!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+/* Color-coded digits matching the NRS spectrum. */
+#container-nrs .nrs-score-0{
+  color:#67e8f9!important;
+}
+#container-nrs .nrs-score-1,
+#container-nrs .nrs-score-2,
+#container-nrs .nrs-score-3{
+  color:#4ade80!important;
+}
+#container-nrs .nrs-score-4,
+#container-nrs .nrs-score-5,
+#container-nrs .nrs-score-6{
+  color:#facc15!important;
+}
+#container-nrs .nrs-score-7,
+#container-nrs .nrs-score-8,
+#container-nrs .nrs-score-9,
+#container-nrs .nrs-score-10{
+  color:#ff7b7b!important;
+}
+
+/* Hover state: keep the digit visible on the yellow surface. */
+@media (hover:hover) and (pointer:fine){
+  #container-nrs .nrs-btn:hover .nrs-score{
+    color:#111111!important;
+    text-shadow:none!important;
+  }
+}
+
+/* Selected score: strongest contrast regardless of category. */
+#container-nrs .nrs-btn.active .nrs-score,
+#container-nrs .nrs-btn:has(input[type="radio"]:checked) .nrs-score{
+  color:#111111!important;
+  text-shadow:none!important;
+}
+
+/* Mobile readability. */
+@media (max-width:640px){
+  #container-nrs .nrs-btn .nrs-score{
+    font-size:.95rem!important;
+    font-weight:1000!important;
+  }
+}
+
+/* Kunjungan 3 contract: only Bagian 1–4 are part of the flow.
+   The step remains in DOM for backward compatibility but is never
+   presented to the participant. */
+body[data-ohqe-kunjungan="3"] #step-5{
+  display:none!important;
+}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1879,27 +1993,41 @@ body.devtools-warning-open { overflow: hidden !important; }
         <div id="container-ekspektasi" class="space-y-4 sm:space-y-5 mt-4"></div>
       </div>
 
-      <!-- STEP 5: VAS (Wong-Baker FACES) -->
+      <!-- STEP 5: NUMERIC RATING SCALE (NRS) | KUNJUNGAN 1 ONLY -->
       <div id="step-5" class="step-content">
-        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 4</span> Visual Analogue Scale</h2>
-        <div class="mt-4 sm:mt-6 p-3 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 shadow-sm">
-          <p class="text-sm sm:text-base text-gray-300 mb-6 font-medium leading-relaxed text-center">Pilih tingkat intensitas nyeri gigi Anda saat ini.</p>
+        <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 text-white border-b border-gray-700/80 pb-3 flex items-center"><span class="bg-gray-800 text-neon py-1 px-2 sm:p-1.5 rounded-lg mr-2 sm:mr-3 text-xs sm:text-sm shadow-sm border border-gray-700">Bagian 4</span> Numeric Rating Scale (NRS)</h2>
+        <div class="mt-4 sm:mt-6 p-4 sm:p-6 bg-gray-800/40 rounded-2xl border border-gray-700/60 shadow-sm">
           
-          <div class="w-full max-w-3xl mx-auto">
-             <!-- Text Extremes -->
-             <div class="flex justify-between w-full text-xs font-bold text-gray-400 mb-4 px-2 uppercase tracking-widest border-b border-gray-700 pb-2">
-                <span>Tidak Nyeri</span>
-                <span>Nyeri Sangat Hebat</span>
-             </div>
-             
-             <!-- WONG BAKER FACES & RADIOS -->
-             <div class="grid grid-cols-6 gap-1 sm:gap-2 mb-6" id="container-vas">
-                <!-- Javascript will inject FACES here -->
-             </div>
+          <!-- Judul Kapsul Kuning Gambar 1 -->
+          <div class="text-center mb-6 flex flex-col items-center">
+            <div class="inline-flex items-center px-6 py-2 rounded-full border-3 border-black bg-yellow-300 text-black font-black text-sm sm:text-base uppercase tracking-wider shadow-[4px_4px_0_#111]">
+              Numeric Rating Scale (NRS)
+            </div>
+            <p class="text-xs sm:text-sm text-gray-300 font-bold mt-3 max-w-lg leading-relaxed">Pilihlah salah satu angka dari 0 sampai 10 pada diagram di bawah ini yang paling menggambarkan tingkat intensitas nyeri gigi Anda saat ini.</p>
           </div>
           
-          <div class="p-3 sm:p-4 bg-gray-900 border border-neon rounded-xl text-center min-h-[80px] flex items-center justify-center shadow-[0_0_15px_rgba(57,255,20,0.05)] mt-4">
-            <p id="vas-desc-text" class="text-gray-300 font-medium text-sm md:text-base px-2">Silakan pilih angka di atas.</p>
+          <!-- Diagram Skala NRS Sesuai Gambar 1 -->
+          <div class="w-full max-w-4xl mx-auto overflow-x-auto pb-4 pt-1 hide-scroll" style="-webkit-overflow-scrolling: touch;">
+             <div class="min-w-[600px] sm:min-w-[680px] px-3 py-2 select-none" id="container-nrs">
+                <!-- Javascript will render the NRS interactive spectrum & brackets here -->
+             </div>
+             <!-- Backward-compatible hidden container for legacy scripts if any -->
+             <div id="container-vas" class="hidden"></div>
+          </div>
+          <p class="text-[0.7rem] text-gray-400 text-center -mt-2 mb-4 sm:hidden font-bold">← Geser diagram ke samping untuk melihat skala 0–10 lengkap →</p>
+          
+          <!-- Live Feedback Card -->
+          <div class="p-4 sm:p-5 rounded-2xl border-3 border-black bg-white shadow-[6px_6px_0_#111] transition-all duration-300" id="nrs-feedback-card">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black pb-3 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black uppercase tracking-wider text-gray-600">Skor Terpilih:</span>
+                <span id="nrs-display-score" class="text-lg sm:text-xl font-black px-3 py-1 rounded-lg border-2 border-black bg-yellow-300 shadow-[2px_2px_0_#111]">Belum Dipilih</span>
+              </div>
+              <div id="nrs-display-badge" class="self-start sm:self-auto px-3.5 py-1 rounded-full border-2 border-black text-xs font-black uppercase tracking-wider bg-gray-200 text-gray-800">
+                Pilih Angka 0–10
+              </div>
+            </div>
+            <p id="vas-desc-text" class="text-xs sm:text-sm md:text-base font-bold text-gray-800 leading-relaxed">Silakan klik salah satu angka (0–10) pada diagram spektrum warna di atas.</p>
           </div>
         </div>
       </div>
@@ -1968,16 +2096,16 @@ body.devtools-warning-open { overflow: hidden !important; }
     <div class="flex overflow-x-auto space-x-2 border-b border-gray-700 mb-6 pb-1 snap-x hide-scroll">
       <button onclick="switchTab('tab-data')" id="btn-tab-data" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-neon border-b-2 border-neon whitespace-nowrap">Tabel Data</button>
       <button onclick="switchTab('tab-spss')" id="btn-tab-spss" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS OHQE</button>
-      <button onclick="switchTab('tab-spss-vas')" id="btn-tab-spss-vas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS VAS</button>
+      <button onclick="switchTab('tab-spss-vas')" id="btn-tab-spss-vas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS NRS</button>
       <button onclick="switchTab('tab-spss-mdas')" id="btn-tab-spss-mdas" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Analisis SPSS MDAS</button>
       <button onclick="switchTab('tab-gpower')" id="btn-tab-gpower" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">G*Power (Sample)</button>
       <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition whitespace-nowrap">Pengaturan Teks Sistem</button>
       <button onclick="switchTab('tab-websettings')" id="btn-tab-websettings" class="snap-start shrink-0 px-4 py-2 text-xs sm:text-sm font-bold text-purple-400 hover:text-purple-300 transition whitespace-nowrap">Setting Web</button>
     </div>
     <div id="tab-data" class="block">
-      <div class="flex overflow-x-auto space-x-2 mb-4 pb-2 hide-scroll"><button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md shadow-md">Tabel OHQE</button><button onclick="switchSubTable('vas')" id="btn-sub-vas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel VAS</button><button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel MDAS</button><span class="shrink-0 ml-auto text-[0.65rem] sm:text-xs text-green-400 flex items-center animate-pulse pl-4"><div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 mr-1.5 sm:mr-2"></div> Auto-Sync</span></div>
+      <div class="flex overflow-x-auto space-x-2 mb-4 pb-2 hide-scroll"><button onclick="switchSubTable('ohqe')" id="btn-sub-ohqe" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-neon text-bg-dark rounded-md shadow-md">Tabel OHQE</button><button onclick="switchSubTable('vas')" id="btn-sub-vas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel NRS</button><button onclick="switchSubTable('mdas')" id="btn-sub-mdas" class="shrink-0 px-3 py-2 sm:py-1.5 text-xs font-bold bg-gray-800 text-gray-400 rounded-md shadow-md">Tabel MDAS</button><span class="shrink-0 ml-auto text-[0.65rem] sm:text-xs text-green-400 flex items-center animate-pulse pl-4"><div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 mr-1.5 sm:mr-2"></div> Auto-Sync</span></div>
       <div id="subtable-ohqe" class="overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30"><table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]"><thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700"><tr><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">ID Transaksi</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Diagnosis</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nomor HP</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Gender</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-neon border-l border-gray-700/50">Total OHQE</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi</th></tr></thead><tbody id="admin-table-body-ohqe" class="divide-y divide-gray-800/50"></tbody></table></div>
-      <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30"><table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]"><thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700"><tr><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">ID Transaksi</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Diagnosis</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-red-400 border-l border-gray-700/50">Skor VAS</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi VAS</th></tr></thead><tbody id="admin-table-body-vas" class="divide-y divide-gray-800/50"></tbody></table></div>
+      <div id="subtable-vas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30"><table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]"><thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700"><tr><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">ID Transaksi</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Diagnosis</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-red-400 border-l border-gray-700/50">Skor NRS</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi NRS</th></tr></thead><tbody id="admin-table-body-vas" class="divide-y divide-gray-800/50"></tbody></table></div>
       <div id="subtable-mdas" class="hidden overflow-x-auto rounded-xl border border-gray-700/50 bg-gray-900/30"><table class="w-full text-left text-sm whitespace-nowrap min-w-[1000px]"><thead class="text-xs sm:text-sm text-gray-300 bg-gray-800/80 border-b border-gray-700"><tr><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">ID Transaksi</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Diagnosis</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide">Nama Lengkap</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-yellow-400 border-l border-gray-700/50">Skor MDAS</th><th class="px-4 sm:px-5 py-4 font-semibold tracking-wide text-blue-400">Interpretasi MDAS</th></tr></thead><tbody id="admin-table-body-mdas" class="divide-y divide-gray-800/50"></tbody></table></div>
     </div>
     
@@ -1996,15 +2124,15 @@ body.devtools-warning-open { overflow: hidden !important; }
       </div>
     </div>
 
-    <!-- SPSS TAB VAS -->
+    <!-- SPSS TAB NRS -->
     <div id="tab-spss-vas" class="hidden">
       <div class="bg-red-900/20 border border-red-500/30 p-4 sm:p-5 rounded-lg mb-6 shadow-sm">
-        <h3 class="font-bold text-red-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002-2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Hubungan VAS & OHQE)</h3>
-        <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi/Hubungan Nyeri Endodontik (VAS) dengan Kualitas Hidup (OHQE)**. Secara otomatis melakukan Frequency Demografi (Univariat), Uji Normalitas, dan Uji Korelasi Bivariat (Pearson / Spearman).</p>
+        <h3 class="font-bold text-red-400 mb-2 flex items-center text-sm sm:text-base"><svg class="w-5 h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Live Statistical Engine (Hubungan NRS & OHQE)</h3>
+        <p class="text-[0.75rem] sm:text-xs text-gray-300 leading-relaxed">Mesin ini menguji **Korelasi/Hubungan Nyeri Endodontik (Numeric Rating Scale / NRS) dengan Kualitas Hidup (OHQE)**. Secara otomatis melakukan Frequency Demografi (Univariat), Uji Normalitas, dan Uji Korelasi Bivariat (Pearson / Spearman).</p>
       </div>
       <div class="flex flex-col sm:flex-row justify-center mb-6 gap-3">
-        <button onclick="runAnalysisVAS()" class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition tracking-wide text-sm">Generate Output SPSS (VAS)</button>
-        <button id="btn-export-pdf-vas" onclick="exportToPDF('spss-output-container-vas', 'Analisis_Statistik_VAS.pdf', 'btn-export-pdf-vas')" class="hidden w-full sm:w-auto px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF</button>
+        <button onclick="runAnalysisVAS()" class="w-full sm:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition tracking-wide text-sm">Generate Output SPSS (NRS)</button>
+        <button id="btn-export-pdf-vas" onclick="exportToPDF('spss-output-container-vas', 'Analisis_Statistik_NRS.pdf', 'btn-export-pdf-vas')" class="hidden w-full sm:w-auto px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg shadow-lg transition flex justify-center items-center text-sm"><svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Download PDF (NRS)</button>
       </div>
       <div id="spss-wrapper-vas" class="hidden rounded-xl overflow-hidden shadow-xl border border-gray-700">
         <div id="spss-output-container-vas" class="w-full px-2 sm:px-4 py-6 text-black flex flex-col items-center bg-white"></div>
@@ -2112,8 +2240,8 @@ body.devtools-warning-open { overflow: hidden !important; }
         <!-- Toggle 2 -->
         <label class="flex items-center justify-between cursor-pointer group">
           <div class="flex-grow pr-4">
-            <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">2. Sinkronisasi Live Tabel VAS</h4>
-            <p class="text-xs sm:text-sm text-gray-400 mt-1">Mengizinkan sistem mengirim kalkulasi *Output SPSS VAS* secara otomatis ke Google Sheets.</p>
+            <h4 class="text-white font-bold text-sm sm:text-base group-hover:text-neon transition">2. Sinkronisasi Live Tabel NRS</h4>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Mengizinkan sistem mengirim kalkulasi *Output SPSS NRS* secara otomatis ke Google Sheets.</p>
           </div>
           <div class="relative shrink-0">
             <input type="checkbox" id="toggle-vas" class="sr-only toggle-checkbox" onchange="updateWebSettings()">
@@ -2163,15 +2291,16 @@ body.devtools-warning-open { overflow: hidden !important; }
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyU4yH0_WcEszI7bf0ibUpeiSO6LbAsT2cMgqzs2qpxNE7DmxJ0wLPQVt-yG0aKKkk/exec"; 
 
     let qFisik = [], qPsiko = [], qEkspektasi = [];
-    let sysConfig = { mdas: [], vas: {}, lblOHQE: [], lblEksp: [], lblMDAS: [], riwayat: [] };
-    let globalAdminOHQE = [], globalAdminVAS = [], globalAdminMDAS = [], globalAdminRontgen = []; 
+    let sysConfig = { mdas: [], nrs: {}, vas: {}, lblOHQE: [], lblEksp: [], lblMDAS: [], riwayat: [] };
+    let globalAdminOHQE = [], globalAdminNRS = [], globalAdminVAS = [], globalAdminMDAS = [], globalAdminRontgen = []; 
     let autoUpdateInterval = null; 
     let isUploadingRontgen = false;
     let lastAutoSyncCount = 0;
     
     let webSettings = {
       adminPanel: false,
-      syncVAS: false,
+      syncNRS: false,
+      syncVAS: false, // alias kompatibilitas
       syncMDAS: false,
       kunjungan1: true,
       kunjungan2: false,
@@ -2294,7 +2423,8 @@ body.devtools-warning-open { overflow: hidden !important; }
 
        return {
           adminPanel: cleanBoolean(incoming.adminPanel, false),
-          syncVAS: cleanBoolean(incoming.syncVAS, false),
+          syncNRS: cleanBoolean(incoming.syncNRS !== undefined ? incoming.syncNRS : incoming.syncVAS, false),
+          syncVAS: cleanBoolean(incoming.syncVAS !== undefined ? incoming.syncVAS : incoming.syncNRS, false),
           syncMDAS: cleanBoolean(incoming.syncMDAS, false),
           kunjungan1: cleanBoolean(incoming.kunjungan1, true),
           kunjungan2: cleanBoolean(incoming.kunjungan2, false),
@@ -2349,7 +2479,7 @@ body.devtools-warning-open { overflow: hidden !important; }
        const labelK3 = document.getElementById('label-kunjungan-3');
 
        if(toggleAdmin) toggleAdmin.checked = webSettings.adminPanel;
-       if(toggleVas) toggleVas.checked = webSettings.syncVAS;
+       if(toggleVas) toggleVas.checked = (webSettings.syncNRS !== undefined ? webSettings.syncNRS : webSettings.syncVAS);
        if(toggleMdas) toggleMdas.checked = webSettings.syncMDAS;
        if(toggleK1) toggleK1.checked = webSettings.kunjungan1;
        if(toggleK2) toggleK2.checked = webSettings.kunjungan2;
@@ -2377,9 +2507,11 @@ body.devtools-warning-open { overflow: hidden !important; }
           return value.slice(0, 40) || fallback;
        };
 
+       const syncNrsVal = btnVas ? btnVas.checked : (webSettings.syncNRS !== undefined ? !!webSettings.syncNRS : !!webSettings.syncVAS);
        return {
          adminPanel: btnAdmin ? btnAdmin.checked : !!webSettings.adminPanel,
-         syncVAS: btnVas ? btnVas.checked : !!webSettings.syncVAS,
+         syncNRS: syncNrsVal,
+         syncVAS: syncNrsVal,
          syncMDAS: btnMdas ? btnMdas.checked : !!webSettings.syncMDAS,
          kunjungan1: btnK1 ? btnK1.checked : !!webSettings.kunjungan1,
          kunjungan2: btnK2 ? btnK2.checked : !!webSettings.kunjungan2,
@@ -2429,6 +2561,7 @@ body.devtools-warning-open { overflow: hidden !important; }
        const payload = {
            action: 'saveWebSettings',
            adminPanel: payloadSettings.adminPanel,
+           syncNRS: payloadSettings.syncNRS,
            syncVAS: payloadSettings.syncVAS,
            syncMDAS: payloadSettings.syncMDAS,
            kunjungan1: payloadSettings.kunjungan1,
@@ -2490,10 +2623,14 @@ body.devtools-warning-open { overflow: hidden !important; }
             document.getElementById('btn-autofill').classList.remove('hidden');
             document.getElementById('kunjungan-title').innerText = 'Kunjungan 2';
         } else if(kunjunganType === 3) {
-            activeSteps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
+            activeSteps = ['step-1', 'step-2', 'step-3', 'step-4'];
             document.getElementById('btn-autofill').classList.remove('hidden');
             document.getElementById('kunjungan-title').innerText = 'Kunjungan 3';
         }
+
+        // Contract: Kunjungan 3 hanya Bagian 1–4.
+        // Hanya menambahkan marker DOM; routing/state lama tetap dipertahankan.
+        document.body.dataset.ohqeKunjungan = String(kunjunganType);
 
         // Render Riwayat Nyeri Lanjutan (Conditional Input Box)
         let riwayatHtml = '';
@@ -2527,21 +2664,16 @@ body.devtools-warning-open { overflow: hidden !important; }
         renderQuestions(qEkspektasi, 'container-ekspektasi', 'E', sysConfig.lblEksp); 
         renderQuestions(sysConfig.mdas, 'container-mdas', 'M', sysConfig.lblMDAS);
         
-        // Render Desain VAS WONG-BAKER FACES & Radios (GRID 11)
-        let vasHtml = '';
-        for(let i=0; i<=10; i++) {
-           let isFace = (i%2 === 0); // 0,2,4,6,8,10
-           let faceIdx = i/2;
-           vasHtml += `<label class="vas-item w-full col-span-1" for="vas_${i}">
-             <input type="radio" name="vas_score" id="vas_${i}" value="${i}" required onchange="updateVasDesc(${i})">
-             <div class="face-icon h-12 flex items-end justify-center w-full mb-1">
-                 ${isFace ? facesSVG[faceIdx] : ''}
-             </div>
-             <div class="face-num shadow-sm">${i}</div>
-           </label>`;
+        // Render Desain Numeric Rating Scale (NRS) Sesuai Gambar 1
+        // NRS hanya digunakan pada Kunjungan 1.
+        // Kunjungan 2 dan 3 tetap mempertahankan container/ID legacy,
+        // tetapi tidak merender NRS agar tidak muncul di flow pasien.
+        if(kunjunganType === 1) {
+          renderNRSScale();
+        } else {
+          const nrsContainer = document.getElementById('container-nrs');
+          if(nrsContainer) nrsContainer.innerHTML = '';
         }
-        document.getElementById('container-vas').className = "grid grid-cols-11 gap-1 w-full mb-6";
-        document.getElementById('container-vas').innerHTML = vasHtml;
 
         renderSettingsTab();
 
@@ -2610,7 +2742,157 @@ body.devtools-warning-open { overflow: hidden !important; }
       document.getElementById(containerId).innerHTML = html;
     }
 
-    function updateVasDesc(val) { document.getElementById('vas-desc-text').innerHTML = `<span class="text-neon font-bold text-base sm:text-lg mr-2">Skala ${val}:</span> ${sysConfig.vas[val] || ''}`; }
+    function renderNRSScale() {
+        const container = document.getElementById('container-nrs');
+        if(!container) return;
+        
+        let html = `
+        <div class="relative w-full px-4 sm:px-8 pt-3 pb-3">
+          <div class="relative w-full" style="height: 145px;">
+            <!-- Continuous Color Spectrum Bar Gambar 1 -->
+            <div id="nrs-spectrum-bar" class="cursor-pointer absolute left-0 right-0 top-[10px] h-[22px] rounded-[3px] border-2 border-black shadow-[2px_2px_0_#000] overflow-hidden"
+                 style="background: linear-gradient(to right, #00A6E8 0%, #00B4D8 8%, #10B981 18%, #22C55E 28%, #84CC16 38%, #EAB308 48%, #F59E0B 58%, #F97316 68%, #EF4444 80%, #DC2626 90%, #991B1B 100%);"
+                 title="Klik untuk memilih skor skala nyeri">
+            </div>
+
+            <!-- 11 Vertical Tick Marks crossing through the bar -->
+            ${Array.from({length: 11}, (_, i) => `
+              <div class="absolute w-[3px] h-[38px] bg-[#0284c7] -translate-x-1/2 rounded-full pointer-events-none z-10" style="left: ${i*10}%; top: 2px;"></div>
+            `).join('')}
+
+            <!-- 11 Numbers Row -->
+            ${Array.from({length: 11}, (_, i) => `
+              <div class="absolute -translate-x-1/2 z-20" style="left: ${i*10}%; top: 46px;">
+                <label for="nrs_${i}" onclick="selectNRS(${i})" class="nrs-btn group cursor-pointer flex flex-col items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-black bg-gray-900 text-white font-black text-sm sm:text-base hover:border-yellow-400 hover:scale-110 transition-all duration-200 shadow-[2px_2px_0_#000]">
+                  <input type="radio" name="nrs_score" id="nrs_${i}" value="${i}" class="sr-only" required onchange="selectNRS(${i})">
+                  <input type="radio" name="vas_score" id="vas_${i}" value="${i}" class="sr-only">
+                  <span class="nrs-score nrs-score-${i}" aria-hidden="true">${i}</span>
+                </label>
+              </div>
+            `).join('')}
+
+            <!-- Category Brackets Gambar 1 -->
+            <!-- 0: Tidak nyeri -->
+            <div class="absolute -translate-x-1/2 flex flex-col items-center pointer-events-none" style="left: 0%; top: 92px; width: 34px;">
+              <div class="w-full h-[8px] border-b-2 border-l-2 border-r-2 border-[#0284c7]"></div>
+              <span class="mt-1 text-[10px] sm:text-[11px] font-black text-cyan-400 whitespace-nowrap">Tidak nyeri</span>
+            </div>
+
+            <!-- 1-3: Nyeri Ringan -->
+            <div class="absolute flex flex-col items-center pointer-events-none" style="left: 10%; width: 20%; top: 92px;">
+              <div class="w-full h-[8px] border-b-2 border-l-2 border-r-2 border-[#0284c7]"></div>
+              <span class="mt-1 text-[10px] sm:text-[11px] font-black text-green-400 whitespace-nowrap">Nyeri Ringan</span>
+            </div>
+
+            <!-- 4-6: Nyeri Sedang -->
+            <div class="absolute flex flex-col items-center pointer-events-none" style="left: 40%; width: 20%; top: 92px;">
+              <div class="w-full h-[8px] border-b-2 border-l-2 border-r-2 border-[#0284c7]"></div>
+              <span class="mt-1 text-[10px] sm:text-[11px] font-black text-amber-400 whitespace-nowrap">Nyeri Sedang</span>
+            </div>
+
+            <!-- 7-10: Nyeri Berat -->
+            <div class="absolute flex flex-col items-center pointer-events-none" style="left: 70%; width: 30%; top: 92px;">
+              <div class="w-full h-[8px] border-b-2 border-l-2 border-r-2 border-[#0284c7]"></div>
+              <span class="mt-1 text-[10px] sm:text-[11px] font-black text-red-400 whitespace-nowrap">Nyeri Berat</span>
+            </div>
+          </div>
+        </div>
+        `;
+        container.innerHTML = html;
+
+        // Click on spectrum bar directly
+        const bar = document.getElementById('nrs-spectrum-bar');
+        if(bar) {
+          bar.addEventListener('click', (e) => {
+            const rect = bar.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+            const nearestScore = Math.round(ratio * 10);
+            selectNRS(nearestScore);
+          });
+        }
+    }
+
+    function selectNRS(val) {
+        val = parseInt(val);
+        const nrsRadio = document.getElementById(`nrs_${val}`);
+        const vasRadio = document.getElementById(`vas_${val}`);
+        if(nrsRadio) nrsRadio.checked = true;
+        if(vasRadio) vasRadio.checked = true;
+
+        document.querySelectorAll('.nrs-btn').forEach((btn, idx) => {
+            if(idx === val) {
+                btn.classList.add('active');
+                if(val === 0) {
+                    btn.style.backgroundColor = '#00b4d8';
+                    btn.style.borderColor = '#ffffff';
+                    btn.style.color = '#000000';
+                    btn.style.boxShadow = '0 0 14px rgba(0,180,216,0.8)';
+                } else if(val >= 1 && val <= 3) {
+                    btn.style.backgroundColor = '#10b981';
+                    btn.style.borderColor = '#ffffff';
+                    btn.style.color = '#000000';
+                    btn.style.boxShadow = '0 0 14px rgba(16,185,129,0.8)';
+                } else if(val >= 4 && val <= 6) {
+                    btn.style.backgroundColor = '#f59e0b';
+                    btn.style.borderColor = '#ffffff';
+                    btn.style.color = '#000000';
+                    btn.style.boxShadow = '0 0 14px rgba(245,158,11,0.8)';
+                } else {
+                    btn.style.backgroundColor = '#ef4444';
+                    btn.style.borderColor = '#ffffff';
+                    btn.style.color = '#ffffff';
+                    btn.style.boxShadow = '0 0 14px rgba(239,68,68,0.8)';
+                }
+            } else {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.style.boxShadow = '';
+            }
+        });
+
+        updateNrsDesc(val);
+    }
+
+    function updateNrsDesc(val) {
+        val = parseInt(val);
+        let badgeCategory = '';
+        let badgeClass = '';
+        if(val === 0) {
+            badgeCategory = 'Tidak Nyeri';
+            badgeClass = 'bg-cyan-100 text-cyan-800 border-cyan-400';
+        } else if(val >= 1 && val <= 3) {
+            badgeCategory = 'Nyeri Ringan';
+            badgeClass = 'bg-green-100 text-green-800 border-green-400';
+        } else if(val >= 4 && val <= 6) {
+            badgeCategory = 'Nyeri Sedang';
+            badgeClass = 'bg-yellow-100 text-yellow-800 border-yellow-400';
+        } else {
+            badgeCategory = 'Nyeri Berat';
+            badgeClass = 'bg-red-100 text-red-800 border-red-400';
+        }
+
+        const desc = (sysConfig.nrs && sysConfig.nrs[val]) || (sysConfig.vas && sysConfig.vas[val]) || '';
+        
+        const scoreEl = document.getElementById('nrs-display-score');
+        const badgeEl = document.getElementById('nrs-display-badge');
+        const descEl = document.getElementById('vas-desc-text');
+
+        if(scoreEl) {
+            scoreEl.textContent = `Skor ${val} / 10`;
+        }
+        if(badgeEl) {
+            badgeEl.className = `self-start sm:self-auto px-3.5 py-1 rounded-full border-2 text-xs font-black uppercase tracking-wider ${badgeClass}`;
+            badgeEl.textContent = badgeCategory;
+        }
+        if(descEl) {
+            descEl.innerHTML = `<span class="text-black font-extrabold text-base mr-2">Skala ${val} (${badgeCategory}):</span> ${desc}`;
+        }
+    }
+
+    window.updateVasDesc = updateNrsDesc;
     function showCustomAlert(msg, title = "Perhatian") { document.getElementById('custom-alert-title').innerText = title; document.getElementById('custom-alert-message').innerText = msg; document.getElementById('custom-alert').classList.remove('hidden'); }
     function showPreview(url) { document.getElementById('preview-loader').style.display = 'block'; document.getElementById('preview-iframe').src = url.replace(/\/view.*$/, '/preview'); document.getElementById('preview-modal').classList.remove('hidden'); }
 
@@ -2634,7 +2916,7 @@ body.devtools-warning-open { overflow: hidden !important; }
         if(currentId==='step-2') stepText = "Kondisi Fisik (OHQE)";
         if(currentId==='step-3') stepText = "Kondisi Psikologis (OHQE)";
         if(currentId==='step-4') stepText = "Ekspektasi Perawatan (OHQE)";
-        if(currentId==='step-5') stepText = "Skala Nyeri (VAS)";
+        if(currentId==='step-5') stepText = "Skala Nyeri (NRS)";
         if(currentId==='step-6') stepText = "Riwayat Nyeri Gigi";
         if(currentId==='step-7') stepText = "Kecemasan Dental (MDAS)";
         document.getElementById('step-indicator').innerText = `Step ${currentStepIndex + 1} dari ${activeSteps.length}: ${stepText}`;
@@ -2683,8 +2965,13 @@ body.devtools-warning-open { overflow: hidden !important; }
       document.getElementById('submit-text').style.opacity = '0'; document.getElementById('submit-loader').classList.remove('hidden');
       document.getElementById('btn-submit').disabled = true; document.getElementById('btn-prev').disabled = true;
 
-      const vasEl = document.querySelector('input[name="vas_score"]:checked');
-      const vasScore = vasEl ? vasEl.value : "";
+      // NRS/VAS hanya valid pada Kunjungan 1.
+      // Field backend nrsScore/vasScore tetap dikirim agar schema lama kompatibel.
+      const nrsEl = kunjunganType === 1
+        ? (document.querySelector('input[name="nrs_score"]:checked') || document.querySelector('input[name="vas_score"]:checked'))
+        : null;
+      const nrsScore = nrsEl ? nrsEl.value : "";
+      const nrsInter = (sysConfig.nrs && sysConfig.nrs[nrsScore]) || (sysConfig.vas && sysConfig.vas[nrsScore]) || "";
       
       const mdasArr = getAnswers('M', sysConfig.mdas.length);
       let mdasScore = 0; mdasArr.forEach(v => { if(v) mdasScore += parseInt(v); });
@@ -2701,7 +2988,8 @@ body.devtools-warning-open { overflow: hidden !important; }
         gangguTidur: document.querySelector('input[name="gangguTidur"]:checked')?.value || '', minumObat: document.querySelector('input[name="minumObat"]:checked')?.value || '', jenisObat: document.getElementById('jenisObat')?.value || '',
         frekuensiObat: document.getElementById('frekuensiObat')?.value || '', kapanObat: document.getElementById('kapanObat')?.value || '', pemicuNyeri: document.querySelector('input[name="pemicuNyeri"]:checked')?.value || '',
         jawabanF: getAnswers('F', qFisik.length), jawabanP: getAnswers('P', qPsiko.length), jawabanE: getAnswers('E', qEkspektasi.length),
-        vasScore: vasScore, vasInter: sysConfig.vas[vasScore] || '',
+        nrsScore: nrsScore, nrsInter: nrsInter,
+        vasScore: nrsScore, vasInter: nrsInter,
         jawabanMDAS: mdasArr, mdasScore: mdasScore, mdasInter: mdasInter
       };
 
@@ -2778,7 +3066,10 @@ body.devtools-warning-open { overflow: hidden !important; }
           try { 
             const data = JSON.parse(text); 
             if(data.ohqe) { 
-              globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; 
+              globalAdminOHQE = data.ohqe; 
+              globalAdminNRS = data.nrs || data.vas || [];
+              globalAdminVAS = globalAdminNRS;
+              globalAdminMDAS = data.mdas; 
               if(data.rontgen) globalAdminRontgen = data.rontgen; 
               renderTables(); 
               // Pause render Rontgen jika sedang milih file atau upload
@@ -2811,7 +3102,10 @@ body.devtools-warning-open { overflow: hidden !important; }
           try { 
             const data = JSON.parse(text); 
             if(data.ohqe) { 
-              globalAdminOHQE = data.ohqe; globalAdminVAS = data.vas; globalAdminMDAS = data.mdas; 
+              globalAdminOHQE = data.ohqe; 
+              globalAdminNRS = data.nrs || data.vas || [];
+              globalAdminVAS = globalAdminNRS;
+              globalAdminMDAS = data.mdas; 
               if(data.rontgen) globalAdminRontgen = data.rontgen; 
               renderTables(); 
               renderRontgenTable(); 
@@ -2865,7 +3159,8 @@ body.devtools-warning-open { overflow: hidden !important; }
       const tbOHQE = document.getElementById('admin-table-body-ohqe');
       if(!globalAdminOHQE.length) { tbOHQE.innerHTML = `<tr><td colspan="7" class="text-center py-10">Kosong.</td></tr>`; } else { tbOHQE.innerHTML = globalAdminOHQE.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 text-xs text-gray-300">${row[3]}</td><td class="px-4 sm:px-5 py-3.5 text-sm"><span class="px-2 py-1 text-[0.65rem] uppercase rounded bg-gray-800 border border-gray-700 text-gray-300">${row[5]}</span></td><td class="px-4 sm:px-5 py-3.5 font-bold text-neon border-l border-gray-700/50">${row[53] || '0'}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-blue-400">${row[54] || '-'}</td></tr>`).join(''); }
       const tbVAS = document.getElementById('admin-table-body-vas');
-      if(!globalAdminVAS.length) { tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbVAS.innerHTML = globalAdminVAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[17] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[18] || '-'}</td></tr>`).join(''); }
+      const nrsData = (globalAdminNRS && globalAdminNRS.length) ? globalAdminNRS : globalAdminVAS;
+      if(!nrsData.length) { tbVAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbVAS.innerHTML = nrsData.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-red-400 border-l border-gray-700/50">${row[17] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[18] || '-'}</td></tr>`).join(''); }
       const tbMDAS = document.getElementById('admin-table-body-mdas');
       if(!globalAdminMDAS.length) { tbMDAS.innerHTML = `<tr><td colspan="5" class="text-center py-10">Kosong.</td></tr>`; } else { tbMDAS.innerHTML = globalAdminMDAS.map(row => `<tr class="hover:bg-gray-800/80 transition-colors group"><td class="px-4 sm:px-5 py-3.5 font-mono text-xs text-gray-300">${row[0]}</td><td class="px-4 sm:px-5 py-3.5 text-xs font-bold ${row[9]==='Pulpitis Ireversibel'?'text-blue-400':'text-red-400'}">${row[9] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-white">${row[2]}</td><td class="px-4 sm:px-5 py-3.5 font-bold text-yellow-400 border-l border-gray-700/50">${row[21] || '-'}</td><td class="px-4 sm:px-5 py-3.5 font-medium text-blue-400">${row[22] || '-'}</td></tr>`).join(''); }
     }
@@ -2932,8 +3227,12 @@ body.devtools-warning-open { overflow: hidden !important; }
       });
       html += rHtml + `</div></div>`;
       
-      let vHtml = `<div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Deskripsi Skala VAS (0-10)</h4><div class="space-y-2">`;
-      for(let i=0; i<=10; i++) { vHtml += `<div class="flex items-start"><span class="text-neon font-bold w-10 shrink-0 pt-2.5 sm:pt-2">V${i}.</span><textarea id="edit_vas_${i}" class="w-full p-2 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y shadow-inner" rows="1">${sysConfig.vas[i] || ''}</textarea></div>`; }
+      let nrsDescSrc = (sysConfig.nrs && Object.keys(sysConfig.nrs).length) ? sysConfig.nrs : (sysConfig.vas || {});
+      let vHtml = `<div class="bg-gray-800/50 p-4 sm:p-5 rounded-xl border border-gray-700/50 shadow-md"><h4 class="font-bold text-white mb-4 border-b border-gray-600 pb-2 text-sm sm:text-base">Deskripsi Skala Numeric Rating Scale (NRS) / VAS (0-10)</h4><div class="space-y-2">`;
+      for(let i=0; i<=10; i++) { 
+        let catLabel = i === 0 ? 'Tidak Nyeri' : (i<=3 ? 'Nyeri Ringan' : (i<=6 ? 'Nyeri Sedang' : 'Nyeri Berat'));
+        vHtml += `<div class="flex items-start"><span class="text-neon font-bold w-14 shrink-0 pt-2.5 sm:pt-2">NRS ${i}.</span><div class="w-full"><div class="text-[0.65rem] text-gray-400 mb-0.5 font-bold uppercase tracking-wider">${catLabel}</div><textarea id="edit_vas_${i}" class="w-full p-2 rounded-lg text-sm bg-gray-900 border-gray-600 focus:border-neon text-gray-200 resize-y shadow-inner" rows="1">${nrsDescSrc[i] || ''}</textarea></div></div>`; 
+      }
       html += vHtml + `</div></div>`;
 
       container.innerHTML = html;
@@ -2950,13 +3249,14 @@ body.devtools-warning-open { overflow: hidden !important; }
       for(let i=0; i<8; i++) nE.push(document.getElementById(`edit_E_${i}`).value);
       for(let i=0; i<sysConfig.mdas.length; i++) nM.push(document.getElementById(`edit_M_${i}`).value);
       for(let i=0; i<=10; i++) nVas[i] = document.getElementById(`edit_vas_${i}`).value;
+      let nNrs = Object.assign({}, nVas);
       
       sysConfig.riwayat.forEach((r, i) => {
           let opts = document.getElementById(`edit_ryt_${i}_opts`).value.split(',').filter(x => x.trim() !== '');
           nRyt.push({ id: r.id, q: document.getElementById(`edit_ryt_${i}_q`).value, opts: opts, type: opts.length > 0 ? 'radio' : 'text', bindKey: r.bindKey });
       });
 
-      let updatedConfig = { mdas: nM, vas: nVas, lblOHQE: sysConfig.lblOHQE, lblEksp: sysConfig.lblEksp, lblMDAS: sysConfig.lblMDAS, riwayat: nRyt, webSettings: webSettings };
+      let updatedConfig = { mdas: nM, nrs: nNrs, vas: nVas, lblOHQE: sysConfig.lblOHQE, lblEksp: sysConfig.lblEksp, lblMDAS: sysConfig.lblMDAS, riwayat: nRyt, webSettings: webSettings };
 
       if (!GAS_URL) { setTimeout(() => { qFisik=nF; qPsiko=nP; qEkspektasi=nE; sysConfig = updatedConfig; setupFlowAndUI(); btn.innerHTML=originalText; btn.disabled=false; }, 1000); return; }
 
@@ -3614,7 +3914,7 @@ body.devtools-warning-open { overflow: hidden !important; }
       const btnExport = document.getElementById('btn-export-pdf-vas');
       
       wrapper.classList.remove('hidden');
-      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Korelasi VAS & OHQE...</div>';
+      container.innerHTML = '<div class="text-black my-10 animate-pulse font-bold">Menjalankan Engine Korelasi NRS & OHQE...</div>';
       btnExport.classList.add('hidden');
 
       setTimeout(() => {
@@ -3622,8 +3922,9 @@ body.devtools-warning-open { overflow: hidden !important; }
         let vasScores = [];
         let ohqeScores = [];
 
-        // Match ID in VAS and OHQE array
-        globalAdminVAS.forEach(vRow => {
+        // Match ID in NRS/VAS and OHQE array
+        const datasetNRS = (globalAdminNRS && globalAdminNRS.length) ? globalAdminNRS : globalAdminVAS;
+        datasetNRS.forEach(vRow => {
             let id = vRow[0];
             let vas = parseInt(vRow[17]);
             let ohqeRow = globalAdminOHQE.find(o => o[0] === id);
@@ -3638,7 +3939,7 @@ body.devtools-warning-open { overflow: hidden !important; }
         });
 
         if(matchedData.length < 3) {
-            container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data minimal 3 sampel yang memiliki skor VAS dan OHQE diperlukan.</p>`; return;
+            container.innerHTML = `<p class="text-red-600 bg-red-100 p-4 rounded border border-red-500">Error: Data minimal 3 sampel yang memiliki skor NRS dan OHQE diperlukan.</p>`; return;
         }
 
         // 1. Univariate (Frequency)
@@ -3663,8 +3964,8 @@ body.devtools-warning-open { overflow: hidden !important; }
         let pValText = pVal < 0.001 ? "< 0.001" : pVal.toFixed(3);
         let isSig = pVal < 0.05;
 
-        // Sync to Google Sheets if allowed
-        if (webSettings.syncVAS && GAS_URL) {
+        // Sync to Google Sheets if allowed (NRS & VAS compatible)
+        if ((webSettings.syncNRS || webSettings.syncVAS) && GAS_URL) {
             let vasMean = jStat.mean(vasScores).toFixed(3);
             let vasStd = jStat.stdev(vasScores, true).toFixed(3);
             let ohqeMean = jStat.mean(ohqeScores).toFixed(3);
@@ -3675,9 +3976,14 @@ body.devtools-warning-open { overflow: hidden !important; }
                : (isSig && r > 0 ? "Terdapat hubungan positif dan signifikan antara tingkat nyeri endodontik dengan kualitas hidup." : "Tidak terdapat hubungan yang signifikan secara statistik antara tingkat nyeri endodontik dengan kualitas hidup.");
 
             const payloadVAS = {
-                action: 'updateLiveTableVAS',
-                vasMean: vasMean, vasStd: vasStd, ohqeMean: ohqeMean, ohqeStd: ohqeStd,
-                n: n, pNormVAS: pNormVas.toFixed(3), pNormOHQE: pNormOhqe.toFixed(3),
+                action: 'updateLiveTableNRS',
+                nrsMean: vasMean, nrsStd: vasStd,
+                vasMean: vasMean, vasStd: vasStd,
+                ohqeMean: ohqeMean, ohqeStd: ohqeStd,
+                n: n,
+                pNormNRS: pNormVas.toFixed(3),
+                pNormVAS: pNormVas.toFixed(3),
+                pNormOHQE: pNormOhqe.toFixed(3),
                 testName: testName, corrVal: r.toFixed(3), pVal: pVal.toFixed(3),
                 conclusion: syncConclusion,
                 freqs: {
@@ -3697,7 +4003,7 @@ body.devtools-warning-open { overflow: hidden !important; }
           <table class="spss-table">
             <tr><th rowspan="2" style="border-bottom:none"></th><th colspan="3" style="text-align:center; border-bottom:1px solid black">Shapiro-Wilk</th></tr>
             <tr><th>Statistic</th><th>df</th><th>Sig.</th></tr>
-            <tr><td style="text-align:left">Skala Nyeri Endodontik (VAS)</td><td>${isNormal ? '.951':'.890'}</td><td>${n}</td><td><b>.${Math.floor(pNormVas*1000).toString().padStart(3,'0')}</b></td></tr>
+            <tr><td style="text-align:left">Skala Nyeri Endodontik (NRS)</td><td>${isNormal ? '.951':'.890'}</td><td>${n}</td><td><b>.${Math.floor(pNormVas*1000).toString().padStart(3,'0')}</b></td></tr>
             <tr><td style="text-align:left">Kualitas Hidup (Skor Total OHQE)</td><td>${isNormal ? '.945':'.885'}</td><td>${n}</td><td><b>.${Math.floor(pNormOhqe*1000).toString().padStart(3,'0')}</b></td></tr>
           </table>
         </div>`;
@@ -3707,8 +4013,8 @@ body.devtools-warning-open { overflow: hidden !important; }
         <div class="spss-table-container max-w-4xl w-full mx-auto mt-6">
           <div class="spss-title">Correlations</div>
           <table class="spss-table">
-            <tr><th colspan="2" style="border-right:1px solid #ccc; border-bottom:none;"></th><th>Skala Nyeri (VAS)</th><th>Kualitas Hidup (OHQE)</th></tr>
-            <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">${testName}<br>Skala Nyeri (VAS)</td><td style="text-align:left">Correlation Coefficient</td><td>1.000</td><td>${r.toFixed(3)}${isSig?'**':''}</td></tr>
+            <tr><th colspan="2" style="border-right:1px solid #ccc; border-bottom:none;"></th><th>Skala Nyeri (NRS)</th><th>Kualitas Hidup (OHQE)</th></tr>
+            <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">${testName}<br>Skala Nyeri (NRS)</td><td style="text-align:left">Correlation Coefficient</td><td>1.000</td><td>${r.toFixed(3)}${isSig?'**':''}</td></tr>
             <tr><td style="text-align:left">Sig. (2-tailed)</td><td>.</td><td><b>${pValText}</b></td></tr>
             <tr><td style="text-align:left">N</td><td>${n}</td><td>${n}</td></tr>
             <tr><td rowspan="3" style="vertical-align:top; border-right:1px solid #ccc;">${testName}<br>Kualitas Hidup (OHQE)</td><td style="text-align:left">Correlation Coefficient</td><td>${r.toFixed(3)}${isSig?'**':''}</td><td>1.000</td></tr>
@@ -3742,7 +4048,7 @@ body.devtools-warning-open { overflow: hidden !important; }
           <div class="p-4 bg-white border border-gray-200 rounded shadow-sm text-black">
             <p class="text-sm font-bold mb-2 text-blue-700">A. Uji Asumsi Normalitas Data</p>
             <p class="text-sm text-justify leading-relaxed mb-4">
-              Sebelum melakukan uji korelasi bivariat, asumsi normalitas diuji menggunakan metode <b>Shapiro-Wilk</b>. Berdasarkan tabel <i>Tests of Normality</i>, nilai probabilitas (Sig.) untuk Skala Nyeri (VAS) adalah <b>${pNormVas.toFixed(3)}</b> dan untuk Total OHQE adalah <b>${pNormOhqe.toFixed(3)}</b>. 
+              Sebelum melakukan uji korelasi bivariat, asumsi normalitas diuji menggunakan metode <b>Shapiro-Wilk</b>. Berdasarkan tabel <i>Tests of Normality</i>, nilai probabilitas (Sig.) untuk Skala Nyeri (NRS) adalah <b>${pNormVas.toFixed(3)}</b> dan untuk Total OHQE adalah <b>${pNormOhqe.toFixed(3)}</b>. 
               Karena nilai signifikansi ${isNormal ? 'kedua variabel lebih besar dari nilai alpha 0.05, maka disimpulkan bahwa data <b>berdistribusi NORMAL</b>, sehingga dilanjutkan dengan uji parametrik <b>Korelasi Pearson</b>.' : 'terdapat variabel dengan p-value < 0.05, maka disimpulkan bahwa sebaran data <b>TIDAK NORMAL</b>, sehingga dilanjutkan dengan uji non-parametrik <b>Korelasi Rank Spearman (Spearman\'s rho)</b>.'}
             </p>
 
@@ -3765,6 +4071,7 @@ body.devtools-warning-open { overflow: hidden !important; }
 
       }, 1000);
     }
+    window.runAnalysisNRS = runAnalysisVAS;
 
     // -------------------------------------------------------------
     // RUN ANALYSIS 3: MDAS vs OHQE SUBSCALE

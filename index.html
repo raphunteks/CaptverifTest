@@ -1835,6 +1835,22 @@ body[data-ohqe-kunjungan="3"] #step-5{
 }
 </style>
 
+
+<style id="k2-k3-patient-search-enterprise">
+/* K2/K3 PATIENT SELECTOR — DATA_OHQE_1 ONLY. Additive layer. */
+#k1-patient-picker{width:100%}
+#k1-patient-dropdown{border:3px solid #111!important}
+.k1-patient-option{display:block;width:100%;text-align:left;padding:12px 14px;background:#fff;color:#111;border:0;border-bottom:2px solid #111;font-weight:800;cursor:pointer;transition:background-color .1s ease}
+.k1-patient-option:last-child{border-bottom:0}
+.k1-patient-option:hover,.k1-patient-option:focus{background:#ffe66d;outline:none}
+.k1-patient-option .k1-patient-index{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;margin-right:8px;border:2px solid #111;border-radius:8px;background:#fff;color:#111;font-size:11px;font-weight:1000}
+#k1-patient-picker.patient-selected #nama{background:#f3f3f3!important;border-color:#111!important;box-shadow:4px 4px 0 #111!important;cursor:not-allowed!important;font-weight:900!important}
+#k1-patient-picker.patient-selected #k1-patient-search-icon{color:#111!important}
+#step-1.k1-patient-locked .k1-source-locked-field{background:#f3f3f3!important;color:#111!important;border-color:#111!important;box-shadow:3px 3px 0 #111!important;cursor:not-allowed!important;opacity:1!important}
+#step-1.k1-patient-locked .k1-source-locked-field:disabled{-webkit-text-fill-color:#111!important;color:#111!important;opacity:1!important}
+#k1-patient-dropdown-status{background:#fff;color:#555}
+@media(max-width:640px){#k1-patient-dropdown{max-height:60vh}.k1-patient-option{padding:14px 12px;font-size:14px}}
+</style>
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -1946,13 +1962,35 @@ body[data-ohqe-kunjungan="3"] #step-5{
         <div class="space-y-4 sm:space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             <div>
+
               <label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nama Lengkap Pasien</label>
-              <div class="flex gap-2">
-                <input type="text" id="nama" required class="w-full p-3 sm:p-3.5 rounded-xl text-sm flex-grow" placeholder="Nama sesuai KTP...">
-                <button type="button" id="btn-autofill" onclick="fetchPasienData()" class="hidden px-4 rounded-xl btn-neon font-bold text-xs flex items-center justify-center shadow-md whitespace-nowrap" title="Tarik Data dari Kunjungan 1">
-                   <svg class="w-4 h-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Auto-Fill
-                </button>
+
+              <div id="k1-patient-picker" class="relative">
+
+                <div class="relative">
+
+                  <input type="text" id="nama" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="k1-patient-dropdown" class="w-full p-3 sm:p-3.5 rounded-xl text-sm pr-12" placeholder="Nama sesuai KTP...">
+
+                  <span id="k1-patient-search-icon" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" aria-hidden="true">⌕</span>
+
+                </div>
+
+                <div id="k1-patient-dropdown" class="hidden absolute left-0 right-0 mt-2 z-[80] max-h-72 overflow-y-auto bg-white border-3 border-black rounded-xl shadow-[6px_6px_0_#111]" role="listbox" aria-label="Daftar pasien Kunjungan 1">
+
+                  <div id="k1-patient-dropdown-status" class="px-4 py-3 text-sm font-bold text-gray-600">Menyiapkan daftar pasien...</div>
+
+                  <div id="k1-patient-options"></div>
+
+                </div>
+
+                <div id="k1-patient-lock-status" class="hidden mt-2 px-3 py-2 rounded-lg border-2 border-black bg-[#b8f34a] text-xs font-black text-black">✓ Pasien terpilih dari Database Kunjungan 1 — biodata terkunci</div>
+
               </div>
+
+              <div id="k1-patient-source-note" class="hidden mt-2 text-xs font-bold text-gray-600">Sumber data: Data_OHQE_1 (Kunjungan 1)</div>
+              <!-- Legacy Auto-Fill control retained for DOM/logic compatibility; K2/K3 use the selector above. -->
+              <button type="button" id="btn-autofill" onclick="fetchPasienData()" class="hidden" aria-hidden="true" tabindex="-1">Auto-Fill</button>
+
             </div>
             <div><label class="block text-xs sm:text-sm font-medium mb-1.5 text-gray-300">Nomor Handphone</label><input type="tel" id="noHp" required pattern="[0-9]*" class="w-full p-3 sm:p-3.5 rounded-xl text-sm" placeholder="Contoh: 08123456789"></div>
           </div>
@@ -2340,6 +2378,14 @@ body[data-ohqe-kunjungan="3"] #step-5{
         /* 10 Crying */ `<svg viewBox="0 0 100 100" class="face-svg"><circle cx="50" cy="50" r="45"/><circle cx="35" cy="45" r="6" fill="currentColor"/><circle cx="65" cy="45" r="6" fill="currentColor"/><path d="M 20 80 Q 50 50 80 80" fill="none"/><path d="M 25 35 L 45 45" fill="none"/><path d="M 75 35 L 55 45" fill="none"/><path d="M 35 55 Q 35 65 30 65 Q 25 65 25 55 Z" fill="#9ca3af"/><path d="M 65 55 Q 65 65 70 65 Q 75 65 75 55 Z" fill="#9ca3af"/></svg>`
     ];
 
+
+    // K2/K3 hard lock guard: readonly/disabled controls are reinforced at event level.
+    document.addEventListener('beforeinput',function(e){
+      if(typeof isFollowUpVisit!=='function'||typeof k1PatientSelected==='undefined')return;
+      if(!isFollowUpVisit()||!k1PatientSelected)return;
+      const t=e.target;
+      if(t&&t.closest&&t.closest('#step-1')&&t.id!=='nama')e.preventDefault();
+    },true);
     window.onload = () => {
       // Hanya jalankan di landing page utama (non admin) agar UX instan
       if(!isAdminMode && !isRontgenMode && kunjunganType === 0) {
@@ -2631,6 +2677,7 @@ body[data-ohqe-kunjungan="3"] #step-5{
         // Contract: Kunjungan 3 hanya Bagian 1–4.
         // Hanya menambahkan marker DOM; routing/state lama tetap dipertahankan.
         document.body.dataset.ohqeKunjungan = String(kunjunganType);
+        setupPatientIdentityUI();
 
         // Render Riwayat Nyeri Lanjutan (Conditional Input Box)
         let riwayatHtml = '';
@@ -2691,6 +2738,29 @@ body[data-ohqe-kunjungan="3"] #step-5{
             else { sub.classList.add('hidden'); sub.classList.remove('block'); document.getElementById('jenisObat').value = ''; document.getElementById('frekuensiObat').value = ''; }
         }
     }
+
+    // ================================================================
+    // K2/K3 PATIENT SELECTOR — DATA_OHQE_1 ONLY
+    // ================================================================
+    let k1PatientDirectory = [];
+    let k1PatientSelected = false;
+    let k1PatientSelectedRow = null;
+    let k1PatientSearchTimer = null;
+    let k1PatientDirectoryRequest = null;
+
+    function isFollowUpVisit() { return kunjunganType === 2 || kunjunganType === 3; }
+    function escapeHtmlSafe(value) { return String(value == null ? '' : value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    function setPatientFieldValue(id,value){ const el=document.getElementById(id); if(el) el.value=value==null?'':String(value); }
+    function setPatientFieldLocked(id,locked){ const el=document.getElementById(id); if(!el)return; el.classList.toggle('k1-source-locked-field',locked); if(el.tagName==='SELECT') el.disabled=locked; else el.readOnly=locked; el.setAttribute('aria-readonly',locked?'true':'false'); if(locked)el.setAttribute('tabindex','-1');else el.removeAttribute('tabindex'); }
+    function lockFollowUpBiodata(){ if(!isFollowUpVisit())return; ['noHp','usia','jk','pekerjaan','pendidikan','umr','bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'].forEach(id=>setPatientFieldLocked(id,true)); const step=document.getElementById('step-1'); if(step)step.classList.add('k1-patient-locked'); }
+    function unlockFollowUpBiodata(){ ['noHp','usia','jk','pekerjaan','pendidikan','umr','bb','tb','td','diagnosis','diagPeri','gigiRawat','jmlGigi'].forEach(id=>setPatientFieldLocked(id,false)); const step=document.getElementById('step-1'); if(step)step.classList.remove('k1-patient-locked'); }
+    function renderK1PatientOptions(query){ const options=document.getElementById('k1-patient-options'),status=document.getElementById('k1-patient-dropdown-status'); if(!options||!status)return; const q=String(query||'').trim().toLowerCase(); const filtered=k1PatientDirectory.filter(p=>String(p.nama||'').toLowerCase().includes(q)).slice(0,50); options.innerHTML=filtered.map((p,idx)=>`<button type="button" class="k1-patient-option" role="option" aria-selected="false" data-k1-row="${escapeHtmlSafe(p.rowNumber)}" data-k1-name="${escapeHtmlSafe(p.nama)}"><span class="k1-patient-index">${idx+1}</span>${escapeHtmlSafe(p.nama)}</button>`).join(''); status.textContent=filtered.length?(q?`${filtered.length} pasien cocok dengan pencarian`:`${filtered.length} pasien tersedia dari Kunjungan 1`):(q?'Pasien tidak ditemukan di Data_OHQE_1.':'Belum ada data pasien Kunjungan 1.'); options.querySelectorAll('.k1-patient-option').forEach(btn=>btn.addEventListener('click',()=>selectK1Patient(Number(btn.dataset.k1Row),btn.dataset.k1Name))); }
+    function showK1PatientDropdown(show){ const dd=document.getElementById('k1-patient-dropdown'),input=document.getElementById('nama'); if(dd)dd.classList.toggle('hidden',!show); if(input)input.setAttribute('aria-expanded',show?'true':'false'); }
+    function applyK1PatientData(d){ if(!d||!d.found)return false; setPatientFieldValue('nama',d.nama); ['noHp','usia','jk','pekerjaan','pendidikan','umr','diagnosis','diagPeri','gigiRawat','jmlGigi','bb','tb','td'].forEach(id=>setPatientFieldValue(id,d[id])); lockFollowUpBiodata(); const picker=document.getElementById('k1-patient-picker'),lock=document.getElementById('k1-patient-lock-status'),input=document.getElementById('nama'); if(picker)picker.classList.add('patient-selected'); if(lock)lock.classList.remove('hidden'); if(input){input.readOnly=true;input.setAttribute('tabindex','-1');input.placeholder='Pasien Kunjungan 1 terpilih';input.setAttribute('aria-readonly','true');} k1PatientSelected=true; return true; }
+    async function selectK1Patient(rowNumber,displayName){ if(!isFollowUpVisit()||k1PatientSelected)return; showK1PatientDropdown(false); const status=document.getElementById('k1-patient-dropdown-status'); if(status)status.textContent='Memuat biodata pasien dari Data_OHQE_1...'; try{ const response=await fetch(`${GAS_URL}?action=getKunjungan1Patient&row=${encodeURIComponent(rowNumber)}`,{redirect:'follow'}); if(!response.ok)throw new Error('HTTP '+response.status); const d=await response.json(); if(!d.found)throw new Error(d.message||'Data pasien tidak ditemukan.'); k1PatientSelectedRow=rowNumber; applyK1PatientData(d); showCustomAlert(`Data pasien "${d.nama||displayName}" berhasil dimuat dari Data_OHQE_1. Seluruh biodata dikunci dan tidak dapat diubah.`,'Pasien Dipilih'); }catch(e){ console.error('getKunjungan1Patient:',e); showCustomAlert('Gagal memuat biodata pasien dari Data_OHQE_1. Pastikan endpoint Kunjungan 1 pada Google Apps Script sudah diperbarui.','Koneksi Database'); if(status)status.textContent='Gagal memuat data. Silakan coba lagi.'; } }
+    async function loadK1PatientDirectory(force=false){ if(!isFollowUpVisit()||!GAS_URL)return; if(k1PatientDirectoryRequest&&!force)return k1PatientDirectoryRequest; if(k1PatientDirectory.length&&!force)return k1PatientDirectory; const status=document.getElementById('k1-patient-dropdown-status'); if(status)status.textContent='Memuat daftar pasien Kunjungan 1...'; k1PatientDirectoryRequest=fetch(`${GAS_URL}?action=getKunjungan1Patients`,{redirect:'follow'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(d=>{if(!Array.isArray(d.patients))throw new Error(d.message||'Format daftar pasien tidak valid.');k1PatientDirectory=d.patients.filter(p=>p&&p.nama&&p.rowNumber);renderK1PatientOptions('');return k1PatientDirectory;}).catch(e=>{console.error('getKunjungan1Patients:',e);k1PatientDirectory=[];if(status)status.textContent='Daftar pasien gagal dimuat. Pastikan endpoint Data_OHQE_1 aktif.';throw e;}).finally(()=>{k1PatientDirectoryRequest=null;}); return k1PatientDirectoryRequest; }
+    function initK1PatientPicker(){ if(!isFollowUpVisit())return; const input=document.getElementById('nama'),picker=document.getElementById('k1-patient-picker'); if(!input||!picker)return; if(input.dataset.k1PickerReady==='1')return; input.dataset.k1PickerReady='1'; input.placeholder='Cari nama pasien Kunjungan 1...'; input.setAttribute('aria-label','Cari Nama Lengkap Pasien dari Data_OHQE_1'); input.addEventListener('focus',async()=>{if(k1PatientSelected)return;showK1PatientDropdown(true);if(!k1PatientDirectory.length){try{await loadK1PatientDirectory();}catch(_){}}renderK1PatientOptions(input.value);}); input.addEventListener('input',()=>{if(k1PatientSelected)return;clearTimeout(k1PatientSearchTimer);k1PatientSearchTimer=setTimeout(()=>{renderK1PatientOptions(input.value);showK1PatientDropdown(true);},80);}); input.addEventListener('keydown',e=>{if(e.key==='Escape')showK1PatientDropdown(false);}); document.addEventListener('click',e=>{if(!picker.contains(e.target))showK1PatientDropdown(false);},{passive:true}); loadK1PatientDirectory().catch(()=>{}); }
+    function setupPatientIdentityUI(){ const picker=document.getElementById('k1-patient-picker'),note=document.getElementById('k1-patient-source-note'); if(isFollowUpVisit()){if(picker)picker.classList.remove('hidden');if(note)note.classList.remove('hidden');initK1PatientPicker();lockFollowUpBiodata();}else{if(picker)picker.classList.remove('hidden');if(note)note.classList.add('hidden');}}
 
     // Fitur Auto-Fill Data Pasien dari Backend
     function fetchPasienData() {
@@ -2939,6 +3009,10 @@ body[data-ohqe-kunjungan="3"] #step-5{
 
     function validateStep() {
       const stepDiv = document.getElementById(activeSteps[currentStepIndex]);
+      if(currentStepIndex === 0 && isFollowUpVisit() && !k1PatientSelected) {
+        showCustomAlert('Pilih Nama Lengkap Pasien dari daftar Database Kunjungan 1 (Data_OHQE_1) terlebih dahulu.', 'Pasien Belum Dipilih');
+        const input=document.getElementById('nama'); if(input){input.focus();input.scrollIntoView({behavior:'smooth',block:'center'});} return false;
+      }
       const inputs = stepDiv.querySelectorAll('input[required], select[required]');
       let isValid = true, firstInvalidEl = null;
       const radioGroups = new Set();
@@ -2961,6 +3035,7 @@ body[data-ohqe-kunjungan="3"] #step-5{
     function getAnswers(prefix, count) { let arr = []; for(let i=1; i<=count; i++) { const el = document.querySelector(`input[name="${prefix}${i}"]:checked`); arr.push(el ? el.value : ""); } return arr; }
 
     function submitData() {
+      if(isFollowUpVisit() && !k1PatientSelected) { showCustomAlert('Pasien Kunjungan 1 belum dipilih. Data Kunjungan 2/3 tidak dapat disimpan tanpa memilih pasien dari Data_OHQE_1.', 'Pasien Belum Dipilih'); return; }
       if(!validateStep()) return;
       document.getElementById('submit-text').style.opacity = '0'; document.getElementById('submit-loader').classList.remove('hidden');
       document.getElementById('btn-submit').disabled = true; document.getElementById('btn-prev').disabled = true;
@@ -2983,6 +3058,7 @@ body[data-ohqe-kunjungan="3"] #step-5{
         kunjungan: kunjunganType, // Pengirim Routing Backend
         diagnosis: document.getElementById('diagnosis').value, diagPeri: document.getElementById('diagPeri').value, gigiRawat: document.getElementById('gigiRawat').value, jmlGigi: document.getElementById('jmlGigi').value, 
         nama: document.getElementById('nama').value, noHp: "'" + document.getElementById('noHp').value.toString(), usia: document.getElementById('usia').value, jk: document.getElementById('jk').value, pekerjaan: document.getElementById('pekerjaan').value, pendidikan: document.getElementById('pendidikan').value, umr: document.getElementById('umr').value,
+        sourceKunjungan1Row: (isFollowUpVisit() && k1PatientSelectedRow) ? k1PatientSelectedRow : '',
         bb: document.getElementById('bb').value, tb: document.getElementById('tb').value, td: document.getElementById('td').value,
         lamaNyeri: document.querySelector('input[name="lamaNyeri"]:checked')?.value || '', nyeriSpontan: document.querySelector('input[name="nyeriSpontan"]:checked')?.value || '', nyeriKunyah: document.querySelector('input[name="nyeriKunyah"]:checked')?.value || '',
         gangguTidur: document.querySelector('input[name="gangguTidur"]:checked')?.value || '', minumObat: document.querySelector('input[name="minumObat"]:checked')?.value || '', jenisObat: document.getElementById('jenisObat')?.value || '',

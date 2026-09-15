@@ -1851,6 +1851,134 @@ body[data-ohqe-kunjungan="3"] #step-5{
 #k1-patient-dropdown-status{background:#fff;color:#555}
 @media(max-width:640px){#k1-patient-dropdown{max-height:60vh}.k1-patient-option{padding:14px 12px;font-size:14px}}
 </style>
+
+<style id="ohqe-mobile-scale-labels-super-upgrade">
+/*
+================================================================
+OHQE SUPER BIG UPGRADE — MOBILE SCALE LABEL VISIBILITY
+================================================================
+Tujuan:
+- Menampilkan keterangan UNTUK SETIAP angka 1–5 pada mobile.
+- Mempertahankan seluruh ID, name, value, validation, routing,
+  data schema, Google Apps Script, scoring, analisis dan logic.
+- Desktop tetap mempertahankan tampilan/keterangan yang sudah ada.
+- Mobile tetap menggunakan 2 kolom agar label panjang lebih mudah
+  dibaca dan tidak dipaksa menjadi 5 kolom sempit.
+- Menghilangkan label ujung bawah yang sebelumnya hanya menjadi
+  fallback mobile karena sekarang setiap opsi sudah memiliki label.
+================================================================
+*/
+
+/* Semua keterangan opsi selalu terlihat. */
+#container-fisik .radio-group .label-text,
+#container-psiko .radio-group .label-text,
+#container-ekspektasi .radio-group .label-text,
+#container-mdas .radio-group .label-text{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  color:#303030!important;
+  font-weight:800!important;
+  line-height:1.15!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+}
+
+/* Pastikan nomor dan keterangannya tersusun vertikal. */
+#container-fisik .radio-group label,
+#container-psiko .radio-group label,
+#container-ekspektasi .radio-group label,
+#container-mdas .radio-group label{
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+}
+
+/* Mobile: tetap 2 kolom, tetapi kartu dibuat cukup tinggi untuk
+   menampilkan nomor + keterangan tanpa mengorbankan touch target. */
+@media (max-width:767px){
+  #container-fisik .radio-group,
+  #container-psiko .radio-group,
+  #container-ekspektasi .radio-group,
+  #container-mdas .radio-group{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+
+  #container-fisik .radio-group label,
+  #container-psiko .radio-group label,
+  #container-ekspektasi .radio-group label,
+  #container-mdas .radio-group label{
+    min-height:78px!important;
+    padding:9px 7px!important;
+  }
+
+  #container-fisik .radio-group label .num,
+  #container-psiko .radio-group label .num,
+  #container-ekspektasi .radio-group label .num,
+  #container-mdas .radio-group label .num{
+    display:block!important;
+    font-size:1.15rem!important;
+    line-height:1!important;
+    font-weight:1000!important;
+    margin-bottom:5px!important;
+  }
+
+  #container-fisik .radio-group .label-text,
+  #container-psiko .radio-group .label-text,
+  #container-ekspektasi .radio-group .label-text,
+  #container-mdas .radio-group .label-text{
+    display:block!important;
+    font-size:.68rem!important;
+    line-height:1.18!important;
+    letter-spacing:0!important;
+    color:#333!important;
+  }
+
+  /* Fallback endpoint text lama tidak lagi diperlukan karena
+     semua angka sudah memiliki keterangan sendiri. */
+  #container-fisik .mobile-scale-endpoints,
+  #container-psiko .mobile-scale-endpoints,
+  #container-ekspektasi .mobile-scale-endpoints,
+  #container-mdas .mobile-scale-endpoints{
+    display:none!important;
+  }
+}
+
+/* Ponsel sangat kecil: sedikit mengecilkan font, bukan menghilangkan
+   keterangan. */
+@media (max-width:380px){
+  #container-fisik .radio-group label,
+  #container-psiko .radio-group label,
+  #container-ekspektasi .radio-group label,
+  #container-mdas .radio-group label{
+    min-height:76px!important;
+    padding:8px 5px!important;
+  }
+
+  #container-fisik .radio-group .label-text,
+  #container-psiko .radio-group .label-text,
+  #container-ekspektasi .radio-group .label-text,
+  #container-mdas .radio-group .label-text{
+    font-size:.62rem!important;
+  }
+}
+
+/* Desktop/tablet: jangan mengubah grid atau ukuran existing secara
+   agresif; hanya memastikan keterangan tetap terbaca. */
+@media (min-width:768px){
+  #container-fisik .radio-group .label-text,
+  #container-psiko .radio-group .label-text,
+  #container-ekspektasi .radio-group .label-text,
+  #container-mdas .radio-group .label-text{
+    display:block!important;
+    color:#303030!important;
+  }
+}
+</style>
+
 </head>
 <body class="py-4 px-2 sm:p-6 md:p-8 flex flex-col items-center min-h-screen">
   <noscript><div style="max-width:720px;margin:16px auto;padding:16px;border:2px solid #111;background:#ffde00;color:#111;font-weight:700">JavaScript diperlukan untuk menjalankan Instrumen OHQE, navigasi kunjungan, pengisian kuesioner, sinkronisasi data, dan analisis statistik.</div></noscript>
@@ -2808,9 +2936,9 @@ body[data-ohqe-kunjungan="3"] #step-5{
         const qId = `${prefix}${index + 1}`;
         html += `<div class="p-4 sm:p-5 bg-gray-800/40 rounded-xl border border-gray-700/60 hover:border-[rgba(57,255,20,0.3)] transition-all duration-300 group shadow-sm hover:shadow-md"><p class="mb-3 sm:mb-4 text-sm sm:text-base leading-relaxed text-gray-200 group-hover:text-white transition-colors"><span class="text-neon font-extrabold mr-1.5">${qId}.</span> ${q}</p><div class="grid grid-cols-5 gap-1.5 sm:gap-3 radio-group">`;
         [1,2,3,4,5].forEach(val => {
-          html += `<div><input type="radio" name="${qId}" id="${qId}_${val}" value="${val}" required><label for="${qId}_${val}" class="py-2 sm:py-3 px-1"><span class="num text-sm sm:text-lg">${val}</span><span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1.5 label-text hidden sm:block tracking-wider font-medium leading-tight">${labels[val-1] || ''}</span></label></div>`;
+          html += `<div><input type="radio" name="${qId}" id="${qId}_${val}" value="${val}" required><label for="${qId}_${val}" class="py-2 sm:py-3 px-1"><span class="num text-sm sm:text-lg">${val}</span><span class="text-[0.55rem] sm:text-[0.65rem] md:text-xs text-gray-400 mt-1.5 label-text block tracking-wider font-medium leading-tight" aria-label="Keterangan pilihan ${val}">${labels[val-1] || ''}</span></label></div>`;
         });
-        html += `</div><div class="flex justify-between text-[0.6rem] text-gray-500 mt-3 sm:hidden px-1 font-medium"><span class="w-1/2 text-left pr-1 leading-tight">${labels[0] || ''}</span><span class="w-1/2 text-right pl-1 leading-tight">${labels[4] || ''}</span></div></div>`;
+        html += `</div><div class="mobile-scale-endpoints flex justify-between text-[0.6rem] text-gray-500 mt-3 sm:hidden px-1 font-medium" aria-hidden="true"><span class="w-1/2 text-left pr-1 leading-tight">${labels[0] || ''}</span><span class="w-1/2 text-right pl-1 leading-tight">${labels[4] || ''}</span></div></div>`;
       });
       document.getElementById(containerId).innerHTML = html;
     }

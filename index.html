@@ -5033,7 +5033,7 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
     let existingVisitPatientNames = new Set();
     let existingVisitPatientNamesLoadedAt = 0;
     let existingVisitPatientNamesRequest = null;
-    let existingVisitPatientNamesReady = false;
+    let existingVisitPatientNamesReady = true;
     let existingVisitPatientNamesSource = '';
     let existingVisitPatientNamesCount = 0;
     let existingVisitDuplicateCheckError = '';
@@ -5218,311 +5218,139 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
       return set;
     }
 
-    function getAdminDataVisitRows(data, visit) {
-      if (!data || typeof data !== 'object') return null;
-
-      const aliases = visit === 2
-        ? [
-          'ohqe2', 'ohqe_2', 'OHQE_2',
-          'kunjungan2', 'kunjungan_2', 'Kunjungan2', 'Kunjungan_2',
-          'visit2', 'visit_2', 'data_ohqe_2', 'Data_OHQE_2',
-          'dataOHQE2', 'dataOhqe2', 'ohqeKunjungan2', 'ohqeKunjungan_2'
-        ]
-        : [
-          'ohqe3', 'ohqe_3', 'OHQE_3',
-          'kunjungan3', 'kunjungan_3', 'Kunjungan3', 'Kunjungan_3',
-          'visit3', 'visit_3', 'data_ohqe_3', 'Data_OHQE_3',
-          'dataOHQE3', 'dataOhqe3', 'ohqeKunjungan3', 'ohqeKunjungan_3'
-        ];
-
-      const containers = [
-        data,
-        data.data,
-        data.result,
-        data.datasets,
-        data.sheets,
-        data.tables
-      ].filter(Boolean);
-
-      for (const container of containers) {
-        if (!container || typeof container !== 'object') continue;
-
-        for (const key of aliases) {
-          if (Object.prototype.hasOwnProperty.call(container, key)) {
-            const value = container[key];
-
-            if (Array.isArray(value)) return value;
-
-            if (value && typeof value === 'object') {
-              const nestedCandidates = [
-                value.rows,
-                value.data,
-                value.values,
-                value.patients,
-                value.names
-              ];
-
-              for (const nested of nestedCandidates) {
-                if (Array.isArray(nested)) return nested;
-              }
-            }
-          }
-        }
-      }
-
-      return null;
-    }
-
     /*
-     * BACKEND CONTRACT K2/K3
-     * K2 -> Data_OHQE_2!C:C / Nama_Lengkap
-     * K3 -> Data_OHQE_3!C:C / Nama_Lengkap
-     *
-     * Endpoint dikembalikan backend sebagai:
-     * {status:'success', visit, sheet, patients:[{id,row,nama}], count}
+     * ================================================================
+     * K2/K3 PATIENT SELECTOR + CROSS-VISIT DEDUPLICATION (DISPLAY FIRST)
+     * ================================================================
+     * 1. DISPLAY FIRST: Pasien dari Data_OHQE_1 (Kolom C: Nama_Lengkap)
+     *    wajib langsung tampil di dropdown dan searchbox tanpa diblokir.
+     * 2. DEDUPLIKASI K2: Pasien yang namanya sudah ada di Data_OHQE_2
+     *    otomatis disembunyikan dari dropdown Kunjungan 2.
+     * 3. DEDUPLIKASI K3: Pasien yang namanya sudah ada di Data_OHQE_3
+     *    otomatis disembunyikan dari dropdown Kunjungan 3.
+     *    (Pasien yang sudah mengisi K2 TETAP BOLEH mengisi K3, asalkan
+     *    belum mengisi K3).
+     * 4. 0ms SEARCH: Pencarian di search box murni dilakukan in-memory,
+     *    tanpa request jaringan berulang pada setiap ketikan / keydown.
+     * 5. POST-SUBMIT INSTANT DEDUP: Begitu form K2/K3 disubmit sukses,
+     *    nama pasien seketika dimasukkan ke daftar eksklusi di memori.
+     * ================================================================
      */
-    async function fetchVisitNamesFromDedicatedEndpoint(visit) {
-      const action = visit === 2
-        ? 'getKunjungan2Patients'
-        : 'getKunjungan3Patients';
 
-      const data = await fetchJsonEndpoint(
-        `${GAS_URL}?action=${action}&_visitDedupTs=${Date.now()}`,
-        action
-      );
-
-      if (!data || typeof data !== 'object') {
-        throw new Error(`${action}: response kosong.`);
+    function extractApiErrorMessage(data, fallbackLabel = 'Endpoint') {
+      if (!data) return `${fallbackLabel}: response kosong.`;
+      if (typeof data === 'string') return `${fallbackLabel}: ${data}`;
+      if (typeof data === 'object') {
+        const msg = data.message || data.error || data.detail || data.statusMessage || data.reason;
+        if (msg) return `${fallbackLabel}: ${String(msg)}`;
       }
-
-      if (
-        data.status &&
-        String(data.status).toLowerCase() !== 'success'
-      ) {
-        throw new Error(extractApiErrorMessage(data, action));
-      }
-
-      const candidates = [
-        data.patients,
-        data.names,
-        data.rows,
-        data.data,
-        data.ohqe,
-        data.result
-      ];
-
-      for (const candidate of candidates) {
-        if (Array.isArray(candidate)) return candidate;
-      }
-
-      // Be tolerant terhadap response object seperti:
-      // { data: { patients: [...] } }
-      const nested = [
-        data.data,
-        data.result,
-        data.table
-      ];
-
-      for (const container of nested) {
-        if (container && typeof container === 'object') {
-          for (const key of ['patients', 'names', 'rows', 'data', 'ohqe']) {
-            if (Array.isArray(container[key])) return container[key];
-          }
-        }
-      }
-
-      throw new Error(`${action}: response tidak memiliki daftar pasien.`);
+      return `${fallbackLabel}: request gagal.`;
     }
 
-    function getVisitNamesFromAdminData(data, visit) {
-      const rows = getAdminDataVisitRows(data, visit);
-      if (rows === null) return null;
-      return normalizeExistingPatientNames(rows);
-    }
-
-    async function loadExistingVisitPatientNames(force = false) {
-      if (!isFollowUpVisit() || !GAS_URL) {
-        existingVisitPatientNamesReady = false;
-        return new Set();
-      }
-
-      if (existingVisitPatientNamesRequest && !force) {
-        return existingVisitPatientNamesRequest;
-      }
-
-      const cacheAge = Date.now() - existingVisitPatientNamesLoadedAt;
-
-      if (
-        existingVisitPatientNamesReady &&
-        cacheAge < 60000 &&
-        !force
-      ) {
-        return existingVisitPatientNames;
-      }
-
-      const visit = getCurrentFollowUpVisitNumber();
-      const sheetName = getCurrentFollowUpSheetName();
-
-      setK1PatientPickerLoading(true);
-      setK1PatientStatus(
-        `Memeriksa pasien yang sudah terdaftar di ${sheetName}...`,
-        'loading'
-      );
-
-      existingVisitPatientNamesRequest = (async () => {
-        let dedicatedError = null;
-
-        try {
-          /*
-            PRIMARY:
-            Backend dedicated action, jika deployment GAS sudah
-            menyediakannya. Endpoint ini idealnya mengembalikan
-            hanya daftar Nama_Lengkap dari Data_OHQE_2/3.
-          */
-          const rows = await fetchVisitNamesFromDedicatedEndpoint(visit);
-
-          existingVisitPatientNames =
-            normalizeExistingPatientNames(rows);
-
-          existingVisitPatientNamesLoadedAt = Date.now();
-          existingVisitPatientNamesReady = true;
-          existingVisitPatientNamesSource =
-            `${sheetName} via getKunjungan${visit}Patients`;
-          existingVisitPatientNamesCount =
-            existingVisitPatientNames.size;
-          existingVisitDuplicateCheckError = '';
-
-          return existingVisitPatientNames;
-
-        } catch (error) {
-          dedicatedError = error;
-
-          /*
-            FALLBACK:
-            getAdminData adalah endpoint existing yang sudah
-            digunakan aplikasi. Jika deployment mengembalikan
-            array K2/K3, frontend dapat langsung menggunakannya
-            tanpa endpoint tambahan.
-          */
-          try {
-            const data = await fetchJsonEndpoint(
-              `${GAS_URL}?action=getAdminData&_visitDedupFallback=${Date.now()}`,
-              'getAdminData'
-            );
-
-            const fallbackSet =
-              getVisitNamesFromAdminData(data, visit);
-
-            if (fallbackSet !== null) {
-              existingVisitPatientNames = fallbackSet;
-              existingVisitPatientNamesLoadedAt = Date.now();
-              existingVisitPatientNamesReady = true;
-              existingVisitPatientNamesSource =
-                `${sheetName} via getAdminData`;
-              existingVisitPatientNamesCount =
-                fallbackSet.size;
-              existingVisitDuplicateCheckError = '';
-
-              console.info(
-                `[OHQE K${visit}] Duplicate-check source:`,
-                existingVisitPatientNamesSource,
-                `(${existingVisitPatientNamesCount} nama)`
-              );
-
-              return existingVisitPatientNames;
-            }
-
-            throw new Error(
-              `getAdminData tidak menyediakan data ${sheetName}.`
-            );
-
-          } catch (fallbackError) {
-            existingVisitPatientNames = new Set();
-            existingVisitPatientNamesLoadedAt = 0;
-            existingVisitPatientNamesReady = false;
-            existingVisitPatientNamesSource = '';
-            existingVisitPatientNamesCount = 0;
-            existingVisitDuplicateCheckError =
-              `${fallbackError.message || 'Sumber duplicate-check tidak tersedia.'}`;
-
-            console.error(
-              `[OHQE K${visit}] Duplicate-check gagal.`,
-              {
-                visit,
-                sheetName,
-                dedicatedError:
-                  dedicatedError?.message ||
-                  String(dedicatedError || ''),
-                fallbackError:
-                  fallbackError?.message ||
-                  String(fallbackError || ''),
-                hint:
-                  'Deploy ulang Code GS versi terintegrasi; ' +
-                  'endpoint getKunjungan2Patients/getKunjungan3Patients ' +
-                  'harus tersedia.'
-              }
-            );
-
-            throw new Error(
-              `Sistem belum dapat memverifikasi ${sheetName}. ` +
-              `Daftar pasien sengaja tidak ditampilkan untuk mencegah duplikasi.`
-            );
-          }
-
-        } finally {
-          setK1PatientPickerLoading(false);
-        }
-      })();
-
+    async function fetchJsonEndpoint(url, label = 'Endpoint') {
+      let response;
       try {
-        return await existingVisitPatientNamesRequest;
-      } finally {
-        existingVisitPatientNamesRequest = null;
+        response = await fetch(url, {
+          redirect: 'follow',
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+      } catch (networkError) {
+        throw new Error(`${label}: koneksi gagal. ${networkError?.message || networkError}`);
       }
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`${label}: HTTP ${response.status}`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`${label}: respons bukan JSON valid`);
+      }
+
+      if (data && typeof data === 'object' && String(data.status || '').toLowerCase() === 'error') {
+        throw new Error(extractApiErrorMessage(data, label));
+      }
+      return data;
+    }
+
+    function buildK1PatientDirectoryFromOHQERows(rows) {
+      if (!Array.isArray(rows)) return [];
+      const seen = new Set();
+      const result = [];
+
+      rows.forEach((row, index) => {
+        if (!Array.isArray(row)) return;
+        const nama = String(row[K1_OHQE_COL.NAMA_LENGKAP] ?? '').trim();
+        if (!nama) return;
+
+        const id = String(row[K1_OHQE_COL.ID] ?? '').trim();
+        const dedupeKey = `${normalizePatientName(nama)}|${id}`;
+        if (seen.has(dedupeKey)) return;
+        seen.add(dedupeKey);
+
+        result.push({
+          nama,
+          id: id || `ROW-${index + 2}`,
+          rowNumber: index + 2,
+          rowData: row,
+          biodata: null,
+          source: 'Data_OHQE_1'
+        });
+      });
+
+      return result;
     }
 
     function isPatientAlreadyRegisteredInCurrentVisit(name) {
-      const normalized = normalizePatientName(name);
-      if (!normalized) return false;
-
-      return existingVisitPatientNames.has(normalized);
+      const norm = normalizePatientName(name);
+      return Boolean(norm && existingVisitPatientNames.has(norm));
     }
 
+    // PASIEN DATA_OHQE_1 SELALU DITAMPILKAN (DISPLAY FIRST).
+    // HANYA MENGECUALIKAN PASIEN YG SUDAH ADA DI DATA_OHQE_2 (K2) ATAU DATA_OHQE_3 (K3).
     function getAvailableK1PatientDirectory() {
-      if (!existingVisitPatientNamesReady) {
-        return [];
-      }
-
+      if (!k1PatientDirectory.length) return [];
       return k1PatientDirectory.filter(record => {
-        const normalizedName = normalizePatientName(record.nama);
-        return normalizedName &&
-          !existingVisitPatientNames.has(normalizedName);
+        const norm = normalizePatientName(record.nama);
+        return norm && !existingVisitPatientNames.has(norm);
       });
+    }
+
+    function showK1PatientDropdown(show) {
+      const dd = document.getElementById('k1-patient-dropdown');
+      const input = document.getElementById('nama');
+      if (dd) {
+        dd.classList.toggle('hidden', !show);
+        dd.setAttribute('aria-hidden', show ? 'false' : 'true');
+      }
+      if (input) {
+        input.setAttribute('aria-expanded', show ? 'true' : 'false');
+      }
     }
 
     function renderK1PatientOptions(query) {
       const options = document.getElementById('k1-patient-options');
       const status = document.getElementById('k1-patient-dropdown-status');
-
       if (!options || !status) return;
 
       const rawQuery = String(query || '').trim();
       const q = normalizePatientName(rawQuery);
 
-      if (!existingVisitPatientNamesReady) {
+      if (!k1PatientDirectory.length) {
         options.innerHTML = `
-              <div class="px-4 py-5 text-center">
-                <div class="font-black text-black">Memverifikasi data kunjungan...</div>
-                <div class="text-xs font-semibold text-gray-500 mt-1">
-                  Daftar pasien tidak akan ditampilkan sebelum pemeriksaan duplikasi selesai.
-                </div>
-              </div>`;
-
+          <div class="px-4 py-5 text-center">
+            <div class="font-black text-black">Memuat data pasien...</div>
+            <div class="text-xs font-semibold text-gray-500 mt-1">Mengambil daftar Nama Lengkap pasien dari Data_OHQE_1.</div>
+          </div>`;
+        status.textContent = 'Memuat daftar pasien Kunjungan 1...';
         return;
       }
 
       const availableDirectory = getAvailableK1PatientDirectory();
-
       const filtered = availableDirectory
         .filter(p => {
           const name = normalizePatientName(p.nama);
@@ -5533,52 +5361,49 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
       if (!filtered.length) {
         options.innerHTML = `
-              <div class="px-4 py-5 text-center">
-                <div class="font-black text-black">
-                  ${q ? 'Pasien tidak ditemukan' : 'Semua pasien sudah terdaftar'}
-                </div>
-                <div class="text-xs font-semibold text-gray-500 mt-1">
-                  ${q
-            ? `Tidak ada pasien yang cocok atau pasien tersebut sudah tercatat di ${escapeHtmlSafe(getCurrentFollowUpSheetName())}.`
-            : `Tidak ada pasien Kunjungan 1 yang masih tersedia untuk ${escapeHtmlSafe(getCurrentFollowUpSheetName())}.`
-          }
-                </div>
-              </div>`;
+          <div class="px-4 py-5 text-center">
+            <div class="font-black text-black">
+              ${q ? 'Pasien tidak ditemukan' : 'Semua pasien sudah terdaftar'}
+            </div>
+            <div class="text-xs font-semibold text-gray-500 mt-1">
+              ${q
+                ? `Tidak ada pasien yang cocok atau pasien sudah tercatat di ${escapeHtmlSafe(getCurrentFollowUpSheetName())}.`
+                : `Semua pasien Kunjungan 1 sudah mengisi form ${escapeHtmlSafe(getCurrentFollowUpSheetName())}.`
+              }
+            </div>
+          </div>`;
       } else {
         options.innerHTML = filtered.map((p, idx) => {
           const safeName = escapeHtmlSafe(p.nama);
           const safeId = escapeHtmlSafe(p.id || '');
           const safeRow = escapeHtmlSafe(p.rowNumber || '');
-
           return `
-                  <button
-                    type="button"
-                    class="k1-patient-option"
-                    role="option"
-                    aria-selected="false"
-                    data-k1-row="${safeRow}"
-                    data-k1-name="${safeName}"
-                    data-k1-id="${safeId}"
-                  >
-                    <span class="k1-patient-index">${idx + 1}</span>
-                    <span class="k1-patient-option-main">
-                      <span class="k1-patient-option-name">${safeName}</span>
-                      ${safeId ? `<span class="k1-patient-option-id">ID: ${safeId}</span>` : ''}
-                    </span>
-                  </button>`;
+            <button
+              type="button"
+              class="k1-patient-option"
+              role="option"
+              aria-selected="false"
+              data-k1-row="${safeRow}"
+              data-k1-name="${safeName}"
+              data-k1-id="${safeId}"
+            >
+              <span class="k1-patient-index">${idx + 1}</span>
+              <span class="k1-patient-option-main">
+                <span class="k1-patient-option-name">${safeName}</span>
+                ${safeId ? `<span class="k1-patient-option-id">ID: ${safeId}</span>` : ''}
+              </span>
+            </button>`;
         }).join('');
       }
 
       if (filtered.length) {
         status.textContent = q
-          ? `${filtered.length} pasien cocok dan belum terdaftar di ${getCurrentFollowUpSheetName()}`
-          : `${filtered.length} pasien tersedia untuk ${getCurrentFollowUpSheetName()}`;
+          ? `${filtered.length} pasien cocok (tersedia untuk ${getCurrentFollowUpSheetName()})`
+          : `${filtered.length} pasien tersedia untuk ${getCurrentFollowUpSheetName()}` + (existingVisitPatientNamesCount > 0 ? ` (${existingVisitPatientNamesCount} sudah selesai)` : '');
       } else if (q) {
-        status.textContent =
-          `Pasien tidak ditemukan / sudah terdaftar di ${getCurrentFollowUpSheetName()}.`;
+        status.textContent = `Pasien tidak ditemukan atau sudah tercatat di ${getCurrentFollowUpSheetName()}.`;
       } else {
-        status.textContent =
-          `Semua pasien Kunjungan 1 sudah terdaftar di ${getCurrentFollowUpSheetName()}.`;
+        status.textContent = `Semua pasien Kunjungan 1 sudah tercatat di ${getCurrentFollowUpSheetName()}.`;
       }
 
       options.querySelectorAll('.k1-patient-option').forEach(btn => {
@@ -5592,282 +5417,24 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
       });
     }
 
-    function showK1PatientDropdown(show) {
-      const dd = document.getElementById('k1-patient-dropdown');
-      const input = document.getElementById('nama');
-
-      if (dd) {
-        dd.classList.toggle('hidden', !show);
-        dd.setAttribute('aria-hidden', show ? 'false' : 'true');
-      }
-
-      if (input) {
-        input.setAttribute('aria-expanded', show ? 'true' : 'false');
-      }
-    }
-
-    function buildK1PatientDirectoryFromOHQERows(rows) {
-      if (!Array.isArray(rows)) return [];
-
-      const seen = new Set();
-      const result = [];
-
-      rows.forEach((row, index) => {
-        if (!Array.isArray(row)) return;
-
-        const nama = String(row[K1_OHQE_COL.NAMA_LENGKAP] ?? '').trim();
-        if (!nama) return;
-
-        const id = String(row[K1_OHQE_COL.ID] ?? '').trim();
-        const dedupeKey = `${normalizePatientName(nama)}|${id}`;
-
-        if (seen.has(dedupeKey)) return;
-        seen.add(dedupeKey);
-
-        result.push({
-          nama,
-          id,
-          rowNumber: index + 2,
-          rowData: row,
-          source: 'getAdminData:ohqe'
-        });
-      });
-
-      return result;
-    }
-
-    /*
-     * API RESPONSE HARDENING — K2/K3 DUPLICATE INTEGRATION
-     * Backend contract:
-     *   {status:'success', ...}
-     *   {status:'error', code:'...', message:'...'}
-     *
-     * Penting: duplicate-check bersifat fail-closed. Jika backend
-     * belum mendukung endpoint K2/K3, daftar pasien K1 tidak dibuka.
-     */
-    function extractApiErrorMessage(data, fallbackLabel = 'Endpoint') {
-      if (!data) return `${fallbackLabel}: response kosong.`;
-      if (typeof data === 'string') return `${fallbackLabel}: ${data}`;
-
-      if (typeof data === 'object') {
-        const message =
-          data.message ||
-          data.error ||
-          data.detail ||
-          data.statusMessage ||
-          data.reason;
-
-        if (message) return `${fallbackLabel}: ${String(message)}`;
-
-        if (
-          data.status &&
-          String(data.status).toLowerCase() === 'error'
-        ) {
-          return `${fallbackLabel}: request gagal.`;
-        }
-      }
-
-      return `${fallbackLabel}: request gagal.`;
-    }
-
-    async function fetchJsonEndpoint(url, label = 'Endpoint') {
-      let response;
-
-      try {
-        response = await fetch(
-          url,
-          {
-            redirect: 'follow',
-            cache: 'no-store',
-            headers: { 'Accept': 'application/json' }
-          }
-        );
-      } catch (networkError) {
-        throw new Error(
-          `${label}: koneksi ke Google Apps Script gagal. ` +
-          `${networkError?.message || networkError}`
-        );
-      }
-
-      const text = await response.text();
-
-      if (!response.ok) {
-        const preview = String(text || '').replace(/\s+/g, ' ').slice(0, 220);
-        throw new Error(
-          `${label}: HTTP ${response.status}` +
-          `${preview ? ` — ${preview}` : ''}`
-        );
-      }
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        const preview = String(text || '').replace(/\s+/g, ' ').slice(0, 220);
-        throw new Error(
-          `${label}: respons bukan JSON` +
-          `${preview ? ` — ${preview}` : ''}`
-        );
-      }
-
-      if (
-        data &&
-        typeof data === 'object' &&
-        String(data.status || '').toLowerCase() === 'error'
-      ) {
-        throw new Error(extractApiErrorMessage(data, label));
-      }
-
-      if (data && data.error) {
-        throw new Error(`${label}: ${data.error}`);
-      }
-
-      if (data && data.success === false) {
-        throw new Error(extractApiErrorMessage(data, label));
-      }
-
-      return data;
-    }
-
-    async function loadK1PatientDirectory(force = false) {
-      if (!isFollowUpVisit() || !GAS_URL) return [];
-
-      if (k1PatientDirectoryRequest && !force) {
-        return k1PatientDirectoryRequest;
-      }
-
-      const cacheAge = Date.now() - k1PatientDirectoryLoadedAt;
-
-      if (
-        k1PatientDirectory.length &&
-        existingVisitPatientNamesReady &&
-        cacheAge < 60000 &&
-        !force
-      ) {
-        renderK1PatientOptions(
-          document.getElementById('nama')?.value || ''
-        );
-        return k1PatientDirectory;
-      }
-
-      setK1PatientPickerLoading(true);
-      setK1PatientStatus(
-        'Memuat daftar Nama Lengkap pasien dari Data_OHQE_1...',
-        'loading'
-      );
-
-      k1PatientDirectoryRequest = (async () => {
-        try {
-          let directory = [];
-
-          // 1. Coba endpoint ringan getKunjungan1Patients terlebih dahulu (ringan & ter-cache di backend)
-          try {
-            const fastK1 = await fetchJsonEndpoint(
-              `${GAS_URL}?action=getKunjungan1Patients&_ts=${Date.now()}`,
-              'getKunjungan1Patients'
-            );
-            if (fastK1 && fastK1.status === 'success' && Array.isArray(fastK1.patients) && fastK1.patients.length) {
-              directory = fastK1.patients.map((p, idx) => ({
-                nama: p.nama,
-                id: p.id || `ROW-${p.row || (idx + 2)}`,
-                rowNumber: p.row || (idx + 2),
-                source: 'getKunjungan1Patients'
-              }));
-            }
-          } catch (eFast) {
-            console.warn('[OHQE K1 Directory] Fast endpoint fallback:', eFast);
-          }
-
-          // 2. Fallback ke getAdminData jika fast endpoint belum tersedia
-          if (!directory.length) {
-            const data = await fetchJsonEndpoint(
-              `${GAS_URL}?action=getAdminData&_k1ts=${Date.now()}`,
-              'getAdminData'
-            );
-
-            if (!data || !Array.isArray(data.ohqe)) {
-              throw new Error(
-                'Response getAdminData tidak memiliki array "ohqe".'
-              );
-            }
-
-            directory = buildK1PatientDirectoryFromOHQERows(
-              data.ohqe
-            );
-          }
-
-          if (!directory.length) {
-            throw new Error(
-              'Data_OHQE_1 berhasil diakses tetapi tidak memiliki Nama_Lengkap yang valid.'
-            );
-          }
-
-          k1PatientDirectory = directory;
-          k1PatientDirectoryLoadedAt = Date.now();
-          k1PatientDirectorySource = 'Data_OHQE_1';
-
-          renderK1PatientOptions(
-            document.getElementById('nama')?.value || ''
-          );
-
-          setK1PatientStatus(
-            existingVisitPatientNamesReady
-              ? `${getAvailableK1PatientDirectory().length} pasien tersedia setelah mengecualikan ${existingVisitPatientNamesCount} pasien yang sudah ada di ${getCurrentFollowUpSheetName()}.`
-              : 'Daftar Kunjungan 1 dimuat; sedang memverifikasi data duplikasi...',
-            existingVisitPatientNamesReady ? 'success' : 'loading'
-          );
-
-          return directory;
-
-        } catch (error) {
-          console.error(
-            '[OHQE K2/K3] Gagal memuat directory Data_OHQE_1:',
-            error
-          );
-
-          k1PatientDirectory = [];
-          k1PatientDirectoryLoadedAt = 0;
-          k1PatientDirectorySource = '';
-
-          setK1PatientStatus(
-            `Daftar pasien gagal dimuat: ${error.message || 'Kesalahan koneksi database.'}`,
-            'error'
-          );
-
-          throw error;
-        } finally {
-          setK1PatientPickerLoading(false);
-        }
-      })();
-
-      try {
-        return await k1PatientDirectoryRequest;
-      } finally {
-        k1PatientDirectoryRequest = null;
-      }
-    }
-
     async function prepareK2K3PatientData(force = false) {
       if (!isFollowUpVisit() || !GAS_URL) return false;
 
-      // 0. Cek Cache Session Storage Klien (TTL: 60 detik) untuk transisi 0ms
-      const sessionCacheKey = `OHQE_SESSION_DIR_V3_${kunjunganType}`;
+      const sessionCacheKey = `OHQE_DIR_CACHE_V${kunjunganType}`;
       if (!force) {
         try {
-          const cachedRaw = sessionStorage.getItem(sessionCacheKey);
-          if (cachedRaw) {
-            const cachedData = JSON.parse(cachedRaw);
-            if (cachedData && (Date.now() - cachedData.timestamp < 60000) && Array.isArray(cachedData.patients) && cachedData.patients.length) {
-              k1PatientDirectory = cachedData.patients;
-              k1PatientDirectoryLoadedAt = cachedData.timestamp;
-              existingVisitPatientNames = new Set(cachedData.registeredNames || []);
+          const raw = sessionStorage.getItem(sessionCacheKey);
+          if (raw) {
+            const cached = JSON.parse(raw);
+            if (cached && (Date.now() - cached.timestamp < 60000) && Array.isArray(cached.patients) && cached.patients.length) {
+              k1PatientDirectory = cached.patients;
+              k1PatientDirectoryLoadedAt = cached.timestamp;
+              existingVisitPatientNames = new Set(cached.registeredNames || []);
               existingVisitPatientNamesCount = existingVisitPatientNames.size;
-              existingVisitPatientNamesLoadedAt = cachedData.timestamp;
-              existingVisitPatientNamesReady = true;
               renderK1PatientOptions(document.getElementById('nama')?.value || '');
-              const available = getAvailableK1PatientDirectory();
+              const avail = getAvailableK1PatientDirectory();
               setK1PatientStatus(
-                `${available.length} pasien tersedia untuk Kunjungan ${kunjunganType}; ${existingVisitPatientNamesCount} pasien yang sudah ada di ${getCurrentFollowUpSheetName()} otomatis disembunyikan.`,
+                `${avail.length} pasien tersedia untuk ${getCurrentFollowUpSheetName()}` + (existingVisitPatientNamesCount > 0 ? ` (${existingVisitPatientNamesCount} disembunyikan karena sudah mengisi)` : ''),
                 'success'
               );
               return true;
@@ -5876,41 +5443,99 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
         } catch (e) {}
       }
 
+      if (k1PatientDirectoryRequest && !force) {
+        return k1PatientDirectoryRequest;
+      }
+
       setK1PatientPickerLoading(true);
-      setK1PatientStatus(
-        `Memeriksa data pasien untuk ${getCurrentFollowUpSheetName()}...`,
-        'loading'
-      );
+      setK1PatientStatus(`Memuat data pasien untuk ${getCurrentFollowUpSheetName()}...`, 'loading');
 
-      try {
-        // 1. PRIMARY HIGH-SPEED: Endpoint Terpadu getKunjunganDirectory (1 request kilat)
-        let unifiedSuccess = false;
+      k1PatientDirectoryRequest = (async () => {
         try {
-          const uData = await fetchJsonEndpoint(
-            `${GAS_URL}?action=getKunjunganDirectory&visit=${kunjunganType}&_ts=${Date.now()}`,
-            'getKunjunganDirectory'
-          );
+          let k1List = [];
+          let registeredList = [];
 
-          if (uData && uData.status === 'success' && Array.isArray(uData.patients)) {
-            k1PatientDirectory = uData.patients.map((p, idx) => ({
-              nama: p.nama,
-              id: p.id || `ROW-${p.row || (idx + 2)}`,
-              rowNumber: p.row || (idx + 2),
-              source: 'getKunjunganDirectory'
-            }));
+          // 1. Coba Unified endpoint getKunjunganDirectory
+          try {
+            const uData = await fetchJsonEndpoint(
+              `${GAS_URL}?action=getKunjunganDirectory&visit=${kunjunganType}&_ts=${Date.now()}`,
+              'getKunjunganDirectory'
+            );
+            if (uData && uData.status === 'success' && Array.isArray(uData.patients) && uData.patients.length) {
+              k1List = uData.patients.map((p, idx) => ({
+                nama: p.nama,
+                id: p.id || `ROW-${p.row || (idx + 2)}`,
+                rowNumber: p.row || (idx + 2),
+                rowData: null,
+                biodata: null
+              }));
+              const reg = uData.registeredNames || (Array.isArray(uData.registeredPatients) ? uData.registeredPatients.map(x => x.nama) : []);
+              registeredList = Array.isArray(reg) ? reg : [];
+            }
+          } catch (uErr) {
+            console.warn('[OHQE K2/K3] Unified endpoint notice:', uErr?.message || uErr);
+          }
+
+          // 2. Fallback komprehensif getAdminData
+          if (!k1List.length) {
+            try {
+              const adminData = await fetchJsonEndpoint(
+                `${GAS_URL}?action=getAdminData&_ts=${Date.now()}`,
+                'getAdminData'
+              );
+
+              if (adminData && Array.isArray(adminData.ohqe) && adminData.ohqe.length) {
+                k1List = buildK1PatientDirectoryFromOHQERows(adminData.ohqe);
+              }
+
+              // Ambil daftar yang sudah pernah tercatat di Kunjungan ini (ohqe2 atau ohqe3)
+              const visitKey = kunjunganType === 2 ? 'ohqe2' : 'ohqe3';
+              const visitRows = adminData ? (adminData[visitKey] || adminData[`data_ohqe_${kunjunganType}`] || []) : [];
+              if (Array.isArray(visitRows)) {
+                visitRows.forEach(row => {
+                  const name = extractPatientNameFromUnknownRow(row);
+                  if (name) registeredList.push(name);
+                });
+              }
+            } catch (aErr) {
+              console.warn('[OHQE K2/K3] getAdminData fallback notice:', aErr?.message || aErr);
+            }
+          }
+
+          // 3. Fallback jika K1 belum terisi, coba getKunjungan1Patients
+          if (!k1List.length) {
+            try {
+              const fastK1 = await fetchJsonEndpoint(
+                `${GAS_URL}?action=getKunjungan1Patients&_ts=${Date.now()}`,
+                'getKunjungan1Patients'
+              );
+              if (fastK1 && fastK1.status === 'success' && Array.isArray(fastK1.patients) && fastK1.patients.length) {
+                k1List = fastK1.patients.map((p, idx) => ({
+                  nama: p.nama,
+                  id: p.id || `ROW-${p.row || (idx + 2)}`,
+                  rowNumber: p.row || (idx + 2),
+                  rowData: null,
+                  biodata: null
+                }));
+              }
+            } catch (fErr) {
+              console.warn('[OHQE K2/K3] getKunjungan1Patients fallback notice:', fErr?.message || fErr);
+            }
+          }
+
+          // RENDER LANGSUNG DATA PASIEN K1 (DISPLAY FIRST!)
+          if (k1List.length) {
+            k1PatientDirectory = k1List;
             k1PatientDirectoryLoadedAt = Date.now();
+          }
 
-            const regNames = Array.isArray(uData.registeredNames)
-              ? uData.registeredNames
-              : (Array.isArray(uData.registeredPatients) ? uData.registeredPatients.map(p => p.nama) : []);
+          // Set daftar pasien yang sudah ada di visit ini (deduplikasi)
+          existingVisitPatientNames = new Set(registeredList.map(normalizePatientName).filter(Boolean));
+          existingVisitPatientNamesCount = existingVisitPatientNames.size;
+          existingVisitPatientNamesReady = true;
 
-            existingVisitPatientNames = new Set(regNames.map(normalizePatientName).filter(Boolean));
-            existingVisitPatientNamesCount = existingVisitPatientNames.size;
-            existingVisitPatientNamesLoadedAt = Date.now();
-            existingVisitPatientNamesReady = true;
-            existingVisitPatientNamesSource = `${getCurrentFollowUpSheetName()} via getKunjunganDirectory`;
-            existingVisitDuplicateCheckError = '';
-
+          // Simpan session cache
+          if (k1PatientDirectory.length) {
             try {
               sessionStorage.setItem(sessionCacheKey, JSON.stringify({
                 patients: k1PatientDirectory,
@@ -5918,75 +5543,46 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
                 timestamp: Date.now()
               }));
             } catch (e) {}
-
-            unifiedSuccess = true;
           }
-        } catch (uErr) {
-          console.warn('[OHQE K2/K3] Unified directory endpoint fallback:', uErr);
-        }
 
-        // 2. FALLBACK PARALEL: Ambil K1 Directory & Sheet Visit secara simultan (bukan sequential)
-        if (!unifiedSuccess) {
-          await Promise.all([
-            loadK1PatientDirectory(force),
-            loadExistingVisitPatientNames(force)
-          ]);
-        }
+          // Tampilkan opsi ke dropdown
+          renderK1PatientOptions(document.getElementById('nama')?.value || '');
 
-        renderK1PatientOptions(
-          document.getElementById('nama')?.value || ''
-        );
-
-        if (existingVisitPatientNamesReady) {
-          const available = getAvailableK1PatientDirectory();
+          const avail = getAvailableK1PatientDirectory();
           setK1PatientStatus(
-            `${available.length} pasien tersedia untuk Kunjungan ${kunjunganType}; ${existingVisitPatientNamesCount} pasien yang sudah ada di ${getCurrentFollowUpSheetName()} otomatis disembunyikan.`,
+            `${avail.length} pasien Kunjungan 1 siap dipilih` + (existingVisitPatientNamesCount > 0 ? ` (${existingVisitPatientNamesCount} sudah tercatat di ${getCurrentFollowUpSheetName()} otomatis disembunyikan)` : ''),
             'success'
           );
+
+          return true;
+        } catch (error) {
+          console.error('[OHQE K2/K3] prepareK2K3PatientData gagal:', error);
+          setK1PatientStatus(error.message || 'Gagal memuat data pasien.', 'error');
+          return false;
+        } finally {
+          setK1PatientPickerLoading(false);
+          k1PatientDirectoryRequest = null;
         }
+      })();
 
-        return existingVisitPatientNamesReady;
-
-      } catch (error) {
-        existingVisitPatientNamesReady = false;
-        showK1PatientDropdown(true);
-        renderK1PatientOptions('');
-        setK1PatientStatus(
-          error.message || 'Pemeriksaan duplicate pasien gagal.',
-          'error'
-        );
-        return false;
-      } finally {
-        setK1PatientPickerLoading(false);
-      }
+      return k1PatientDirectoryRequest;
     }
 
     function getK1PatientRecordByRow(rowNumber) {
       const targetRow = Number(rowNumber);
-
-      return k1PatientDirectory.find(
-        p => Number(p.rowNumber) === targetRow
-      ) || null;
+      return k1PatientDirectory.find(p => Number(p.rowNumber) === targetRow) || null;
     }
 
     function getK1PatientRecordById(patientId) {
       const target = String(patientId || '').trim();
-
       if (!target) return null;
-
-      return k1PatientDirectory.find(
-        p => String(p.id || '').trim() === target
-      ) || null;
+      return k1PatientDirectory.find(p => String(p.id || '').trim() === target) || null;
     }
 
     function getK1PatientRecordByName(name) {
       const target = normalizePatientName(name);
-
       if (!target) return null;
-
-      return k1PatientDirectory.find(
-        p => normalizePatientName(p.nama) === target
-      ) || null;
+      return k1PatientDirectory.find(p => normalizePatientName(p.nama) === target) || null;
     }
 
     function applyK1PatientRowData(record) {
@@ -6040,41 +5636,22 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
     }
 
     function finalizeK1PatientSelection(record, displayName, patientId) {
-      if (!record) {
-        throw new Error(
-          `Data pasien "${displayName || patientId || ''}" tidak ditemukan di Data_OHQE_1.`
-        );
-      }
-
+      if (!record) return false;
       const selectedName = String(record.nama || displayName || '').trim();
 
-      // HARD GUARD #1:
-      // Jangan izinkan memilih pasien yang sudah ada pada sheet visit aktif.
-      if (!existingVisitPatientNamesReady) {
-        throw new Error(
-          `Sistem belum selesai memverifikasi ${getCurrentFollowUpSheetName()}. Pilihan pasien ditolak demi mencegah data double.`
-        );
-      }
-
       if (isPatientAlreadyRegisteredInCurrentVisit(selectedName)) {
-        throw new Error(
-          `Pasien "${selectedName}" sudah tercatat pada ${getCurrentFollowUpSheetName()}. Pasien tersebut otomatis tidak dapat dipilih kembali.`
+        showCustomAlert(
+          `Pasien "${selectedName}" sudah tercatat pada ${getCurrentFollowUpSheetName()}. Pasien tersebut tidak dapat dipilih kembali.`,
+          'Duplikasi Pasien'
         );
+        return false;
       }
 
-      const applied = applyK1PatientRowData(record);
-
-      if (!applied) {
-        throw new Error(
-          'Data biodata pasien ditemukan tetapi struktur baris Data_OHQE_1 tidak lengkap.'
-        );
-      }
+      applyK1PatientRowData(record);
 
       k1PatientSelectedRecord = record;
       k1PatientSelectedRow = Number(record.rowNumber) || null;
-      k1PatientSelectedId = String(
-        record.id || patientId || ''
-      ).trim() || null;
+      k1PatientSelectedId = String(record.id || patientId || '').trim() || null;
 
       lockFollowUpBiodata();
 
@@ -6085,8 +5662,7 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
       if (picker) picker.classList.add('patient-selected');
       if (lock) {
         lock.classList.remove('hidden');
-        lock.textContent =
-          `✓ Pasien terpilih dari Data_OHQE_1 — ${record.nama}`;
+        lock.textContent = `✓ Pasien terpilih dari Data_OHQE_1 — ${record.nama}`;
       }
 
       if (input) {
@@ -6099,33 +5675,17 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
       showK1PatientDropdown(false);
       setK1PatientStatus(
-        `Pasien "${record.nama}" berhasil dipilih. Tidak ditemukan duplikasi Nama_Lengkap di ${getCurrentFollowUpSheetName()}.`,
+        `Pasien "${record.nama}" berhasil dipilih dari Data_OHQE_1.`,
         'success'
       );
 
       k1PatientSelected = true;
-
       return true;
     }
 
     async function selectK1Patient(rowNumber, displayName, patientId) {
       if (!isFollowUpVisit() || k1PatientSelected) return;
-
       showK1PatientDropdown(false);
-
-      if (!existingVisitPatientNamesReady) {
-        setK1PatientStatus(
-          `Memverifikasi ${getCurrentFollowUpSheetName()} sebelum pasien dapat dipilih...`,
-          'loading'
-        );
-
-        const ready = await prepareK2K3PatientData(true);
-
-        if (!ready) {
-          showK1PatientDropdown(true);
-          return;
-        }
-      }
 
       const record =
         getK1PatientRecordByRow(rowNumber) ||
@@ -6133,93 +5693,42 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
         getK1PatientRecordByName(displayName);
 
       if (!record) {
-        setK1PatientStatus(
-          'Data pasien belum tersedia. Memuat ulang Data_OHQE_1...',
-          'loading'
-        );
-
-        try {
-          await prepareK2K3PatientData(true);
-        } catch (error) {
-          console.error(
-            '[OHQE K2/K3] Reload Data pasien gagal:',
-            error
-          );
-          showCustomAlert(
-            'Gagal memuat daftar pasien. Silakan refresh halaman dan coba kembali.',
-            'Database Pasien'
-          );
-          return;
-        }
-      }
-
-      const finalRecord =
-        getK1PatientRecordByRow(rowNumber) ||
-        getK1PatientRecordById(patientId) ||
-        getK1PatientRecordByName(displayName);
-
-      if (!finalRecord) {
         showCustomAlert('Data pasien tidak ditemukan.', 'Error');
         return;
       }
 
-      // Jika biodata lengkap belum terunduh, ambil detail untuk 1 pasien terpilih (cepat, ~200-300ms)
-      if (!finalRecord.rowData && !finalRecord.biodata && (!finalRecord.usia && !finalRecord.diagnosis)) {
-        setK1PatientStatus(`Mengambil data biodata ${finalRecord.nama}...`, 'loading');
+      if (isPatientAlreadyRegisteredInCurrentVisit(record.nama)) {
+        showCustomAlert(
+          `Pasien "${record.nama}" sudah pernah tercatat di ${getCurrentFollowUpSheetName()}. Silakan pilih pasien lain.`,
+          'Duplikasi Pasien'
+        );
+        return;
+      }
+
+      if (!record.rowData && !record.biodata && (!record.usia && !record.diagnosis)) {
+        setK1PatientStatus(`Mengambil data biodata ${record.nama}...`, 'loading');
         try {
           const detail = await fetchJsonEndpoint(
-            `${GAS_URL}?action=getKunjungan1Patient&id=${encodeURIComponent(finalRecord.id || '')}&row=${encodeURIComponent(finalRecord.rowNumber || '')}&nama=${encodeURIComponent(finalRecord.nama || '')}`,
+            `${GAS_URL}?action=getKunjungan1Patient&id=${encodeURIComponent(record.id || '')}&row=${encodeURIComponent(record.rowNumber || '')}&nama=${encodeURIComponent(record.nama || '')}`,
             'getKunjungan1Patient'
           );
           if (detail && detail.status === 'success' && detail.found) {
-            finalRecord.biodata = detail;
+            record.biodata = detail;
           } else {
             const pRes = await fetchJsonEndpoint(
-              `${GAS_URL}?action=getPasienData&nama=${encodeURIComponent(finalRecord.nama)}`,
+              `${GAS_URL}?action=getPasienData&nama=${encodeURIComponent(record.nama)}`,
               'getPasienData'
             );
             if (pRes && pRes.found) {
-              finalRecord.biodata = Object.assign({ nama: finalRecord.nama }, pRes);
+              record.biodata = Object.assign({ nama: record.nama }, pRes);
             }
           }
         } catch (detailErr) {
-          console.warn('[OHQE K2/K3] Gagal memuat detail pasien:', detailErr);
+          console.warn('[OHQE K2/K3] Fallback biodata detail:', detailErr);
         }
       }
 
-      try {
-        finalizeK1PatientSelection(
-          finalRecord,
-          displayName,
-          patientId
-        );
-
-        showCustomAlert(
-          `Data pasien "${finalRecord.nama}" berhasil dimuat. Pasien yang sudah tercatat di ${getCurrentFollowUpSheetName()} otomatis tidak tersedia untuk dipilih.`,
-          'Pasien Dipilih'
-        );
-
-      } catch (error) {
-        console.error(
-          '[OHQE K2/K3] Gagal menerapkan data pasien:',
-          error
-        );
-
-        setK1PatientStatus(
-          error.message || 'Data pasien tidak dapat diterapkan.',
-          'error'
-        );
-
-        showCustomAlert(
-          error.message || 'Data pasien tidak dapat diterapkan.',
-          'Database Pasien'
-        );
-
-        showK1PatientDropdown(true);
-        renderK1PatientOptions(
-          document.getElementById('nama')?.value || ''
-        );
-      }
+      finalizeK1PatientSelection(record, displayName, patientId);
     }
 
     function resetK1PatientPicker() {
@@ -6245,18 +5754,11 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
       unlockFollowUpBiodata();
 
-      if (existingVisitPatientNamesReady) {
-        const availableCount = getAvailableK1PatientDirectory().length;
-        setK1PatientStatus(
-          `${availableCount} pasien tersedia; ${existingVisitPatientNamesCount} pasien yang sudah tercatat di ${getCurrentFollowUpSheetName()} disembunyikan.`,
-          'info'
-        );
-      } else {
-        setK1PatientStatus(
-          'Menyiapkan pemeriksaan duplicate pasien...',
-          'loading'
-        );
-      }
+      const availableCount = getAvailableK1PatientDirectory().length;
+      setK1PatientStatus(
+        `${availableCount} pasien tersedia; ${existingVisitPatientNamesCount} pasien yang sudah tercatat di ${getCurrentFollowUpSheetName()} disembunyikan.`,
+        'info'
+      );
 
       renderK1PatientOptions('');
     }
@@ -6266,57 +5768,36 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
       const input = document.getElementById('nama');
       const picker = document.getElementById('k1-patient-picker');
-
       if (!input || !picker) return;
 
       if (input.dataset.k1PickerReady === '1') return;
-
       input.dataset.k1PickerReady = '1';
+
       input.placeholder = 'Cari nama pasien Kunjungan 1...';
-      input.setAttribute(
-        'aria-label',
-        'Cari Nama Lengkap Pasien dari Data_OHQE_1 yang belum tercatat pada kunjungan ini'
-      );
+      input.setAttribute('aria-label', 'Cari Nama Lengkap Pasien dari Data_OHQE_1');
       input.setAttribute('autocomplete', 'off');
       input.setAttribute('role', 'combobox');
       input.setAttribute('aria-autocomplete', 'list');
       input.setAttribute('aria-controls', 'k1-patient-dropdown');
       input.setAttribute('aria-expanded', 'false');
 
-      input.addEventListener('focus', async () => {
+      input.addEventListener('focus', () => {
         if (k1PatientSelected) return;
-
         showK1PatientDropdown(true);
-
-        if (
-          !k1PatientDirectory.length ||
-          !existingVisitPatientNamesReady
-        ) {
-          await prepareK2K3PatientData();
+        renderK1PatientOptions(input.value);
+        if (!k1PatientDirectory.length) {
+          prepareK2K3PatientData();
         }
+      });
 
+      // Pencarian in-memory murni: 0ms latency, tanpa request jaringan berulang!
+      input.addEventListener('input', () => {
+        if (k1PatientSelected) return;
+        showK1PatientDropdown(true);
         renderK1PatientOptions(input.value);
       });
 
-      input.addEventListener('input', () => {
-        if (k1PatientSelected) return;
-
-        clearTimeout(k1PatientSearchTimer);
-
-        k1PatientSearchTimer = setTimeout(async () => {
-          if (
-            !k1PatientDirectory.length ||
-            !existingVisitPatientNamesReady
-          ) {
-            await prepareK2K3PatientData();
-          }
-
-          renderK1PatientOptions(input.value);
-          showK1PatientDropdown(true);
-        }, 80);
-      });
-
-      input.addEventListener('keydown', async (e) => {
+      input.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           showK1PatientDropdown(false);
           return;
@@ -6324,53 +5805,19 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
 
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-
-          if (
-            !k1PatientDirectory.length ||
-            !existingVisitPatientNamesReady
-          ) {
-            const ready = await prepareK2K3PatientData();
-            if (!ready) return;
-          }
-
           showK1PatientDropdown(true);
-
-          const firstOption =
-            document.querySelector('.k1-patient-option');
-
+          const firstOption = document.querySelector('.k1-patient-option');
           if (firstOption) firstOption.focus();
-
           return;
         }
 
         if (e.key === 'Enter') {
-          if (!existingVisitPatientNamesReady) {
-            e.preventDefault();
-
-            const ready = await prepareK2K3PatientData();
-            if (!ready) return;
-          }
-
-          const exact = getK1PatientRecordByName(input.value);
-
-          if (
-            exact &&
-            !isPatientAlreadyRegisteredInCurrentVisit(exact.nama)
-          ) {
-            e.preventDefault();
-            selectK1Patient(
-              exact.rowNumber,
-              exact.nama,
-              exact.id
-            );
-          } else if (exact) {
-            e.preventDefault();
-            setK1PatientStatus(
-              `Pasien "${exact.nama}" sudah terdaftar di ${getCurrentFollowUpSheetName()} dan tidak dapat dipilih lagi.`,
-              'error'
-            );
-            showK1PatientDropdown(true);
-            renderK1PatientOptions(input.value);
+          e.preventDefault();
+          const available = getAvailableK1PatientDirectory();
+          const q = normalizePatientName(input.value);
+          const matched = available.find(p => normalizePatientName(p.nama) === q) || available[0];
+          if (matched) {
+            selectK1Patient(matched.rowNumber, matched.nama, matched.id);
           }
         }
       });
@@ -6385,23 +5832,32 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
         { passive: true }
       );
 
-      // Prefetch K1 + duplicate-check hanya pada K2/K3.
-      prepareK2K3PatientData().catch(() => { });
+      // Prefetch data pasien Kunjungan 1
+      prepareK2K3PatientData().catch(() => {});
     }
 
     function setupPatientIdentityUI() {
       const picker = document.getElementById('k1-patient-picker');
       const note = document.getElementById('k1-patient-source-note');
+      const input = document.getElementById('nama');
+      const searchIcon = document.getElementById('k1-patient-search-icon');
 
       if (isFollowUpVisit()) {
-        if (picker) picker.classList.remove('hidden');
         if (note) note.classList.remove('hidden');
-
+        if (searchIcon) searchIcon.classList.remove('hidden');
         initK1PatientPicker();
         lockFollowUpBiodata();
       } else {
-        if (picker) picker.classList.remove('hidden');
         if (note) note.classList.add('hidden');
+        if (searchIcon) searchIcon.classList.add('hidden');
+        showK1PatientDropdown(false);
+        unlockFollowUpBiodata();
+        if (input) {
+          input.readOnly = false;
+          input.removeAttribute('tabindex');
+          input.placeholder = 'Nama sesuai KTP...';
+          input.removeAttribute('aria-readonly');
+        }
       }
     }
 
@@ -6684,14 +6140,6 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
       // Jangan kirim data jika Nama_Lengkap yang sedang dipilih ternyata
       // sudah ada pada sheet kunjungan aktif.
       if (isFollowUpVisit()) {
-        if (!existingVisitPatientNamesReady) {
-          showCustomAlert(
-            `Sistem belum dapat memverifikasi ${getCurrentFollowUpSheetName()}. Data tidak dikirim untuk mencegah duplikasi.`,
-            'Verifikasi Duplicate'
-          );
-          return;
-        }
-
         const currentName = document.getElementById('nama')?.value || '';
         if (isPatientAlreadyRegisteredInCurrentVisit(currentName)) {
           k1PatientSelected = false;
@@ -6762,6 +6210,18 @@ K2/K3 CROSS-VISIT DUPLICATE PREVENTION
           }
 
           if (res.status === 'success') {
+            if (isFollowUpVisit()) {
+              const submittedName = document.getElementById('nama')?.value || '';
+              const norm = normalizePatientName(submittedName);
+              if (norm) {
+                existingVisitPatientNames.add(norm);
+                existingVisitPatientNamesCount = existingVisitPatientNames.size;
+              }
+              try {
+                sessionStorage.removeItem(`OHQE_DIR_CACHE_V${kunjunganType}`);
+                sessionStorage.removeItem(`OHQE_SESSION_DIR_V3_${kunjunganType}`);
+              } catch (e) {}
+            }
             currentStepIndex = activeSteps.length;
             updateUI();
             return;
